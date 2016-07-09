@@ -22,7 +22,7 @@
 from numpy import zeros
 
 
-class RingBuffer():
+class RingBuffer:
 
     def __init__(self, logger):
         # buffer length is dynamic based on the needs
