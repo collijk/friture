@@ -27,18 +27,21 @@ FRAMES_PER_BUFFER = 1024
 class AudioBuffer(QtCore.QObject):
     new_data_available = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, logger):
+    def __init__(self, logger, buffer_type = "RingBuffer"):
         super().__init__()
 
-        self.ringbuffer = RingBuffer(logger)
+        if buffer_type == "RingBuffer":
+            self.buffer = RingBuffer(logger)
+        else:  # Put a linear buffer here
+            pass
         self.newpoints = 0
         self.lastDataTime = 0.
 
     def data(self, length):
-        return self.ringbuffer.data(length)
+        return self.buffer.data(length)
 
     def data_older(self, length, delay_samples):
-        return self.ringbuffer.data_older(length, delay_samples)
+        return self.buffer.data_older(length, delay_samples)
 
     def newdata(self):
         return self.data(self.newpoints)
@@ -47,10 +50,10 @@ class AudioBuffer(QtCore.QObject):
         self.newpoints = newpoints
 
     def data_indexed(self, start, length):
-        return self.ringbuffer.data_indexed(start, length)
+        return self.buffer.data_indexed(start, length)
 
     def handle_new_data(self, floatdata, input_time, status):
-        self.ringbuffer.push(floatdata)
+        self.buffer.push(floatdata)
         self.set_newdata(floatdata.shape[1])
         self.new_data_available.emit(floatdata)
         self.lastDataTime = input_time
