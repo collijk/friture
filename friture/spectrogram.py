@@ -140,7 +140,7 @@ class Spectrogram_Widget(QtWidgets.QWidget):
                 floatdata = floatdata[0, :]
 
                 # FFT transform
-                spn[:, i] = self.proc.analyzelive(floatdata)
+                spn[:, i] = self.proc.analyzelive(floatdata, "Power")
 
                 self.old_index += int(needed)
 

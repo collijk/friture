@@ -31,6 +31,7 @@ DEFAULT_WEIGHTING = 1  # A
 DEFAULT_SHOW_FREQ_LABELS = True
 DEFAULT_RESPONSE_TIME = 0.025
 DEFAULT_RESPONSE_TIME_INDEX = 0
+DEFAULT_SPECTRUM_TYPE = 2
 
 
 class Spectrum_Settings_Dialog(QtWidgets.QDialog):
@@ -122,6 +123,14 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
         self.checkBox_showFreqLabels.setObjectName("showFreqLabels")
         self.checkBox_showFreqLabels.setChecked(DEFAULT_SHOW_FREQ_LABELS)
 
+        self.comboBox_spectrum_type = QtWidgets.QComboBox(self)
+        self.comboBox_spectrum_type.setObjectName("spectrum_type")
+        self.comboBox_spectrum_type.addItem("Real")
+        self.comboBox_spectrum_type.addItem("Imaginary")
+        self.comboBox_spectrum_type.addItem("Power")
+        self.comboBox_spectrum_type.setCurrentIndex(DEFAULT_SPECTRUM_TYPE)
+
+
         self.formLayout.addRow("Measurement type:", self.comboBox_dual_channel)
         self.formLayout.addRow("FFT Size:", self.comboBox_fftsize)
         self.formLayout.addRow("Frequency scale:", self.comboBox_freqscale)
@@ -132,6 +141,7 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
         self.formLayout.addRow("Middle-ear weighting:", self.comboBox_weighting)
         self.formLayout.addRow("Response time:", self.comboBox_response_time)
         self.formLayout.addRow("Display max-frequency label:", self.checkBox_showFreqLabels)
+        self.formLayout.addRow("Spectrum Type:", self.comboBox_spectrum_type)
 
         self.setLayout(self.formLayout)
 
@@ -145,6 +155,7 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
         self.comboBox_weighting.currentIndexChanged.connect(self.parent().setweighting)
         self.comboBox_response_time.currentIndexChanged.connect(self.responsetimechanged)
         self.checkBox_showFreqLabels.toggled.connect(self.parent().setShowFreqLabel)
+        self.comboBox_spectrum_type.currentIndexChanged.connect(self.spectrum_type_changed)
 
     # slot
     def dualchannelchanged(self, index):
@@ -184,6 +195,15 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
             response_time = 1.
         self.logger.push("responsetimechanged slot %d %d" % (index, response_time))
         self.parent().setresponsetime(response_time)
+
+    #slot
+    def spectrum_type_changed(self, index):
+        if index == 0:
+            self.parent().set_spectrum_type("Real")
+        elif index == 1:
+            self.parent().set_spectrum_type("Imaginary")
+        elif index == 2:
+            self.parent().set_spectrum_type("Power")
 
     # method
     def saveState(self, settings):

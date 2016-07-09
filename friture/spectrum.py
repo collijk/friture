@@ -18,7 +18,7 @@
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtWidgets
-from numpy import log10, argmax, zeros, arange, floor, float64
+from numpy import log10, argmax, zeros, arange, floor, float64, real, imag
 from friture.audioproc import audioproc  # audio processing class
 from friture.spectrum_settings import (Spectrum_Settings_Dialog,  # settings dialog
                                        DEFAULT_FFT_SIZE,
@@ -65,6 +65,7 @@ class Spectrum_Widget(QtWidgets.QWidget):
         self.weighting = DEFAULT_WEIGHTING
         self.dual_channels = False
         self.response_time = DEFAULT_RESPONSE_TIME
+        self.spectrum_type = "Power"  # DEFAULT_SPECTRUM_TYPE = 2
 
         self.update_weighting()
         self.freq = self.proc.get_freq_scale()
@@ -125,11 +126,11 @@ class Spectrum_Widget(QtWidgets.QWidget):
 
                 # first channel
                 # FFT transform
-                sp1n[:, i] = self.proc.analyzelive(floatdata[0, :])
+                sp1n[:, i] = self.proc.analyzelive(floatdata[0, :], self.spectrum_type)
 
                 if self.dual_channels and floatdata.shape[0] > 1:
                     # second channel for comparison
-                    sp2n[:, i] = self.proc.analyzelive(floatdata[1, :])
+                    sp2n[:, i] = self.proc.analyzelive(floatdata[1, :], self.spectrum_type)
 
                 self.old_index += int(needed)
 
@@ -223,6 +224,9 @@ class Spectrum_Widget(QtWidgets.QWidget):
         self.update_weighting()
         # reset kernel and parameters for the smoothing filter
         self.setresponsetime(self.response_time)
+
+    def set_spectrum_type(self, type):
+        self.spectrum_type = type
 
     def setmin(self, value):
         self.spec_min = value

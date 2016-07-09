@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
-from numpy import linspace, log2, floor, log10, cos, arange, pi
+from numpy import linspace, log2, floor, log10, cos, arange, pi, real, imag
 from numpy.fft import rfft
 from friture.audiobackend import SAMPLING_RATE
 
@@ -49,7 +49,7 @@ class audioproc():
         # store the logger instance
         self.logger = logger
 
-    def analyzelive(self, samples):
+    def analyzelive(self, samples, spectrum_type):
         samples = self.decimate(samples)
 
         # uncomment the following to disable the decimation altogether
@@ -57,9 +57,13 @@ class audioproc():
 
         # FFT for a linear transformation in frequency scale
         fft = rfft(samples * self.window)
-        spectrum = self.norm_square(fft)
-
-        return spectrum
+        if spectrum_type == "Real":
+            return real(fft)**2 / self.size_sq
+        elif spectrum_type == "Imaginary":
+            return imag(fft)**2 / self.size_sq
+        else:  # spectrum_type == "Power"
+            spectrum = self.norm_square(fft)
+            return spectrum
 
     def norm_square(self, fft):
         # return (fft.real**2 + fft.imag**2) / self.size_sq
