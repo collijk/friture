@@ -34,7 +34,6 @@ class AudioBackend(QtCore.QObject):
 
     def callback(self, in_data, frame_count, time_info, status):
         # do the minimum from here to prevent overflows, just pass the data to the main thread
-
         input_time = time_info['input_buffer_adc_time']
 
         # some API drivers in PortAudio do not return a valid time, so fallback to the current stream time
