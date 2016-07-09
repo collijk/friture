@@ -6,6 +6,8 @@
 *.wav
 *.exe
 *.zip
+*.c
 build/*
 dist/*
 doc/_build/*
+.idea/*

@@ -64,8 +64,8 @@ class DockManager(QtCore.QObject):
     def restoreState(self, settings):
         if settings.contains("dockNames"):
             docknames = settings.value("dockNames", [])
-            # list of docks
-            self.docks = [Dock(self.parent(), self.logger, name) for name in docknames]
+            if docknames:
+                self.docks = [Dock(self.parent(), self.logger, name) for name in docknames]
             for dock in self.docks:
                 settings.beginGroup(dock.objectName())
                 dock.restoreState(settings)
