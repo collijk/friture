@@ -12,3 +12,4 @@ dist/*
 doc/_build/*
 .idea/*
 doc/build/*
+doc/build/.*
