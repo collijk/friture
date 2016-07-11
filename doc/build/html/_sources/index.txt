@@ -28,7 +28,6 @@ Contents:
    build_from_source
    changelog
    license
-   profiling
 
 
 

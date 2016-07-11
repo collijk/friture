@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Instructions to get Friture running &mdash; friture 0.19.0.8 documentation</title>
+    
+    <link rel="stylesheet" href="_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.19.0.8',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="top" title="friture 0.19.0.8 documentation" href="index.html" />
+    <link rel="next" title="Friture Changelog" href="changelog.html" />
+    <link rel="prev" title="Friture" href="index.html" />
+   
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head>
+  <body role="document">  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="instructions-to-get-friture-running">
+<h1>Instructions to get Friture running<a class="headerlink" href="#instructions-to-get-friture-running" title="Permalink to this headline">¶</a></h1>
+<p>Most of Friture code-base is written in Python. As such, it is
+interpreted and does not need compilation, apart from the special cases
+below.</p>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<p>Python3 (3.4 or later recommended)
+PyQt4
+PyAudio
+PyOpenGL
+Numpy
+Scipy
+Cython</p>
+</div>
+<div class="section" id="ui-and-resource-files">
+<h2>UI and resource files<a class="headerlink" href="#ui-and-resource-files" title="Permalink to this headline">¶</a></h2>
+<p>If friture.ui or resource.qrc are changed, the corresponding python
+files need to be rebuilt:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>pyuic4 ui/friture.ui --from-imports &gt; friture/ui_friture.py
+    pyuic4 ui/settings.ui --from-imports &gt; friture/ui_settings.py
+    pyrcc4 resources/friture.qrc -o friture/friture_rc.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="cython-extension">
+<h2>Cython extension<a class="headerlink" href="#cython-extension" title="Permalink to this headline">¶</a></h2>
+<p>Friture uses Cython extensions where computing is a bottleneck. These
+extensions can be built automatically with:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>python setup.py build_ext --inplace
+</pre></div>
+</div>
+<p>On Windows, if you use mingw:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>python setup.py build_ext --inplace --compiler=mingw32)
+</pre></div>
+</div>
+<p>Alternatively, to build the &#8216;exp_smoothing_conv&#8217; extension manually on
+Linux, you can do:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>cython exp_smoothing_conv.pyx
+gcc -shared -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -I/usr/include/python2.6 -o exp_smoothing_conv.so exp_smoothing_conv.c
+</pre></div>
+</div>
+</div>
+<div class="section" id="filters-parameters">
+<h2>Filters parameters<a class="headerlink" href="#filters-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The filters parameters are precomputed in a file called
+&#8216;generated_filters.py&#8217;. To rebuild this file, run the script named
+&#8216;filter_design.py&#8217;.</p>
+</div>
+<div class="section" id="windows-executable">
+<h2>Windows executable<a class="headerlink" href="#windows-executable" title="Permalink to this headline">¶</a></h2>
+<p>To build an executable for Windows, with the python interpreter
+included, run:</p>
+<div class="highlight-python"><div class="highlight"><pre><span></span>python setup.py py2exe
+</pre></div>
+</div>
+<p>You get a &#8216;dist&#8217; directory with friture.exe and a collection of
+dependencies (dlls and compiled python extensions), that can be
+bundled together in an installer.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Instructions to get Friture running</a><ul>
+<li><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li><a class="reference internal" href="#ui-and-resource-files">UI and resource files</a></li>
+<li><a class="reference internal" href="#cython-extension">Cython extension</a></li>
+<li><a class="reference internal" href="#filters-parameters">Filters parameters</a></li>
+<li><a class="reference internal" href="#windows-executable">Windows executable</a></li>
+</ul>
+</li>
+</ul>
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="index.html">Documentation overview</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Friture</a></li>
+      <li>Next: <a href="changelog.html" title="next chapter">Friture Changelog</a></li>
+  </ul></li>
+</ul>
+</div>
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/build_from_source.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2016, Timothée Lecomte, James Collins.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.3.6</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.7</a>
+      
+      |
+      <a href="_sources/build_from_source.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>
