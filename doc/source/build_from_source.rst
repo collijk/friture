@@ -45,7 +45,11 @@ Alternatively, to build the 'exp_smoothing_conv' extension manually on
 Linux, you can do::
 
 	cython exp_smoothing_conv.pyx
-	gcc -shared -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing -I/usr/include/python2.6 -o exp_smoothing_conv.so exp_smoothing_conv.c
+
+then (all as one command)
+
+	gcc -shared -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing
+	-I/usr/include/python2.6 -o exp_smoothing_conv.so exp_smoothing_conv.c
 
 Filters parameters
 ------------------
