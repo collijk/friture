@@ -8,13 +8,16 @@ below.
 Dependencies
 ------------
 
-Python3 (3.4 or later recommended)
-PyQt4
-PyAudio
-PyOpenGL
-Numpy
-Scipy
-Cython
++ Python3 (3.4 or later recommended)
++ PyQt5
++ PyAudio
++ PyOpenGL
++ PyOpenGL-accelerate
++ Numpy
++ Scipy
++ Cython
++ docutils
++ psutil
 
 UI and resource files
 ---------------------

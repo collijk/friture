@@ -13,17 +13,18 @@ Second option (cProfile and pstats)
 ./friture.py --python
 
 Third option (cProfile, convert to kcachegrind)
-------------------------------------------------------------------
+-----------------------------------------------
 
 python scripts/lsprofcalltree.py friture.py
 kcachegrind
 
 Fourth option (sysprof system-wide profiler on Linux)
-----------------------------------------------------
+-----------------------------------------------------
 
 	For sysprof, either use "sudo m-a a-i sysprof-module" to build the module for your current kernel,
 	on Debian-like distributions, or use a development version of sysprof (>=1.11) and a recent
 	kernel (>=2.6.31) that has built-in support, with in-kernel tracing as an addition.
+
 sysprof
 ./gprof2dot.py -f sysprof sysprof_profile_kernel| dot -Tpng -o output_sysprof_kernel.png
 
