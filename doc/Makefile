@@ -51,7 +51,7 @@ help:
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)/*
+	rm -rf $(BUILDDIR)/ 
 
 .PHONY: html
 html:
@@ -217,3 +217,11 @@ pseudoxml:
 	$(SPHINXBUILD) -b pseudoxml $(ALLSPHINXOPTS) $(BUILDDIR)/pseudoxml
 	@echo
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
+
+.PHONY: buildandcommit
+buildandcommit:
+	cd $(BUILDDIR)/html 
+	git add .
+	git commit -m "rebuilt docs"
+	git push orgin gh-pages
+	
