@@ -1,0 +1,982 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Friture Changelog &mdash; Friture 0.19.0.8 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Friture 0.19.0.8 documentation" href="index.html"/>
+        <link rel="next" title="GNU General Public License" href="license.html"/>
+        <link rel="prev" title="Instructions to get Friture running" href="build_from_source.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Friture
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.19.0.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="includeme.html">Friture</a></li>
+<li class="toctree-l1"><a class="reference internal" href="build_from_source.html">Instructions to get Friture running</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Friture Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">GNU General Public License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiling.html">Some details about profiling possibilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TODO.html">TODO</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Friture</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Friture Changelog</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/changelog.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="friture-changelog">
+<h1>Friture Changelog<a class="headerlink" href="#friture-changelog" title="Permalink to this headline">¶</a></h1>
+<p>(full changelog can be found in the git repository)</p>
+<p>HEAD
+New:</p>
+<blockquote>
+<div><ul class="simple">
+<li>(generator) Add ramps at start/stop to avoid undesirable bursts.</li>
+</ul>
+</div></blockquote>
+<p>Change:</p>
+<blockquote>
+<div><ul class="simple">
+<li>(delay estimator) Increase the delay smoothing for more reliabilty</li>
+</ul>
+</div></blockquote>
+<p>Bugfix:</p>
+<blockquote>
+<div><ul class="simple">
+<li>(levels) remove the bogus factor of 2 on the rms. Now the rms of a sine is
+3dB below its peak, as expected.</li>
+</ul>
+</div></blockquote>
+<p>Version 0.6 - 2012/06/07
+New:</p>
+<blockquote>
+<div><ul class="simple">
+<li>(general) Track the number of Xruns. Display it in the about dialog,
+in the statistics tab.</li>
+<li>(delay estimator) Cross-correlation is time averaged for robustness, better
+significance estimation, and phase info taken from the weighted
+cross-correlation too.</li>
+<li>(delay estimator) Use generalized cross-correlation computation, with PHAT
+weighting. Now the estimation is much more robust in a reverberating
+environment.</li>
+</ul>
+</div></blockquote>
+<p>Change:</p>
+<blockquote>
+<div><ul class="simple">
+<li>(general) Increase sample rate to 48000 Hz. This simplifies and improves the
+quality of the filters in the octave spectrum.</li>
+<li>(octave spectrum) Fix midband frequencies, so that they match the ISO
+bands of an equalizer</li>
+</ul>
+</div></blockquote>
+<p>Version 0.5 - 2012/05/26
+New:</p>
+<blockquote>
+<div><ul class="simple">
+<li>(delay estimator) The maximum reliably-estimated delay is now configurable.
+Just in case somebody needs more than one second</li>
+<li>(delay estimator) Replace the peak detection by cross-correlation
+The cross-correlation is computed on (largely) subsampled data. It
+not only provides the delay, but also the in-phase information,
+and a measure of the correlation quality (value of the normalized
+correlation coefficient).</li>
+<li>Display the level labels with a 250 ms period.
+This reduces the work that needs to be done (drawing text is
+costly), and makes the values much more readable.</li>
+</ul>
+</div></blockquote>
+<p>Version 0.4 - 2012/05/18
+New:</p>
+<blockquote>
+<div><ul class="simple">
+<li>First embryo of documentation</li>
+<li>Add PyPI requirements.txt file, so that friture dependencies
+be installed by &#8216;pip&#8217;</li>
+<li>New text file for user-readable changelog</li>
+</ul>
+</div></blockquote>
+<p>Change:</p>
+<blockquote>
+<div><ul class="simple">
+<li>(delay_estimator) Optimization</li>
+</ul>
+</div></blockquote>
+<p>Bugfix:</p>
+<blockquote>
+<div><ul class="simple">
+<li>(generator) Test for zero mean before using it as a denominator</li>
+<li>(Pink noise generator) Fix the parameter k
+k, the number of white channels to sum, was dynamic,
+and this was causing changes of colors in the produced noise,
+changes that could be heard.</li>
+<li>(Generator) Fix exception in pink noise generator.
+Now returns empty array when asked for n=0 samples</li>
+<li>(Generator) prevent overflows at -1.
+Premultiplying by 0.99.</li>
+<li>(Generator) time array was not incremented properly.</li>
+</ul>
+</div></blockquote>
+<p>Version 0.3 - 2012/04/29</p>
+<blockquote>
+<div><ul class="simple">
+<li>(delay estimator) also display the delay in meters</li>
+<li>(py2exe) Exclude more dll from the package</li>
+<li>Increment version</li>
+<li>Add version and release date in the about page.</li>
+<li>Properly delete widgets when closed or changed.</li>
+<li>(py2exe) do not exclude subprocess; subprocess is now required by psutils</li>
+<li>(py2exe) do not ignore difflib; difflib is now required for numpy</li>
+<li>Do not redraw the delay label if the text has not changed.</li>
+<li>Disable the linear screen interpolation in timeplot.
+This was bogus signal-wise, and practically prevented from
+displaying some data correctly.</li>
+<li>Introduce a variable for the time window in the scope.</li>
+<li>Remove the minus peak in the burst generator.</li>
+<li>Remove the bogus time inversion in the scope.</li>
+<li>Fix message for delay estimator in single channel.</li>
+<li>Fix detection of peaks in the delay estimator.</li>
+<li>Add a new widget to measure delays.
+Detect peaks in two channels and measure the time
+difference between the two.</li>
+<li>Enlarge the trigger window
+(and remove leftover debug statement)</li>
+<li>Change scope to trigger on center of window, improve triggering.</li>
+<li>Fix buffer growth in ringbuffer.py</li>
+<li>Allow negative times in the scope horizontal axis</li>
+<li>Fix indentation</li>
+<li>Immprove the burst generator</li>
+<li>Make the computation cleaner, and double its amplitude.</li>
+<li>Move the norm computation (after fft) to own function so that it appears on the profile directly</li>
+<li>Move the sweep generator in a separate class</li>
+<li>Pass 0 to cpu_percent to make it non-blocking</li>
+<li>Fix indentation</li>
+<li>Add more comments about instructions for PyPI</li>
+<li>Add some usage comments to setup.py, and add a little text to the description</li>
+</ul>
+</div></blockquote>
+<dl class="docutils">
+<dt>Version 0.2 (Windows 2011/10/31 - all platforms PyPI 2012/01/04)</dt>
+<dd><ul class="first last simple">
+<li>Add Numpy include to Cython extension building</li>
+<li>Fix audiobackend reference for the generator when launched in the central widget</li>
+<li>Increase pink noise fidelity</li>
+<li>Cleanup generator import (avoid scipy import)</li>
+<li>Fix py2exe inclusion of OpenGL packages</li>
+<li>Fix integer comparison in pink noise code</li>
+<li>Plug the generator dock into the dock widgets</li>
+<li>Generator dock</li>
+<li>Add output devices listing in audiobackend class</li>
+<li>Update properly the histogram spectrum coordinate transform when the scale changes</li>
+<li>Avoid calling the filters with empty input arrays</li>
+<li>Fix use of the decimate function in the no-initial-conditions case</li>
+<li>Define a separate decimate function</li>
+<li>Enable the filter initial conditions propagation for correct filtering</li>
+<li>Ring buffer size can grow (fix issues with long delays)</li>
+<li>Fix qwt/opengl/numpy widget for arrays proper initialization (actually fix multiple simultaneous FFT widgets)</li>
+<li>Add a spectrum GUI setting for single/dual channels</li>
+<li>Introduce a delay setting that acts one the spectrum (for now)</li>
+<li>Save and restore the input device/channel/single//duo configuration</li>
+<li>Simplify baseline computation (and remove substraction warning</li>
+<li>Make the about dialog a child of the mainwindow so that it is closed automatically when the mainwindow is closed.</li>
+<li>Some preliminary code for baseline setting</li>
+<li>Some preliminary code for nicer shading</li>
+<li>Fix qwt/opengl/numpy plot for linear scale</li>
+<li>Add legend to the scope when two channels are used</li>
+<li>Two channels mode for the level meter</li>
+<li>Two channels for the scope</li>
+<li>Make the spectrum draw the power difference when two channels are used</li>
+<li>New feature : two-channel difference as input</li>
+<li>Fix background gradient in spectrum</li>
+<li>Enable the qwt/opengl/numpy spectrum plot instead of the original curved one</li>
+<li>Add cumulative time profiling stats</li>
+<li>Put the individual icon files in the repository</li>
+</ul>
+</dd>
+<dt>Windows Version 2012/05/26</dt>
+<dd><ul class="first last simple">
+<li>Qt plugin for svg icons (qsvg4.dll) now depends on QtXml, thatpy2exe failed to include automatically</li>
+</ul>
+</dd>
+<dt>Windows version 2012/05/17</dt>
+<dd><ul class="first last simple">
+<li>Fix histplot transforms initializations (removes errors on startup) and make transformation more performant</li>
+<li>Use array operations for the canvas transformation</li>
+<li>Fix add-dock toolbar icon, which was badly rendered on windows</li>
+<li>Fix dock settings icon, which was badly rendered on windows</li>
+<li>Convert to MUI2, fix encoding, improve uninstaller</li>
+<li>Nice microphone photo for the splash screen - license is cc-by-2.0</li>
+<li>Remove non-updated statistics</li>
+<li>The current working directory no longer needs to be set at the end of install</li>
+<li>generated_filters.pkl is no longer to be installed</li>
+<li>Store the filter params in a true python file, simplifies the import</li>
+<li>Fix vu-meters that decrease indefinitely</li>
+</ul>
+</dd>
+<dt>Version 0.1 on PyPI - 2011/02/02</dt>
+<dd><ul class="first last simple">
+<li>Fixes for non-py2exe setup</li>
+<li>Improve setup.py for distribution, with classifiers, startup script and manifest</li>
+<li>Allow friture.py to be executed as a child of another script, such as lsprofcalltree</li>
+<li>Fix off-by-one pixel for the level meter</li>
+<li>Remove bogus styling of the level meters</li>
+<li>Let python manage the spectrogram painter object lifetime</li>
+<li>Ordering for object creation fixed</li>
+<li>Move friture.py to subdir</li>
+<li>Move scripts to subdir, remove lsprofcalltree from friture.py</li>
+<li>Move Cython extension to subsubdir</li>
+<li>Move source files to subdir</li>
+</ul>
+</dd>
+<dt>Windows version 2011/01/29</dt>
+<dd><ul class="first last simple">
+<li>Fix uninstaller, improve installer info</li>
+<li>Use packaging date for the installer version</li>
+<li>Fix for the installer move</li>
+<li>Move some source files to subdir</li>
+<li>Move .ui files to subdir</li>
+<li>Move ui*.py and resource py file to friture subdir</li>
+<li>Move the installer and Microsoft redist pack to a subdirectory</li>
+<li>Update install instructions</li>
+<li>Move test files to sandbox subdir</li>
+<li>Move image files and resource file to a subdirectory</li>
+<li>Move installation details to a separate file</li>
+<li>Move profiling info to separate file</li>
+<li>New colors for FFT spectrum, less agressive</li>
+<li>New style for octave spectrum&#8217;s peaks</li>
+<li>Add &#8216;central dock&#8217; label to clarify what is the central widget</li>
+</ul>
+</dd>
+</dl>
+<p>Windows version 2011/01/09</p>
+<blockquote>
+<div><ul class="simple">
+<li>Stop py2exe from complaining about msvcp90.dll</li>
+<li>Add manual bounds ckecking in exponential smoother</li>
+<li>Add code to include numpy headers when building the cython extension on Windows</li>
+<li>Major cleanup and optimisation in the histogram plot</li>
+<li>Better peak meter, remove integer conversions</li>
+<li>Add exponential smoothing (0.125 s) to the RMS level widget</li>
+<li>Cleanup and optimization in octavespectrum update</li>
+<li>Fix bug : could not add any dock when all of them were removed</li>
+<li>Major performance improvements in histplot by caching and avoiding QwtInterval</li>
+<li>Specific import from PyQt4.QtGui to improve startup time</li>
+<li>Add Cython machinery to setup.py</li>
+<li>Make the exponential smoothing smarter, and implement it as a cython module (dramatic speed improvement)</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/11/08</p>
+<blockquote>
+<div><ul class="simple">
+<li>(NSIS installer) Fix Working Directory when starting Friture at the end of the installation</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/11/04</p>
+<blockquote>
+<div><ul class="simple">
+<li>Optionally remove settings when uninstalling (NSIS)</li>
+<li>Improve dock deletion, and dock index selection</li>
+<li>Use a real exponential moving average at the output of the octave filters</li>
+<li>Fix settings initialization for the 2D spectrogram, fft and octave spectrum (Note: could be done slightly smarter)</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/10/25</p>
+<blockquote>
+<div><ul class="simple">
+<li>Clean and fix errors about bar widths in the octave spectrum</li>
+<li>Fix minimumSizeHint computation for octave, time and spectrum plots from a missing replot() at init end</li>
+<li>Add tooltips to the control bar</li>
+<li>Update splash screen with logo</li>
+<li>Tweak FFT spectrum default settings</li>
+<li>Tweak defautl settings for the octave spectrum</li>
+<li>Fix default settings for the 2D spectrogram (log frequency scale)</li>
+<li>Remove levels and scope widgets from the default set of widgets shown on the first launch</li>
+<li>Improve the profiler info</li>
+<li>Add an option to set the reponse time in the octave spectrum.</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/09/29</p>
+<blockquote>
+<div><ul class="simple">
+<li>Check if the bar pixmap needs to be updated only once per timer update.</li>
+<li>Use an opaque color for the FFT spectrum plot brushes, disables the stroke,
+and draw the grid on top.</li>
+<li>More generic NSIS script, more robust ot my own mistakes !</li>
+<li>Even more precise import for lighter py2exe distribution</li>
+<li>Tweak About message, add email address, remove name.</li>
+<li>Fill the peak curve in the FFT spectrum</li>
+<li>Import from scipy.signal.sigtools and scipy.signal.filter_design instead of scipy.signal</li>
+<li>Import lfilter from scipy.signal.sigtools instead of scipy.signal</li>
+<li>Hyperlink for the homepage address in the about widget</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/07/14</p>
+<blockquote>
+<div><ul class="simple">
+<li>Exclude unused modules from py2exe</li>
+<li>Include the filters file in nsis distribution</li>
+<li>Separate filter design and use in two different source files.</li>
+<li>Import more selectively. Hopefully helps py2exe</li>
+<li>Include the filters coeff file in py2exe packaging</li>
+<li>Add X-grid to the octave spectrum</li>
+<li>Tweak widget names</li>
+<li>Display a colorbar next to the spectrogram plot</li>
+<li>Fill under the spectrum curve, makes it a little more readable</li>
+<li>Recreate ring buffers when necessary only</li>
+<li>Do not call len() multiple times</li>
+<li>Avoid checking for proper ringbuffer at each timer tick.</li>
+<li>Use pre-generated filters coeff instead of recomputing them at each change.</li>
+<li>Disable filter conditions propagation for now.</li>
+<li>Introduce peaks in the octave spectrum.</li>
+<li>Tweaks to the decimating filters analysis.</li>
+<li>Go for order-3 decimating filter</li>
+<li>Go for 50 dB stopbands</li>
+<li>Better analysis of the filter bank frequency response</li>
+<li>Go for a non-decimating filter bank since the frequency output of the decimating one in close to catastrophic...</li>
+<li>Introduce zi/zf to the filtering without decimation</li>
+<li>Code for visual analysis of the filters frequency response</li>
+<li>Use log10 scale engine while the log2 engine still has references issues.</li>
+<li>Switch to 80dB stopband filters to make the octave analyzer nicer with single frequency excitation.</li>
+<li>Simplify histogram draw by removing the horizontal bar feature.</li>
+<li>Fix canvas height caching</li>
+<li>Implement ring buffer for filtering - seems like there&#8217;s an issue with the filters stability</li>
+<li>Move the ring buffer class to its own file for reuse</li>
+<li>Move octave filtering to a class</li>
+<li>Add audiobuffer method to get the new points only</li>
+<li>Fixed and improvements to the histplot pixmap cache</li>
+<li>Cache bar in a pixmap.</li>
+<li>Spacebar is a shortcut for start/stop</li>
+<li>Move from 7 octave to 8 octave</li>
+</ul>
+</div></blockquote>
+<dl class="docutils">
+<dt>Windows version 2010/06/29</dt>
+<dd><ul class="first last simple">
+<li>Allow 1/3, 1/6, 1/12 and 1/24 octave filters, with proper weightings.</li>
+<li>Implement IIR+decimation instead of IIR only. Will be especially useful for more-than-one
+bands per octave.</li>
+<li>Make bands number automatically computed from the bands per octave choice.</li>
+<li>Add Hann window to the fft code for better frequency resolution.</li>
+<li>Implement an octave-band filter widget.</li>
+<li>Finish and cleanup implementation of an octave (or fraction of octave) filter bank</li>
+<li>Move scope trigger to the left edge</li>
+<li>Move the log to a dedicated tab in the about dialog</li>
+<li>Make the statistics widget part of the about window instead of a dock widget.</li>
+<li>Start/Stop for the spectrogram timer.</li>
+<li>Spectrum scale defaults to log10.</li>
+<li>Spectrogram default to log10 scale.</li>
+<li>Move About code to source file instead of ui file, and prepare for
+tabing.</li>
+<li>Fix start/stop button text.</li>
+<li>Fix the start/stop icon state.</li>
+<li>Fix minimum size of the level widget.</li>
+<li>Display the weighting state in the spectrum y-axis title.</li>
+</ul>
+</dd>
+</dl>
+<p>Windows version 2010/06/16</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add human middle-ear weightings A, B and C to the spectrum and spectrogram settings.</li>
+<li>Put common code for the docks control bar in a separate file.</li>
+<li>Allow to select the channel for any device stream with more than one channel.</li>
+<li>Bugfix : actionStart belongs to self.ui</li>
+<li>Reorder icons in the toolbar</li>
+<li>Pass the logger to widget classes</li>
+<li>Monitor the global CPU usage in the statistics widget. This may deserve its own widget, with something like QProgressBar.
+The feature is based on psutil, which becomes a new dependency for friture !</li>
+<li>Set size policies of scope, spectrum, spectrogram so they can be shrinked</li>
+<li>Move ui code from Ui_xyz.py to xyz.py directly</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/06/06</p>
+<blockquote>
+<div><ul class="simple">
+<li>Fix to the vcredist section in the installer script.</li>
+<li>Lighter gradients in the widgets.</li>
+<li>Tell the user that the levels and scope widgets have no settings yet.</li>
+<li>Put the VC++2008 redistribuable libs in the tree.</li>
+<li>Install VC redistribuable libraries.</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/06/04</p>
+<blockquote>
+<div><ul class="simple">
+<li>Draw a white background on the plots mouse trackers.</li>
+<li>New log icon with an exclamation mark</li>
+<li>New icon to add a new dock</li>
+<li>Use About Friture instead of just About for the About button</li>
+<li>Use the friture icon for the About button</li>
+<li>Comment out the toolbar styling for now, not that beautiful</li>
+<li>At first launch, do not display the log and stat docks.</li>
+<li>At first start the central widget is a spectrogram.</li>
+<li>Default set of docks at first start.</li>
+<li>Use smaller fonts for the plot axis titles.</li>
+<li>Remove the docks separator styling, not very nice.</li>
+<li>Update the installer file list.</li>
+<li>Automatically distribute the Qt svg plugin.</li>
+<li>Exclude powrprof.dll in py2exe distribution.</li>
+<li>Put the settings icon on the left.</li>
+<li>Do not fail when ctypes cannot find the dll</li>
+<li>Comment out the stylesheets for now, and use stock dock widgets instead of using a custom titlebar</li>
+<li>Set the separator style to black 1 pixel.</li>
+<li>Apply some styling to the toolbars so that they look more custom.</li>
+<li>Slightly change the plots background gradients to nicely merge
+with the grid.</li>
+<li>Set central layout margins to zero.</li>
+<li>Pass the logger to the spectrum, scope, levels widgets.
+Do the same for all widgets in the central widget too.</li>
+<li>Add a dummy scope and levels settings dialog.</li>
+<li>Fix spectrogram initial settings.</li>
+<li>Implement the spectrum y range settings.</li>
+<li>Fix spectrum initial settings.</li>
+<li>Remove previous static scope, spectrum and spectrogram widgets</li>
+<li>Save and restore central widget state</li>
+<li>Remove the settings buttons from the spectrum and spectrogram widgets</li>
+<li>Now the central widget is very close to the dock widget in feature/aspect</li>
+<li>Move spectrum stylesheet from mainwindow ui file to spectrum code file.</li>
+<li>Move scope stylesheet from the global ui file to the scope file</li>
+<li>Add a settings icon to the dock.</li>
+<li>Add an icon to the &#8220;dock&#8221; button.</li>
+<li>Dock icon based on svg objects, no contour or path.</li>
+<li>Custom icon for dock/undock.</li>
+<li>Use an icon for the dock close button.</li>
+<li>Add (modified) about svg.</li>
+<li>Restore state before restoring geometry.</li>
+<li>Save and restore the window geometry.</li>
+<li>Save and restore dock states.</li>
+<li>Add the possibility to choose the dock widget type on creation.</li>
+<li>Save and restore docks existence and positions.</li>
+<li>Assign a fixed height to the dock control widgets.</li>
+<li>Add a dock button to the floating dock.</li>
+<li>Stylesheet the dock control widgets.</li>
+<li>Add another special control widget to a floating dock.</li>
+<li>Add a custom toolbar as the dockwidget titlebar.</li>
+<li>Enable the spectrogram timer in a dock</li>
+<li>Enable the code to select a widget in a dock.</li>
+<li>Put the Dock code in a separate file</li>
+<li>Connect the new dock widget to the timer, pass it the audiobuffer.</li>
+<li>Directly connect the widgets to the display timer.</li>
+<li>Pass the audiobuffer in separate functions instead of passing it
+when asking for the widget update.</li>
+<li>Connect the statistics update function directly to the timer tick</li>
+<li>Move the buffer update to a specific function, directly connnected to the timer tick</li>
+<li>Actually add a dock and a widget (needs to be connected to the timer tick still)</li>
+<li>Move settings for spectrogram and spectrum to separate classes and window</li>
+<li>Move audio backend code to a separate file</li>
+<li>Move audio initialization to a separate method</li>
+<li>Use isVisible() functions instead of visibilityChanged signals.</li>
+<li>Refactor the frequency range code</li>
+<li>Move the spectrogram code and ui in separate files</li>
+<li>Move spectrum to separate code and ui files</li>
+<li>Use numpy fancy indexing to compute the peak falloff</li>
+<li>Move scope widget to separate .py and .ui files</li>
+<li>Fix for levels statistics</li>
+<li>Move the level widget code in a separate source file, and in a
+separate ui file.</li>
+<li>Make the log text selectable</li>
+<li>Scroll the log widget so that the last log line is visible</li>
+<li>Set the log and statistics widget backgrounds as white</li>
+<li>Add a line number to the log messages</li>
+<li>Remove log base 2 frequency scale</li>
+<li>Move audio ring code to a separate file.</li>
+<li>Source file encoding fix</li>
+<li>Factorize the stream opening function.</li>
+<li>Comment functions as slots or methods. Will help me to separate
+methods to their own appropriate module if applicable.</li>
+<li>New Logger class, built to handle log messages from all the
+program classes.</li>
+<li>Put &#8220;Settings&#8221; dialog code in a separate file.</li>
+<li>Put the &#8220;About&#8221; dialog code in a separate file.</li>
+<li>New titlebar widget mockup. Plan: one dockwidget = one visualiation
+placeholder.</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/03/20</p>
+<blockquote>
+<div><ul class="simple">
+<li>Remove dash from Windows installer filename.</li>
+<li>Automatically use the date as the Windows installer name.</li>
+<li>Add the icons to the source versioning, and fix setup.py</li>
+<li>Add icon to the Windows exe.</li>
+<li>Workaround to properly display the icon in Windows 7 taskbar.</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/03/17</p>
+<blockquote>
+<div><ul class="simple">
+<li>Special case for stderr on Windows, logging to a file.</li>
+<li>Add custom icon for the About icon in the toolbar</li>
+<li>Add an icon in the About dialog</li>
+<li>Add an about dialog.</li>
+<li>Update window icon</li>
+<li>Move some messages to the new logging window.</li>
+<li>Add logging window</li>
+<li>Cleanup stylesheet</li>
+<li>Display text labels in the toolbar, in a white font.</li>
+<li>Use solid lines for plot grids</li>
+<li>Disable latency logging by commenting out (forgot to disable
+the file creation, caused permission problems on Windows).</li>
+<li>Update NSIS script with proper license text, and installer name that
+include the version number.</li>
+<li>Update levels icons with gradient and white offset.</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/03/16</p>
+<blockquote>
+<div><ul class="simple">
+<li>Update statistics icon.</li>
+<li>Add a grid to the spectrum</li>
+<li>Add a grid the scope</li>
+<li>Disable latency logging facility for now.</li>
+<li>Add small radius to the border corners of levels, scope and spectrum.</li>
+<li>Add stylesheets for scope, spectrum and levels to make them a little fancier, and
+learn how to use CSS.</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/03/15 (executable &amp; installer not publicly released)</p>
+<blockquote>
+<div><ul class="simple">
+<li>NSIS script to generate a install exe from a py2exe distribution.</li>
+<li>Special case for IOError on stream read. To be more specialized
+to the input overflow case.</li>
+<li>Add frame corders to all qdockwidgets, so that they are more
+easily moved.</li>
+<li>Add a &#8220;cool modern&#8221; linear gradient as a toolbar background.</li>
+<li>Put the statistics in a QScrollArea to gain some space.</li>
+<li>Change settings dialog title and icon.</li>
+<li>Update window icon.</li>
+<li>Add icon to the settings menu</li>
+<li>Update start/stop icons</li>
+</ul>
+</div></blockquote>
+<p>Windows version 2010/03/12 (no installer, executable not publicly released)</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add some excludes to setup.py:py2exe</li>
+<li>Comment out cochlear code since it is unused for now, and causes
+py2exe to include a lot of scipy, if not all.</li>
+</ul>
+</div></blockquote>
+<p>First ever Windows executable (not publicly released) 2010/03/11</p>
+<blockquote>
+<div><ul class="simple">
+<li>Workaround a bug in scipy imports that appears when using py2exe.</li>
+<li>Add code for cochlear processing. Not enabled yet, may not
+be the best idea after all.</li>
+<li>Add a file with an implementation of the gammatone
+filter bank in numpy (currently only half-converted
+from Matlab)</li>
+<li>Add code for logarithmic scope, not enabled yet.
+A better solution could be to dynamically adjust the scale, using
+the same kind of algorithm as for the peak computations.</li>
+<li>Finally fix off by one color computation.</li>
+<li>Ask Qt not to update the canvas background on each paint event.</li>
+<li>Use astype instead of digitize, which is mush slower because it can do
+so much more. Nest step could be to use a function instead of a
+precomputed palette.</li>
+</ul>
+</div></blockquote>
+<p>2009/11</p>
+<blockquote>
+<div><ul class="simple">
+<li>Small simplificaton in UI layout code</li>
+<li>Use numpy clip function</li>
+<li>Add profiling instructions at the top of friture.py</li>
+<li>Add a script to convert the pstats output to a graphviz dot file, which can
+in turn be converted to a png</li>
+<li>Replace a boolean mask with a simple substraction</li>
+<li>Cache the decimation computation to avoid a log2.</li>
+<li>Replace uses of .max() with [-1] where possible.</li>
+<li>Do the dB conversion once instead of twice for level widgets</li>
+<li>Remove a useless sqrt since we do a log10 just after.</li>
+<li>Cache the canvas object for all plots, since it appears to be a
+slow call in qwt.</li>
+<li>Add a window icon, currently very basic</li>
+<li>Simplify peak computation</li>
+<li>Introduce one more cached array for peak computation</li>
+<li>Decimate as much as possible before doing the fft</li>
+<li>Remove log10 usage from peaks computation in the spectrum</li>
+<li>Just import what is needed in audioproc.py</li>
+<li>Cache the frequency scale in audioproc</li>
+<li>Move the spectrum processing to its function.</li>
+<li>Move scope processing ot its function.</li>
+<li>Move level processing to its function</li>
+<li>Remove the use of the status bar to gain screen spece.
+Use the plot picker instead.</li>
+<li>Move the frequency scale definition to the processing function.
+This is in preparation to the use of decimation to decrease
+computing time for fft of small upper range.</li>
+<li>Compute the peaks directly on the interpolated spectrum.
+Fewer peaks to compute when the fft size is larger than the number
+of pixels in the plot, which is a common case.</li>
+<li>Move the computing of peaks to a specific function.
+That way it appears independently in the profile.</li>
+<li>Use command-lien arguments to select the profiling tool.
+Default to no profiling.</li>
+<li>Bug fix : stream is in int16 format, not int32 ! This fixes the frequency
+scale factor of 2 that was observed.</li>
+<li>Use SAMPLING_RATE instead of hardcoded number.</li>
+<li>Use rfft since the input is real.</li>
+<li>Cleanup spectrum code.</li>
+<li>Add basic trigger capability to the scope widget</li>
+<li>Move the default position for the statistics widget to the left.</li>
+<li>Replace the settings button with an action in the toolbar.</li>
+<li>Move settings to a separate dialog. Greatly cleans up the interface !</li>
+</ul>
+</div></blockquote>
+<p>2009/10</p>
+<blockquote>
+<div><ul class="simple">
+<li>Disable antialiasing fro scope and spectrum. Dramatically improves
+the performance !</li>
+<li>Intelligently (i.e. with interpolation) limit the number of points
+to be drawn on the plot to the canvas width (in pixel units). Avoids
+the spectrum painting time to skyrocket for high fft sizes</li>
+<li>Add statistics field about spectrogram timer period</li>
+<li>Change statistics description to be more meaningfull</li>
+<li>Add timing statistics about computation and display</li>
+<li>Add file for log2 scale engine</li>
+<li>Disable plots decimation since it raises issues with the spectrum
+plot and its peaks</li>
+<li>Add time information for each timer events</li>
+<li>Factorization of log10</li>
+<li>SYnc to qsynthmeter.cpp rev 306, adds gradient look</li>
+<li>Simplify fft size save/restore</li>
+<li>Fix frequency scale saving</li>
+<li>Fix the frequencies labels formatting</li>
+<li>Fix the frequency label formatting</li>
+<li>Save/restore color ranges</li>
+<li>Save/restore time range.</li>
+<li>Save/restore frequencies minimum and maximum</li>
+<li>Save/restore the frequency scale</li>
+<li>Save and restore the fft size when closing/starting Friture.</li>
+<li>Move state save/restore to specific functions</li>
+<li>Add base 2 logarithmic frequency scale for the spectrogram.
+Warning: the frequency scales drawn on the side of the graph are wrong !
+I am waiting for a bug fix in PyQwt before implementing them.</li>
+<li>Change the frequency range for the spectrogram too.</li>
+<li>Add two spinBoxes for frequency range selection. Only works for the spectrum
+for now.</li>
+<li>Uncheck actionStart when changing input device</li>
+<li>Major timer redesign.
+Now we have two timers: one for 1D and 2D widgets (levels, scope, spectrum,
+statistics), and one for 3D widgets (spectrogram). Using an audio buffer
+avoids latency issues. This audio buffer behaves like the spectrogram pixmap.
+It is a circular buffer, with data written twice.</li>
+<li>Add statistics about FFT period.</li>
+<li>Log to a file the time delay between spectrogram updates. Add a script
+to analyze it, called hist.py</li>
+<li>Add new file &#8220;hellogl.py&#8221; to experiment with opengl drawing.</li>
+<li>Save and restore dock and toolbar states on exit and restart, respectively.</li>
+<li>Allow to modify the time range of the spectrogram.</li>
+<li>Fix the logic of lost chunks in the timer slot.</li>
+<li>Make the time range a parameter in the CanvasScaledSpectrogram class.</li>
+<li>Add a flag to indicate that we are processing the last chunk of the
+timer fire, so that if we are not we do not bother updating the screen.</li>
+<li>Replace while loop with a for loop, allows to know where we are
+in the process.</li>
+<li>Store the number of available chunks in a variable instead of
+calling the interface multiple times.</li>
+<li>Add a statistics entry about mean number of chunks by timer fire,
+in the last 1000 timer fires.</li>
+<li>Add a latency measurement to the statistics.</li>
+<li>Add icon for the statistics button in the toolbar. Now we have icons
+for all buttons.</li>
+</ul>
+</div></blockquote>
+<p>2009/09</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add profiling option with console output instead of a file for
+kcachegrind.</li>
+<li>Add an icon for the spectrum action.</li>
+<li>Do not update the spectrum when the widget is not visible.</li>
+<li>Do not compute and update the levels when the widget is not visible.</li>
+<li>Do not try to display the statistics when the widget is not visible.</li>
+<li>Do not update the scope widget when it is not visible.</li>
+<li>Add svg icons for levels and scope widget.</li>
+<li>Add an icon for the Stop button.</li>
+<li>New resource svg for the Start button. Also rename the resource
+file to resource_rc.py since it&#8217;s what Qt Designer asks for.</li>
+<li>Use QDockWidget::toggleViewAction instead of our own actions with
+signals and slots.</li>
+<li>Fix FFT size in UI</li>
+<li>Add a __del__ method for explicit deletion of the spectrogram painter
+and its pixmap. Avoids a segfault.</li>
+<li>Add a setup.py file with basic commands for py2exe. Allows building
+an exe for Windows.</li>
+<li>Add resource.py to the versioned-controled files.</li>
+<li>More fine tuning to the level widget layout. Move it to the left.</li>
+<li>Fix Level widget layout.</li>
+<li>Fix minimum size for the qsynthmeter widget.</li>
+<li>Small adjustment to level widget layout. Needs more work.</li>
+<li>Remove frame around spectrogram. Fix statusbar.</li>
+<li>Add tollbar buttons to toggle the display of individual widgets.</li>
+<li>Move the Start/Stop button to a new toolbar. Move the scope, spectrum,
+level and statistics widgets to dock widgets.</li>
+<li>Dynamically choose the maximum number of chunks to read by timer
+tick based on the latency reported by portaudio.</li>
+<li>Handle up to three chunks in a row instead of discarding the additional
+ones.</li>
+<li>Be a little more verbose for statistics, to be clearer.</li>
+</ul>
+</div></blockquote>
+<p>2009/08</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add a link to the wiki in README</li>
+<li>Rework the layout of the level meter a little bit.</li>
+<li>Add peaks to the spectrum widget</li>
+<li>Derive qsynthMeter from QFrame and give it a raised look</li>
+<li>Int conversion cleanup</li>
+<li>Use default for size hints of levels.</li>
+<li>Change the way audio levels are displayed : put them closer to the
+level widget.</li>
+<li>Remove the display of the max of the current audio data.</li>
+<li>Fix the time axis on the spectrogram widget. Now set to 10 seconds
+for every choice of the FFT window length.</li>
+</ul>
+</div></blockquote>
+<p>2009/07</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add a spacer in the first horizontal layout to give a more natural
+size to the buttons.</li>
+<li>Use only integers in frequency scales.</li>
+<li>Move buttons at the top of the layout for better alignment of the
+widgets.</li>
+<li>Use custom labels using &#8216;k&#8217; for thousands in frequency scales
+widgets.</li>
+<li>Switch from seconds to milliseconds in the signal widget.</li>
+<li>Add pointer info in the status bar when clicking in the signal or
+spectrum widgets.</li>
+<li>Add pointer info in the status bar when clicking on the rolling spectrogram widget.</li>
+</ul>
+</div></blockquote>
+<p>2009/06</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add statistics about useless timer events</li>
+<li>Bugfix : forgot to reset the needfullreplot switch</li>
+<li>Display info about lost chunks of data</li>
+<li>Fix logarithmic scale in the spectrum plot</li>
+<li>Fix use of timer and Start button when changing device</li>
+<li>Factor device test code</li>
+<li>Print an error message when selecting a non-working input device</li>
+<li>Non-fatal error on device change</li>
+<li>Iterate over available devices for a working one
+On startup, first try the default system device, and then the other</li>
+<li>Bugfix for delays
+If the program is too slow to process all the chunks, discard those
+in excess. In fact, it is not that it is too slow, it is probably
+that there is a small mismatch between the timer period and the audio
+buffer period.</li>
+<li>Major timer-based refactor
+All sub-processes have been removed and replaced with a timer in the
+main process. This timer fires every 20 ms or so and retrieves audio
+data. This removes a lot of complexity coming from synchronization
+issues.
+Additionnally a level-meter widget is introduced, and the plot widgets
+have been optimized so that only the needed part is redrawn (namely axes
+are not redrawn).</li>
+</ul>
+</div></blockquote>
+<p>2009/01</p>
+<blockquote>
+<div><ul class="simple">
+<li>Add a copy of the GPLv3.</li>
+<li>Update License statements to GPL version 3.</li>
+<li>Add proper encoding statements, and License statements.</li>
+<li>Add details in TODO.</li>
+<li>Add items and details in TODO.</li>
+<li>Add a TODO file.</li>
+<li>&#8220;Simplify&#8221; locking.</li>
+<li>Move profiling code to be all conditional.</li>
+</ul>
+</div></blockquote>
+<p>commit 812b5b8050a921267c4844457d70d7a2a853c6e5
+Author: Timothée Lecomte &lt;<a class="reference external" href="mailto:timothee&#46;lecomte&#37;&#52;&#48;lpa&#46;ens&#46;fr">timothee<span>&#46;</span>lecomte<span>&#64;</span>lpa<span>&#46;</span>ens<span>&#46;</span>fr</a>&gt;
+Date:   Fri Jan 9 21:47:07 2009 +0100</p>
+<blockquote>
+<div>first commit</div></blockquote>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="license.html" class="btn btn-neutral float-right" title="GNU General Public License" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="build_from_source.html" class="btn btn-neutral" title="Instructions to get Friture running" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Timothée Lecomte, James Collins.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.19.0.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

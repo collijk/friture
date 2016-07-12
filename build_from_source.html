@@ -1,0 +1,281 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Instructions to get Friture running &mdash; Friture 0.19.0.8 documentation</title>
+  
+
+  
+  
+
+  
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="_static/css/theme.css" type="text/css" />
+  
+
+  
+
+  
+    <link rel="top" title="Friture 0.19.0.8 documentation" href="index.html"/>
+        <link rel="next" title="Friture Changelog" href="changelog.html"/>
+        <link rel="prev" title="Friture" href="includeme.html"/> 
+
+  
+  <script src="_static/js/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-scroll">
+        <div class="wy-side-nav-search">
+          
+
+          
+            <a href="index.html" class="icon icon-home"> Friture
+          
+
+          
+          </a>
+
+          
+            
+            
+              <div class="version">
+                0.19.0.8
+              </div>
+            
+          
+
+          
+<div role="search">
+  <form id="rtd-search-form" class="wy-form" action="search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+
+          
+        </div>
+
+        <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+          
+            
+            
+                <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="includeme.html">Friture</a></li>
+<li class="toctree-l1 current"><a class="current reference internal" href="">Instructions to get Friture running</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="#dependencies">Dependencies</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#ui-and-resource-files">UI and resource files</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#cython-extension">Cython extension</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#filters-parameters">Filters parameters</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#windows-executable">Windows executable</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Friture Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="license.html">GNU General Public License</a></li>
+<li class="toctree-l1"><a class="reference internal" href="profiling.html">Some details about profiling possibilities</a></li>
+<li class="toctree-l1"><a class="reference internal" href="TODO.html">TODO</a></li>
+</ul>
+
+            
+          
+        </div>
+      </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="index.html">Friture</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          
+
+ 
+
+
+
+<div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="index.html">Docs</a> &raquo;</li>
+      
+    <li>Instructions to get Friture running</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          
+            <a href="_sources/build_from_source.txt" rel="nofollow"> View page source</a>
+          
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+           <div itemprop="articleBody">
+            
+  <div class="section" id="instructions-to-get-friture-running">
+<h1>Instructions to get Friture running<a class="headerlink" href="#instructions-to-get-friture-running" title="Permalink to this headline">¶</a></h1>
+<p>Most of Friture code-base is written in Python. As such, it is
+interpreted and does not need compilation, apart from the special cases
+below.</p>
+<div class="section" id="dependencies">
+<h2>Dependencies<a class="headerlink" href="#dependencies" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li>Python3 (3.4 or later recommended)</li>
+<li>PyQt5</li>
+<li>PyAudio</li>
+<li>PyOpenGL</li>
+<li>PyOpenGL-accelerate</li>
+<li>Numpy</li>
+<li>Scipy</li>
+<li>Cython</li>
+<li>docutils</li>
+<li>psutil</li>
+</ul>
+</div>
+<div class="section" id="ui-and-resource-files">
+<h2>UI and resource files<a class="headerlink" href="#ui-and-resource-files" title="Permalink to this headline">¶</a></h2>
+<p>If friture.ui or resource.qrc are changed, the corresponding python
+files need to be rebuilt:</p>
+<div class="highlight-python"><div class="highlight"><pre>pyuic4 ui/friture.ui --from-imports &gt; friture/ui_friture.py
+    pyuic4 ui/settings.ui --from-imports &gt; friture/ui_settings.py
+    pyrcc4 resources/friture.qrc -o friture/friture_rc.py
+</pre></div>
+</div>
+</div>
+<div class="section" id="cython-extension">
+<h2>Cython extension<a class="headerlink" href="#cython-extension" title="Permalink to this headline">¶</a></h2>
+<p>Friture uses Cython extensions where computing is a bottleneck. These
+extensions can be built automatically with:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py build_ext --inplace
+</pre></div>
+</div>
+<p>On Windows, if you use mingw:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py build_ext --inplace --compiler=mingw32)
+</pre></div>
+</div>
+<p>Alternatively, to build the &#8216;exp_smoothing_conv&#8217; extension manually on
+Linux, you can do:</p>
+<div class="highlight-python"><div class="highlight"><pre>cython exp_smoothing_conv.pyx
+</pre></div>
+</div>
+<p>then (all as one command)</p>
+<blockquote>
+<div>gcc -shared -pthread -fPIC -fwrapv -O2 -Wall -fno-strict-aliasing
+-I/usr/include/python2.6 -o exp_smoothing_conv.so exp_smoothing_conv.c</div></blockquote>
+</div>
+<div class="section" id="filters-parameters">
+<h2>Filters parameters<a class="headerlink" href="#filters-parameters" title="Permalink to this headline">¶</a></h2>
+<p>The filters parameters are precomputed in a file called
+&#8216;generated_filters.py&#8217;. To rebuild this file, run the script named
+&#8216;filter_design.py&#8217;.</p>
+</div>
+<div class="section" id="windows-executable">
+<h2>Windows executable<a class="headerlink" href="#windows-executable" title="Permalink to this headline">¶</a></h2>
+<p>To build an executable for Windows, with the python interpreter
+included, run:</p>
+<div class="highlight-python"><div class="highlight"><pre>python setup.py py2exe
+</pre></div>
+</div>
+<p>You get a &#8216;dist&#8217; directory with friture.exe and a collection of
+dependencies (dlls and compiled python extensions), that can be
+bundled together in an installer.</p>
+</div>
+</div>
+
+
+           </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="changelog.html" class="btn btn-neutral float-right" title="Friture Changelog" accesskey="n">Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="includeme.html" class="btn btn-neutral" title="Friture" accesskey="p"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2016, Timothée Lecomte, James Collins.
+
+    </p>
+  </div>
+  Built with <a href="http://sphinx-doc.org/">Sphinx</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>. 
+
+</footer>
+
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'./',
+            VERSION:'0.19.0.8',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="_static/jquery.js"></script>
+      <script type="text/javascript" src="_static/underscore.js"></script>
+      <script type="text/javascript" src="_static/doctools.js"></script>
+      <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
