@@ -14,3 +14,5 @@ The name *Friture* is a french word for *frying*, also used for
 *noise* in a sound.
 
 `Source Code <https://github.com/tlecomte/friture>`_
+
+`Manual <https://collijk.github.io/friture/index.html>`_
