@@ -223,5 +223,5 @@ buildandcommit:
 	cd $(BUILDDIR)/html 
 	git add .
 	git commit -m "rebuilt docs"
-	git push orgin gh-pages
+	git push origin gh-pages
 	
