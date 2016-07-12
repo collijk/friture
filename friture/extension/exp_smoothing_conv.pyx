@@ -10,7 +10,10 @@ cimport cython
 @cython.boundscheck(False)
 @cython.wraparound(False)
 
-def pyx_exp_smoothed_value(np.ndarray[dtype_t, ndim=1] kernel, dtype_t alpha, np.ndarray[dtype_t, ndim=1] data, dtype_t previous):
+def pyx_exp_smoothed_value(np.ndarray[dtype_t, ndim=1] kernel,
+						   dtype_t alpha,
+                           np.ndarray[dtype_t, ndim=1] data,
+                           dtype_t previous):
 	cdef Py_ssize_t N = data.shape[0]
 	cdef Py_ssize_t Nk = kernel.shape[0]
 	cdef Py_ssize_t i
