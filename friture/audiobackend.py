@@ -95,7 +95,8 @@ class AudioBackend(QtCore.QObject):
 
     def close(self):
         if self.stream is not None:
-            self.stream.stop_stream()
+            if self.stream.is_active():
+                self.stream.stop_stream()
             self.stream.close()
             self.stream = None
 

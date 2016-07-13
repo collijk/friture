@@ -51,7 +51,10 @@ help:
 
 .PHONY: clean
 clean:
-	rm -rf $(BUILDDIR)/ 
+	cd $(BUILDDIR); rm -rf doctrees/
+	cd $(BUILDDIR)/html; rm *.html;	rm *.inv; rm *.js
+	cd $(BUILDDIR)/html/_sources; rm -rf *
+	cd $(BUILDDIR)/html/_static; rm -rf *
 
 .PHONY: html
 html:
@@ -219,8 +222,6 @@ pseudoxml:
 	@echo "Build finished. The pseudo-XML files are in $(BUILDDIR)/pseudoxml."
 
 .PHONY: buildandcommit
-buildandcommit:
-	cd $(BUILDDIR)/html 
-	git add .
-	git commit -m "rebuilt docs"
+buildandcommit: html latexpdf
+	cd $(BUILDDIR)/html; git add .; git commit -m "rebuilt docs"; git push origin gh-pages
 	

@@ -18,7 +18,7 @@ except ImportError:
                                    "PyOpenGL must be installed to run this example.")
     sys.exit(1)
 
-from numpy import zeros, ones, log10, hstack, array, floor, mean, where
+from numpy import zeros, ones, log10, hstack, array, floor, mean, where, copy
 import numpy as np
 
 # The peak decay rates (magic goes here :).
@@ -167,7 +167,8 @@ class SpectrumPlotWidget(QtWidgets.QWidget):
         self.horizontalScaleTransform.setRange(minfreq, maxfreq)
         self.horizontalScaleDivision.setRange(minfreq, maxfreq)
 
-        # notify that sizeHint has changed (this should be done with a signal emitted from the scale division to the scale bar)
+        # notify that sizeHint has changed (this should be done with a
+        # signal emitted from the scale division to the scale bar)
         self.horizontalScale.scaleBar.updateGeometry()
 
         self.needtransform = True
@@ -180,7 +181,8 @@ class SpectrumPlotWidget(QtWidgets.QWidget):
         self.verticalScaleTransform.setRange(spec_min, spec_max)
         self.verticalScaleDivision.setRange(spec_min, spec_max)
 
-        # notify that sizeHint has changed (this should be done with a signal emitted from the scale division to the scale bar)
+        # notify that sizeHint has changed (this should be done with a
+        # signal emitted from the scale division to the scale bar)
         self.verticalScale.scaleBar.updateGeometry()
 
         self.needtransform = True
@@ -295,15 +297,14 @@ class SpectrumPlotWidget(QtWidgets.QWidget):
 
         mask1 = (self.peak < y)
         mask2 = (-mask1)
-        mask2_a = mask2 * (self.peak_int < 0.2)
-        mask2_b = mask2 * (self.peak_int >= 0.2)
+        mask2_a = mask2 * (abs(self.peak_int) < 0.2)
+        mask2_b = mask2 * (abs(self.peak_int) >= 0.2)
 
         self.peak[mask1] = y[mask1]
         self.peak[mask2_a] = self.peak[mask2_a] + self.peak_decay[mask2_a]
 
         self.peak_decay[mask1] = 20. * log10(PEAK_DECAY_RATE) * 5000
         self.peak_decay[mask2_a] += 20. * log10(PEAK_DECAY_RATE) * 5000
-
         self.peak_int[mask1] = 1.
         self.peak_int[mask2_b] *= 0.975
 
@@ -350,19 +351,27 @@ class QuadsItem:
 
     def prepareQuadData(self, x, y, w, baseline, r, g, b):
         h = y - baseline
-        y = baseline
+
+        h_pos = copy(h)
+        h_pos[h_pos < 0] = 0
+        h_neg = h
+        h_neg[h_neg > 0] = 0
 
         n = x.shape[0]
 
         self.vertices = zeros((n, 4, 2))
+        # top left corner
         self.vertices[:, 0, 0] = x
-        self.vertices[:, 0, 1] = y + h
+        self.vertices[:, 0, 1] = baseline + h_pos
+        # top right corner
         self.vertices[:, 1, 0] = x + w
-        self.vertices[:, 1, 1] = y + h
+        self.vertices[:, 1, 1] = baseline + h_pos
+        # bottom right corner
         self.vertices[:, 2, 0] = x + w
-        self.vertices[:, 2, 1] = y
+        self.vertices[:, 2, 1] = baseline + h_neg
+        # bottom left corner
         self.vertices[:, 3, 0] = x
-        self.vertices[:, 3, 1] = y
+        self.vertices[:, 3, 1] = baseline + h_neg
 
         self.colors = zeros((n, 4, 3))
         self.colors[:, 0, 0] = r

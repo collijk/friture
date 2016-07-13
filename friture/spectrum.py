@@ -66,6 +66,7 @@ class Spectrum_Widget(QtWidgets.QWidget):
         self.dual_channels = False
         self.response_time = DEFAULT_RESPONSE_TIME
         self.spectrum_type = "Power"  # DEFAULT_SPECTRUM_TYPE = 2
+        self.is_dB = True  # DEFAULT_INTENSITY_SCALE = 0
 
         self.update_weighting()
         self.freq = self.proc.get_freq_scale()
@@ -82,7 +83,7 @@ class Spectrum_Widget(QtWidgets.QWidget):
         self.PlotZoneSpect.setfreqrange(self.minfreq, self.maxfreq)
         self.PlotZoneSpect.setspecrange(self.spec_min, self.spec_max)
         self.PlotZoneSpect.setweighting(self.weighting)
-        self.PlotZoneSpect.set_peaks_enabled(True)
+        self.PlotZoneSpect.set_peaks_enabled(False)
         self.PlotZoneSpect.set_baseline_displayUnits(0.)
         self.PlotZoneSpect.setShowFreqLabel(DEFAULT_SHOW_FREQ_LABELS)
 
@@ -146,17 +147,24 @@ class Spectrum_Widget(QtWidgets.QWidget):
             self.w.shape = self.freq.shape
 
             if self.dual_channels and floatdata.shape[0] > 1:
-                dB_spectrogram = self.log_spectrogram(sp2) - self.log_spectrogram(sp1)
+                if self.is_dB:
+                    spectrogram = self.log_spectrogram(sp2) - self.log_spectrogram(sp1)
+                else:
+                    spectrogram = sp2 - sp1
+                    spectrogram = spectrogram/max(abs(spectrogram))
             else:
-                dB_spectrogram = self.log_spectrogram(sp1) + self.w
+                if self.is_dB:
+                    spectrogram = self.log_spectrogram(sp1) + self.w
+                else:
+                    spectrogram = sp1/max(abs(sp1))
 
             # the log operation and the weighting could be deffered
             # to the post-weedening !
 
-            i = argmax(dB_spectrogram)
+            i = argmax(spectrogram)
             fmax = self.freq[i]
 
-            self.PlotZoneSpect.setdata(self.freq, dB_spectrogram, fmax)
+            self.PlotZoneSpect.setdata(self.freq, spectrogram, fmax)
 
     # method
     def canvasUpdate(self):
@@ -228,11 +236,11 @@ class Spectrum_Widget(QtWidgets.QWidget):
     def set_spectrum_type(self, type):
         self.spectrum_type = type
 
-    def setmin(self, value):
+    def set_spect_min(self, value):
         self.spec_min = value
         self.PlotZoneSpect.setspecrange(self.spec_min, self.spec_max)
 
-    def setmax(self, value):
+    def set_spect_max(self, value):
         self.spec_max = value
         self.PlotZoneSpect.setspecrange(self.spec_min, self.spec_max)
 
@@ -260,7 +268,7 @@ class Spectrum_Widget(QtWidgets.QWidget):
             self.PlotZoneSpect.set_peaks_enabled(False)
             self.PlotZoneSpect.set_baseline_dataUnits(0.)
         else:
-            self.PlotZoneSpect.set_peaks_enabled(True)
+            self.PlotZoneSpect.set_peaks_enabled(False)
             self.PlotZoneSpect.set_baseline_displayUnits(0.)
 
     def setShowFreqLabel(self, showFreqLabel):
@@ -274,3 +282,15 @@ class Spectrum_Widget(QtWidgets.QWidget):
 
     def restoreState(self, settings):
         self.settings_dialog.restoreState(settings)
+
+    def set_dB_scale(self):
+        self.is_dB = True
+        self.PlotZoneSpect.setspecrange(self.spec_min, self.spec_max)
+        self.setdualchannels(self.dual_channels)
+
+    def set_norm_intensity_scale(self):
+        MIN_INTENSITY = -1.1
+        MAX_INTENSITY = 1.1
+        self.is_dB = False
+        self.PlotZoneSpect.setspecrange(MIN_INTENSITY, MAX_INTENSITY)
+        self.PlotZoneSpect.set_baseline_dataUnits(0.)

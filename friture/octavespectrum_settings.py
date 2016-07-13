@@ -90,8 +90,8 @@ class OctaveSpectrum_Settings_Dialog(QtWidgets.QDialog):
         self.setLayout(self.formLayout)
 
         self.comboBox_bandsperoctave.currentIndexChanged.connect(self.bandsperoctavechanged)
-        self.spinBox_specmin.valueChanged.connect(self.parent().setmin)
-        self.spinBox_specmax.valueChanged.connect(self.parent().setmax)
+        self.spinBox_specmin.valueChanged.connect(self.parent().set_spect_min)
+        self.spinBox_specmax.valueChanged.connect(self.parent().set_spect_max)
         self.comboBox_weighting.currentIndexChanged.connect(self.parent().setweighting)
         self.comboBox_response_time.currentIndexChanged.connect(self.responsetimechanged)
 

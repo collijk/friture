@@ -58,9 +58,9 @@ class audioproc():
         # FFT for a linear transformation in frequency scale
         fft = rfft(samples * self.window)
         if spectrum_type == "Real":
-            return real(fft)**2 / self.size_sq
+            return real(fft)
         elif spectrum_type == "Imaginary":
-            return imag(fft)**2 / self.size_sq
+            return imag(fft)
         else:  # spectrum_type == "Power"
             spectrum = self.norm_square(fft)
             return spectrum

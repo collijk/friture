@@ -31,7 +31,8 @@ DEFAULT_WEIGHTING = 1  # A
 DEFAULT_SHOW_FREQ_LABELS = True
 DEFAULT_RESPONSE_TIME = 0.025
 DEFAULT_RESPONSE_TIME_INDEX = 0
-DEFAULT_SPECTRUM_TYPE = 2
+DEFAULT_SPECTRUM_TYPE = 2  # Power Spectrum
+DEFAULT_INTENSITY_SCALE = 0  # dB
 
 
 class Spectrum_Settings_Dialog(QtWidgets.QDialog):
@@ -130,6 +131,11 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
         self.comboBox_spectrum_type.addItem("Power")
         self.comboBox_spectrum_type.setCurrentIndex(DEFAULT_SPECTRUM_TYPE)
 
+        self.comboBox_intensity_scale = QtWidgets.QComboBox(self)
+        self.comboBox_intensity_scale.setObjectName("intensity_scale")
+        self.comboBox_intensity_scale.addItem("dB")
+        self.comboBox_intensity_scale.addItem("Raw Intensity")
+        self.comboBox_intensity_scale.setCurrentIndex(DEFAULT_INTENSITY_SCALE)
 
         self.formLayout.addRow("Measurement type:", self.comboBox_dual_channel)
         self.formLayout.addRow("FFT Size:", self.comboBox_fftsize)
@@ -142,6 +148,7 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
         self.formLayout.addRow("Response time:", self.comboBox_response_time)
         self.formLayout.addRow("Display max-frequency label:", self.checkBox_showFreqLabels)
         self.formLayout.addRow("Spectrum Type:", self.comboBox_spectrum_type)
+        self.formLayout.addRow("Intensity scale:", self.comboBox_intensity_scale)
 
         self.setLayout(self.formLayout)
 
@@ -150,12 +157,13 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
         self.comboBox_freqscale.currentIndexChanged.connect(self.freqscalechanged)
         self.spinBox_minfreq.valueChanged.connect(self.parent().setminfreq)
         self.spinBox_maxfreq.valueChanged.connect(self.parent().setmaxfreq)
-        self.spinBox_specmin.valueChanged.connect(self.parent().setmin)
-        self.spinBox_specmax.valueChanged.connect(self.parent().setmax)
+        self.spinBox_specmin.valueChanged.connect(self.parent().set_spect_min)
+        self.spinBox_specmax.valueChanged.connect(self.parent().set_spect_max)
         self.comboBox_weighting.currentIndexChanged.connect(self.parent().setweighting)
         self.comboBox_response_time.currentIndexChanged.connect(self.responsetimechanged)
         self.checkBox_showFreqLabels.toggled.connect(self.parent().setShowFreqLabel)
         self.comboBox_spectrum_type.currentIndexChanged.connect(self.spectrum_type_changed)
+        self.comboBox_intensity_scale.currentIndexChanged.connect(self.intensity_scale_changed)
 
     # slot
     def dualchannelchanged(self, index):
@@ -182,6 +190,20 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
             self.parent().PlotZoneSpect.setlogfreqscale()
         else:
             self.parent().PlotZoneSpect.setlinfreqscale()
+
+    # slot
+    def intensity_scale_changed(self, index):
+        # FIXME default logger
+        if self.logger is not None:
+            self.logger.push("freq_scale slot %d" % index)
+        if index == 0:
+            self.spinBox_specmin.setEnabled(True)
+            self.spinBox_specmax.setEnabled(True)
+            self.parent().set_dB_scale()
+        if index == 1:
+            self.spinBox_specmin.setEnabled(False)
+            self.spinBox_specmax.setEnabled(False)
+            self.parent().set_norm_intensity_scale()
 
     # slot
     def responsetimechanged(self, index):

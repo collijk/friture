@@ -206,11 +206,11 @@ class Spectrogram_Widget(QtWidgets.QWidget):
 
         self.update_jitter()
 
-    def setmin(self, value):
+    def set_spect_min(self, value):
         self.spec_min = value
         self.PlotZoneImage.setspecrange(self.spec_min, self.spec_max)
 
-    def setmax(self, value):
+    def set_spect_max(self, value):
         self.spec_max = value
         self.PlotZoneImage.setspecrange(self.spec_min, self.spec_max)
 

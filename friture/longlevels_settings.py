@@ -60,8 +60,8 @@ class LongLevels_Settings_Dialog(QtWidgets.QDialog):
 
         self.setLayout(self.formLayout)
 
-        self.spinBox_specmin.valueChanged.connect(self.parent().setmin)
-        self.spinBox_specmax.valueChanged.connect(self.parent().setmax)
+        self.spinBox_specmin.valueChanged.connect(self.parent().set_spect_min)
+        self.spinBox_specmax.valueChanged.connect(self.parent().set_spect_max)
 
     # method
     def saveState(self, settings):
