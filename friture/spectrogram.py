@@ -100,7 +100,7 @@ class Spectrogram_Widget(QtWidgets.QWidget):
     # method
     def set_buffer(self, buffer):
         self.audiobuffer = buffer
-        self.old_index = self.audiobuffer.ringbuffer.offset
+        self.old_index = self.audiobuffer.buffer.offset
 
     def log_spectrogram(self, sp):
         # Note: implementing the log10 of the array in Cython did not bring
@@ -116,13 +116,13 @@ class Spectrogram_Widget(QtWidgets.QWidget):
 
     def handle_new_data(self, floatdata):
         # we need to maintain an index of where we are in the buffer
-        index = self.audiobuffer.ringbuffer.offset
+        index = self.audiobuffer.buffer.offset
         self.last_data_time = self.audiobuffer.lastDataTime
 
         available = index - self.old_index
 
         if available < 0:
-            # ringbuffer must have grown or something...
+            # buffer must have grown or something...
             available = 0
             self.old_index = index
 
