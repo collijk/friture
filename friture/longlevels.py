@@ -199,11 +199,11 @@ class LongLevelWidget(QtWidgets.QWidget):
         # nothing to do here
         return
 
-    def setmin(self, value):
+    def set_spect_min(self, value):
         self.level_min = value
         self.PlotZoneUp.setverticalrange(self.level_min, self.level_max)
 
-    def setmax(self, value):
+    def set_spect_max(self, value):
         self.level_max = value
         self.PlotZoneUp.setverticalrange(self.level_min, self.level_max)
 

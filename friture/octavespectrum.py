@@ -138,11 +138,11 @@ class OctaveSpectrum_Widget(QtWidgets.QWidget):
 
         self.PlotZoneSpect.draw()
 
-    def setmin(self, value):
+    def set_spect_min(self, value):
         self.spec_min = value
         self.PlotZoneSpect.setspecrange(self.spec_min, self.spec_max)
 
-    def setmax(self, value):
+    def set_spect_max(self, value):
         self.spec_max = value
         self.PlotZoneSpect.setspecrange(self.spec_min, self.spec_max)
 
