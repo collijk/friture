@@ -24,6 +24,7 @@ from numpy import zeros
 DEFAULT_BUFFER_LENGTH = 10000
 DEFAULT_CHANNELS = 1
 
+
 class RingBuffer:
 
     def __init__(self, logger):

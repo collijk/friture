@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>listen_widget</class>
+ <widget class="QWidget" name="listen_widget">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>332</width>
+    <height>322</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Listen</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="7" column="0" colspan="3">
+    <widget class="QLabel" name="label_output_device">
+     <property name="text">
+      <string>Select the output device:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="0" column="0">
+    <widget class="QPushButton" name="button_listen">
+     <property name="toolTip">
+      <string>Push to listen to audio input.</string>
+     </property>
+     <property name="text">
+      <string>Listen</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="0">
+    <widget class="QPushButton" name="button_record_and_stop">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Press to record audio input</string>
+     </property>
+     <property name="text">
+      <string>Record</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0">
+    <widget class="QLabel" name="label_input_device">
+     <property name="text">
+      <string>Select the input device:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="11" column="0" colspan="3">
+    <widget class="LongTimePlot" name="widget" native="true">
+     <property name="minimumSize">
+      <size>
+       <width>300</width>
+       <height>100</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="1">
+    <widget class="QRadioButton" name="radioButton_single_channel">
+     <property name="text">
+      <string>Single Channel</string>
+     </property>
+     <property name="checked">
+      <bool>true</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="10" column="1">
+    <widget class="QPushButton" name="button_clear">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Press to clear the recorded input</string>
+     </property>
+     <property name="text">
+      <string>Clear</string>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="3">
+    <widget class="QComboBox" name="comboBox_input_device"/>
+   </item>
+   <item row="8" column="0" colspan="3">
+    <widget class="QComboBox" name="comboBox_output_device"/>
+   </item>
+   <item row="5" column="0">
+    <widget class="QLabel" name="label_input_channels">
+     <property name="text">
+      <string>Select input type:</string>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="2">
+    <widget class="QRadioButton" name="radioButton_dual_channel">
+     <property name="text">
+      <string>Dual channel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="1">
+    <widget class="QPushButton" name="button_save">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Press to save recorded audio</string>
+     </property>
+     <property name="text">
+      <string>Save</string>
+     </property>
+    </widget>
+   </item>
+   <item row="12" column="0">
+    <widget class="QPushButton" name="button_playback_and_stop">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
+     <property name="toolTip">
+      <string>Press to playback audio recording</string>
+     </property>
+     <property name="text">
+      <string>Play</string>
+     </property>
+     <property name="checkable">
+      <bool>true</bool>
+     </property>
+     <property name="checked">
+      <bool>false</bool>
+     </property>
+    </widget>
+   </item>
+   <item row="13" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+  </layout>
+ </widget>
+ <customwidgets>
+  <customwidget>
+   <class>LongTimePlot</class>
+   <extends>QWidget</extends>
+   <header>/friture/long_time_plot.py</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
+ <resources/>
+ <connections/>
+</ui>
