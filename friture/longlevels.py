@@ -151,7 +151,7 @@ class LongLevelWidget(QtWidgets.QWidget):
 
     def handle_new_data(self, floatdata):
         # we need to maintain an index of where we are in the buffer
-        index = self.audiobuffer.ringbuffer.offset
+        index = self.audiobuffer.get_offset()
         self.last_data_time = self.audiobuffer.lastDataTime
 
         available = index - self.old_index

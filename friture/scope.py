@@ -58,6 +58,7 @@ class Scope_Widget(QtWidgets.QWidget):
         time = self.timerange * 1e-3
         width = int(time * SAMPLING_RATE)
         # basic trigger capability on leading edge
+        # FIXME Shouldn't be requesting new data from the audio buffer. This method is already connected to the buffer signal.
         floatdata = self.audiobuffer.data(2 * width)
 
         twoChannels = False

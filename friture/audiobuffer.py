@@ -52,6 +52,9 @@ class AudioBuffer(QtCore.QObject):
     def data_indexed(self, start, length):
         return self.buffer.data_indexed(start, length)
 
+    def get_offset(self):
+        return self.buffer.offset
+
     def handle_new_data(self, floatdata, input_time, status):
         self.buffer.push(floatdata)
         self.set_newdata(floatdata.shape[1])
