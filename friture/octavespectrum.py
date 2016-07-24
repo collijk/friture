@@ -110,7 +110,7 @@ class OctaveSpectrum_Widget(QtWidgets.QWidget):
         # compute the filters' output
         y, decs_unused = self.filters.filter(floatdata)
 
-        # compute the widget data
+        # compute the time_plot data
         sp = [pyx_exp_smoothed_value(kernel, alpha, bankdata ** 2, old) for bankdata, kernel, alpha, old in zip(y, self.kernels, self.alphas, self.dispbuffers)]
 
         # store result for next computation

@@ -4,9 +4,12 @@ from friture.ui_listen_widget import ListenWidgetUI
 
 class ListenWidget(QWidget, ListenWidgetUI):
 
-    def __init__(self, parent = None):
+    def __init__(self, audio_backend, logger, parent=None):
         super(ListenWidget, self).__init__(parent)
         self.setupUi(self)
+        self.audio_backend = audio_backend
+        self.logger = logger
+
 
 
 if __name__ == "__main__":

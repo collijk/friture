@@ -37,7 +37,7 @@ class GlCanvasWidget(QtWidgets.QOpenGLWidget):
         # use a cross cursor to easily select a point on the graph
         self.setCursor(Qt.Qt.CrossCursor)
 
-        # set proper size policy for this widget
+        # set proper size policy for this time_plot
         self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding))
 
         self.attachedItems = []

@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Level widget that displays RMS level history."""
+"""Level time_plot that displays RMS level history."""
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import numpy as np

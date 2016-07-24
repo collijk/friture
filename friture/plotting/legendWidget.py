@@ -1,6 +1,6 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 
-# a widget for the items' legends
+# a time_plot for the items' legends
 
 
 class LegendWidget(QtWidgets.QWidget):

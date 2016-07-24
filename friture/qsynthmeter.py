@@ -30,7 +30,7 @@ PEAK_DECAY_RATE = 1.0 - 3E-6
 PEAK_FALLOFF = 32  # default : 16
 
 
-# MeterScale -- Meter bridge scale widget.
+# MeterScale -- Meter bridge scale time_plot.
 
 class MeterScale(QtWidgets.QWidget):
     SEGMENTS_LEFT = 0
@@ -140,7 +140,7 @@ class BallisticPeak:
 
         return peakValue
 
-# MeterValue -- Meter bridge value widget.
+# MeterValue -- Meter bridge value time_plot.
 
 
 class MeterValue(QtWidgets.QFrame):
@@ -226,7 +226,7 @@ class MeterValue(QtWidgets.QFrame):
         # QtWidgets.QWidget.repaint(True)
 
 
-# qsynthMeter -- Meter bridge slot widget.
+# qsynthMeter -- Meter bridge slot time_plot.
 
 class qsynthMeter(QtWidgets.QFrame):
 
@@ -276,7 +276,7 @@ class qsynthMeter(QtWidgets.QFrame):
         self.setSizePolicy(
             QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
-    # build the widget layout depending on the port count.
+    # build the time_plot layout depending on the port count.
     def build(self):
         # delete all elements of the current layout
         while self.HBoxLayout.count() > 0:

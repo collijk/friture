@@ -1,6 +1,6 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 
-# a widget for the axis title, can be horizontal or vertical
+# a time_plot for the axis title, can be horizontal or vertical
 
 
 class VerticalTitleWidget(QtWidgets.QWidget):

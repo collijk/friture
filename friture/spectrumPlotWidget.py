@@ -279,7 +279,7 @@ class SpectrumPlotWidget(QtWidgets.QWidget):
         self.paused = False
         self.canvasWidget.restart()
 
-    # redraw when the widget is resized to update coordinates transformations
+    # redraw when the time_plot is resized to update coordinates transformations
     # QOpenGlWidget does not like that we override resizeEvent
     def canvasResized(self, canvasWidth, canvasHeight):
         self.needtransform = True

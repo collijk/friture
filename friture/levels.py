@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
-"""Level widget that displays peak and RMS levels for 1 or 2 ports."""
+"""Level time_plot that displays peak and RMS levels for 1 or 2 ports."""
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 import numpy as np

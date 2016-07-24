@@ -4,9 +4,11 @@ from friture.ui_playback_widget import PlaybackWidgetUI
 
 class PlaybackWidget(QWidget, PlaybackWidgetUI):
 
-    def __init__(self, parent = None):
+    def __init__(self, audio_backend, logger, parent=None):
         super(PlaybackWidget, self).__init__(parent)
         self.setupUi(self)
+        self.audio_backend = audio_backend
+        self.logger = logger
 
 
 if __name__ == "__main__":
@@ -14,6 +16,6 @@ if __name__ == "__main__":
     import sys
 
     app = QApplication(sys.argv)
-    w = PlaybackWidget
+    w = PlaybackWidget()
     w.show()
     sys.exit(app.exec_())

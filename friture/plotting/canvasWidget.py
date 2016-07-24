@@ -29,7 +29,7 @@ class CanvasWidget(QtWidgets.QWidget):
     def __init__(self, parent, verticalScaleTransform, horizontalScaleTransform):
         super(CanvasWidget, self).__init__(parent)
 
-        # set proper size policy for this widget
+        # set proper size policy for this time_plot
         self.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.MinimumExpanding, QtWidgets.QSizePolicy.MinimumExpanding))
 
         self.setAutoFillBackground(False)

@@ -66,7 +66,7 @@ class PlotImage:
         # Note: both the frequency and the time resampler work
         # only on 1D arrays, so we loop on the columns of data.
         # However, we reassemble the 2D output before drawing
-        # on the widget's pixmap, because the drawing operation
+        # on the time_plot's pixmap, because the drawing operation
         # seems to have a costly warmup phase, so it is better
         # to invoke it the fewer number of times possible.
 
@@ -252,7 +252,7 @@ class ImagePlot(QtWidgets.QWidget):
 
         self.canvasWidget.update()
 
-    # redraw when the widget is resized to update coordinates transformations
+    # redraw when the time_plot is resized to update coordinates transformations
     def resizeEvent(self, event):
         self.needfullreplot = True
         self.draw()

@@ -39,10 +39,10 @@ class ControlBar(QtWidgets.QWidget):
         self.combobox_select.addItem("Delay Estimator")
         self.combobox_select.addItem("Long-time levels")
         self.combobox_select.setCurrentIndex(0)
-        self.combobox_select.setToolTip("Select the type of audio widget")
+        self.combobox_select.setToolTip("Select the type of audio time_plot")
 
         self.settings_button = QtWidgets.QToolButton(self)
-        self.settings_button.setToolTip("Customize the audio widget")
+        self.settings_button.setToolTip("Customize the audio time_plot")
 
         settings_icon = QtGui.QIcon()
         settings_icon.addPixmap(QtGui.QPixmap(":/images-src/dock-settings.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)

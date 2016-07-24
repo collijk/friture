@@ -89,7 +89,7 @@ class CanvasScaledSpectrogram(QtCore.QObject):
 
     def addData(self, xyzs):
         # revert the frequency axis so that the larger frequencies
-        # are at the top of the widget
+        # are at the top of the time_plot
         xyzs = xyzs[::-1, :]
 
         width = xyzs.shape[1]
@@ -100,7 +100,7 @@ class CanvasScaledSpectrogram(QtCore.QObject):
 
         myimage = self.prepare_image(byteString, width, xyzs.shape[0])
 
-        # Now, draw the image onto the widget pixmap, which has
+        # Now, draw the image onto the time_plot pixmap, which has
         # the structure of a 2D ringbuffer
 
         offset = self.offset % self.canvas_width

@@ -57,12 +57,12 @@ class LogWidget(QtWidgets.QWidget):
         self.log_scrollarea.verticalScrollBar().rangeChanged.connect(self.log_scroll_range_changed)
 
     # slot
-    # update the log widget with the new log content
+    # update the log time_plot with the new log content
     def log_changed(self):
         self.LabelLog.setText(self.logger.text())
 
     # slot
-    # scroll the log widget so that the last line is visible
+    # scroll the log time_plot so that the last line is visible
     def log_scroll_range_changed(self, scroll_min, scroll_max):
         scrollbar = self.log_scrollarea.verticalScrollBar()
         scrollbar.setValue(scroll_max)

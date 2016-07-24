@@ -45,10 +45,12 @@ SMOOTH_DISPLAY_TIMER_PERIOD_MS = 10
 # (and text painting is costly)
 SLOW_TIMER_PERIOD_MS = 1000
 
-class Friture(QMainWindow, ):
 
-    def __init__(self, logger):
-        QMainWindow.__init__(self)
+class Friture(QMainWindow, Ui_MainWindow):
+
+    def __init__(self, logger, parent=None):
+        super(Friture, self).__init__(parent)
+        self.setupUi(self)
 
         # exception hook that logs to console, file, and display a message box
         self.errorDialogOpened = False
@@ -56,10 +58,6 @@ class Friture(QMainWindow, ):
 
         # logger
         self.logger = logger
-
-        # Setup the user interface
-        self.ui = Ui_MainWindow()
-        self.ui.setupUi(self)
 
         # Initialize the audio data ring buffer
         self.audiobuffer = AudioBuffer(self.logger)
@@ -81,8 +79,8 @@ class Friture(QMainWindow, ):
         self.about_dialog = About_Dialog(self, self.logger, self.audiobackend, self.slow_timer)
         self.settings_dialog = Settings_Dialog(self, self.logger, self.audiobackend)
 
-        self.centralwidget = CentralWidget(self.ui.centralwidget, self.logger, "central_widget", 0)
-        self.centralLayout = QVBoxLayout(self.ui.centralwidget)
+        self.centralLayout = QVBoxLayout(self.centralwidget)
+        self.centralwidget = CentralWidget(self.centralwidget, self.logger, "central_widget", 0)
         self.centralLayout.setContentsMargins(0, 0, 0, 0)
         self.centralLayout.addWidget(self.centralwidget)
 
@@ -93,10 +91,10 @@ class Friture(QMainWindow, ):
         self.display_timer.timeout.connect(self.dockmanager.canvasUpdate)
 
         # toolbar clicks
-        self.ui.actionStart.triggered.connect(self.timer_toggle)
-        self.ui.actionSettings.triggered.connect(self.settings_called)
-        self.ui.actionAbout.triggered.connect(self.about_called)
-        self.ui.actionNew_dock.triggered.connect(self.dockmanager.new_dock)
+        self.actionStart.triggered.connect(self.timer_toggle)
+        self.actionSettings.triggered.connect(self.settings_called)
+        self.actionAbout.triggered.connect(self.about_called)
+        self.actionNew_dock.triggered.connect(self.dockmanager.new_dock)
 
         # restore the settings and widgets geometries
         self.restoreAppState()
@@ -180,14 +178,14 @@ class Friture(QMainWindow, ):
         if self.display_timer.isActive():
             self.logger.push("Timer stop")
             self.display_timer.stop()
-            self.ui.actionStart.setText("Start")
+            self.actionStart.setText("Start")
             self.audiobackend.pause()
             self.centralwidget.pause()
             self.dockmanager.pause()
         else:
             self.logger.push("Timer start")
             self.display_timer.start()
-            self.ui.actionStart.setText("Stop")
+            self.actionStart.setText("Stop")
             self.audiobackend.restart()
             self.centralwidget.restart()
             self.dockmanager.restart()

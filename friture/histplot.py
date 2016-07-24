@@ -379,7 +379,7 @@ class HistPlot(QtWidgets.QWidget):
 
         self.canvasWidget.update()
 
-    # redraw when the widget is resized to update coordinates transformations
+    # redraw when the time_plot is resized to update coordinates transformations
     def resizeEvent(self, event):
         self.needfullreplot = True
         self.draw()

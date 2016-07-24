@@ -44,14 +44,14 @@ class AudioBackend(QtCore.QObject):
 
         self.new_data_available_from_callback.emit(in_data, frame_count, input_time, status)
 
-        return (None, 0)
+        return None, 0
 
     def __init__(self, logger):
         QtCore.QObject.__init__(self)
 
         self.logger = logger
 
-        self.duo_input = False
+        self.dual_channel_input = False
         self.terminated = False
 
         self.logger.push("Initializing PyAudio")
@@ -70,7 +70,7 @@ class AudioBackend(QtCore.QObject):
         for device in self.input_devices:
             self.logger.push("Opening the stream")
             try:
-                self.stream = self.open_stream(device)
+                self.stream = self.open_input_stream(device)
                 self.stream.start_stream()
                 self.device = device
                 self.logger.push("Success")
@@ -233,7 +233,7 @@ class AudioBackend(QtCore.QObject):
         self.logger.push("Trying to open input device #%d" % (index))
 
         try:
-            self.stream = self.open_stream(device)
+            self.stream = self.open_input_stream(device)
             self.device = device
             self.stream.start_stream()
             success = True
@@ -272,7 +272,7 @@ class AudioBackend(QtCore.QObject):
         return success, self.second_channel
 
     # method
-    def open_stream(self, device):
+    def open_input_stream(self, device):
         # by default we open the device stream with all the channels
         # (interleaved in the data buffer)
         max_input_channels = self.pa.get_device_info_by_index(device)['maxInputChannels']
@@ -353,7 +353,7 @@ class AudioBackend(QtCore.QObject):
 
         channel = self.get_current_first_channel()
         nchannels = self.get_current_device_nchannels()
-        if self.duo_input:
+        if self.dual_channel_input:
             channel_2 = self.get_current_second_channel()
 
         if len(floatdata_all_channels) != frame_count*nchannels:
@@ -362,7 +362,7 @@ class AudioBackend(QtCore.QObject):
 
         floatdata1 = floatdata_all_channels[channel::nchannels]
 
-        if self.duo_input:
+        if self.dual_channel_input:
             floatdata2 = floatdata_all_channels[channel_2::nchannels]
             floatdata = vstack((floatdata1, floatdata2))
         else:
@@ -373,11 +373,11 @@ class AudioBackend(QtCore.QObject):
 
         self.chunk_number += 1
 
-    def set_single_input(self):
-        self.duo_input = False
+    def set_single_channel_input(self):
+        self.dual_channel_input = False
 
-    def set_duo_input(self):
-        self.duo_input = True
+    def set_dual_channel_input(self):
+        self.dual_channel_input = True
 
     # returns the stream time in seconds
     def get_stream_time(self):

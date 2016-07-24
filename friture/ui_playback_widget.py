@@ -31,7 +31,7 @@ class PlaybackWidgetUI(object):
         self.gridLayout.addWidget(self.button_clear, 2, 1, 1, 1)
         self.widget = LongTimePlot(playback_widget)
         self.widget.setMinimumSize(QtCore.QSize(300, 100))
-        self.widget.setObjectName("widget")
+        self.widget.setObjectName("time_plot")
         self.gridLayout.addWidget(self.widget, 3, 0, 1, 2)
         self.button_playback_and_stop = QtWidgets.QPushButton(playback_widget)
         self.button_playback_and_stop.setEnabled(False)

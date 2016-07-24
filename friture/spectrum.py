@@ -135,7 +135,7 @@ class Spectrum_Widget(QtWidgets.QWidget):
 
                 self.old_index += int(needed)
 
-            # compute the widget data
+            # compute the time_plot data
             sp1 = pyx_exp_smoothed_value_numpy(self.kernel, self.alpha, sp1n, self.dispbuffers1)
             sp2 = pyx_exp_smoothed_value_numpy(self.kernel, self.alpha, sp2n, self.dispbuffers2)
             # store result for next computation

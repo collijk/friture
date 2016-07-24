@@ -22,7 +22,7 @@ from PyQt5 import QtWidgets
 from friture.plotting.titleWidget import VerticalTitleWidget, HorizontalTitleWidget, ColorTitleWidget
 from friture.plotting.scaleBar import VerticalScaleBar, HorizontalScaleBar, ColorScaleBar
 
-# A layout widget containing:
+# A layout time_plot containing:
 # - a title
 # - a scale bar with a baseline, ticks and tick labels
 # The logic of the placement of scale min/max and ticks belongs to another class

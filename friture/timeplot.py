@@ -257,7 +257,7 @@ class TimePlot(QtWidgets.QWidget):
         self.paused = False
         self.canvasWidget.restart()
 
-    # redraw when the widget is resized to update coordinates transformations
+    # redraw when the time_plot is resized to update coordinates transformations
     # this is done instead of resizeEvent because the canvas can be resized independently of the whole plot (because the legend can disappear)
     def canvasResized(self, canvasWidth, canvasHeight):
         self.needfullreplot = True

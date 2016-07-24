@@ -2,7 +2,7 @@ from PyQt5 import QtGui, QtCore, QtWidgets
 from friture.plotting.scaleDivision import numberPrecision
 from friture.plotting import cmrmap
 
-# A widget canvas with a baseline, ticks and tick labels
+# A time_plot canvas with a baseline, ticks and tick labels
 # The logic of the placement of scale min/max and ticks belongs to another class.
 # The title belongs to another class.
 
