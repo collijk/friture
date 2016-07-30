@@ -21,39 +21,70 @@ from PyQt5 import QtCore
 
 
 class Logger(QtCore.QObject):
+    """A message aggregator for the friture classes.
+
+    Parameters
+    ----------
+    verbose: bool, optional
+        Whether the logger should print to console in addition to writing to the log.
+
+    Attributes
+    ----------
+    count: int
+        Number of messages passed to the logger.
+    log: str
+        A string containing every message passed to this instance of the logger
+
+    """
 
     logChanged = QtCore.pyqtSignal()
 
-    def __init__(self):
-        super().__init__()
-
+    def __init__(self, verbose=False):
+        super(Logger, self).__init__()
         self.count = 0
         self.log = ""
+        self.verbose = verbose
 
-    # push some text to the log
     def push(self, text):
-        if len(self.log) == 0:
-            self.log = "[0] %s" % text
-        else:
-            self.log = "%s\n[%d] %s" % (self.log, self.count, text)
+        """Adds a new message to the log.
+
+        Parameters
+        ----------
+        text: str
+            The message to be added to the log.
+
+        """
+
         self.count += 1
+
+        if self.count == 1:  # It's our first message!
+            self.log += "[1] %s" % text
+        else:
+            self.log += "\n[%d] %s" % (self.count, text)
         self.logChanged.emit()
 
-        # also print to the console
-        print(text)
+        if self.verbose:  # Also print to the console, if the user wants.
+            print(text)
 
-    # return the current log
-    def text(self):
+    def get_log(self):
+        """Returns the entire log history."""
         return self.log
 
 
-# simple logger that prints to the console
-class PrintLogger:
-    # push some text to the log
+class PrintLogger(object):
+    """A default logger that prints to the console"""
 
     def push(self, text):
+        """Prints a message to the console.
+
+        Parameters
+        ----------
+        text: str
+            The message to print to the console.
+
+        """
         print(text)
 
-    # return the current log
-    def text(self):
+    def get_log(self):
+        """Placeholder method returning an empty string for consistency with application logger"""
         return ""

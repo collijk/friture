@@ -27,13 +27,10 @@ FRAMES_PER_BUFFER = 1024
 class AudioBuffer(QtCore.QObject):
     new_data_available = QtCore.pyqtSignal(np.ndarray)
 
-    def __init__(self, logger, buffer_type = "RingBuffer"):
+    def __init__(self, logger):
         super().__init__()
 
-        if buffer_type == "RingBuffer":
-            self.buffer = RingBuffer(logger)
-        else:  # Put a linear buffer here
-            pass
+        self.buffer = RingBuffer(logger)
         self.newpoints = 0
         self.lastDataTime = 0.
 
@@ -60,3 +57,4 @@ class AudioBuffer(QtCore.QObject):
         self.set_newdata(floatdata.shape[1])
         self.new_data_available.emit(floatdata)
         self.lastDataTime = input_time
+

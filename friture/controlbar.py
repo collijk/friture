@@ -57,3 +57,29 @@ class ControlBar(QtWidgets.QWidget):
         self.setMaximumHeight(24)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
+
+
+class AudioIOControlBar(QtWidgets.QWidget):
+
+    def __init__(self, parent):
+        super(AudioIOControlBar, self).__init__(parent)
+
+        self.setObjectName("Audio I/O Control Bar")
+
+        self.layout = QtWidgets.QHBoxLayout(self)
+
+        self.combobox_select = QtWidgets.QComboBox(self)
+        self.combobox_select.addItem("Listen and Record")
+        self.combobox_select.addItem("Load and Playback")
+        self.combobox_select.addItem("Sound Generator")
+        self.combobox_select.setCurrentIndex(0)
+        self.combobox_select.setToolTip("Select the Audio I/O method")
+
+        self.layout.addWidget(self.combobox_select)
+        self.layout.addStretch()
+
+        self.setLayout(self.layout)
+
+        self.setMaximumHeight(24)
+        self.layout.setContentsMargins(0, 0, 0, 0)
+        self.layout.setSpacing(0)

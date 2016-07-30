@@ -79,10 +79,8 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.about_dialog = About_Dialog(self, self.logger, self.audiobackend, self.slow_timer)
         self.settings_dialog = Settings_Dialog(self, self.logger, self.audiobackend)
 
-        self.centralLayout = QVBoxLayout(self.centralwidget)
-        self.centralwidget = CentralWidget(self.centralwidget, self.logger, "central_widget", 0)
-        self.centralLayout.setContentsMargins(0, 0, 0, 0)
-        self.centralLayout.addWidget(self.centralwidget)
+        self.centralwidget.logger = logger
+        self.centralwidget.widget_select(0)
 
         self.dockmanager = DockManager(self, self.logger)
 
@@ -91,8 +89,6 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.display_timer.timeout.connect(self.dockmanager.canvasUpdate)
 
         # toolbar clicks
-        self.actionStart.triggered.connect(self.timer_toggle)
-        self.actionSettings.triggered.connect(self.settings_called)
         self.actionAbout.triggered.connect(self.about_called)
         self.actionNew_dock.triggered.connect(self.dockmanager.new_dock)
 
@@ -178,14 +174,12 @@ class Friture(QMainWindow, Ui_MainWindow):
         if self.display_timer.isActive():
             self.logger.push("Timer stop")
             self.display_timer.stop()
-            self.actionStart.setText("Start")
             self.audiobackend.pause()
             self.centralwidget.pause()
             self.dockmanager.pause()
         else:
             self.logger.push("Timer start")
             self.display_timer.start()
-            self.actionStart.setText("Stop")
             self.audiobackend.restart()
             self.centralwidget.restart()
             self.dockmanager.restart()

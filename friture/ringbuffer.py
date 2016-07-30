@@ -20,22 +20,52 @@
 # FIXME problem when self.offset overflows the MAXINT limit !
 
 from numpy import zeros
+from friture.logger import PrintLogger
 
-DEFAULT_BUFFER_LENGTH = 10000
-DEFAULT_CHANNELS = 1
+DEFAULT_BUFFER_LENGTH = 10000  # Begin with a buffer holding 10000 elements
+DEFAULT_CHANNELS = 1  # Assume we will usually have single-channel input.
 
 
-class RingBuffer:
+class RingBuffer(object):
+    """A dynamically sized circular buffer.
 
-    def __init__(self, logger):
-        # buffer length is dynamic based on the needs
-        self.buffer_length = DEFAULT_BUFFER_LENGTH
-        # Begin with a single channel buffer
-        self.buffer = zeros((DEFAULT_CHANNELS, 2 * self.buffer_length))
-        self.offset = 0
+    Parameters
+    ----------
+    logger : :class:`Logger`
+        The application logger.  Notifies user when RingBuffer performs logged actions.
+
+    Attributes
+    ----------
+    logger: :class:`Logger`
+        The application logger.  Notifies user when RingBuffer performs logged actions.
+    buffer_length: int
+        The number of float data points that the buffer stores.
+    buffer: array-like
+        The underlying numpy array for storing the data.
+    offset: int
+        An index pointing to the position offset within the buffer.
+
+    """
+
+    def __init__(self, logger=PrintLogger()):
         self.logger = logger
+        # Buffer length is dynamic based on the application needs.
+        self.buffer_length = DEFAULT_BUFFER_LENGTH
+        # Begin with a single channel buffer.
+        self.buffer = zeros((DEFAULT_CHANNELS, 2 * self.buffer_length))
+        # We start at the beginning of the buffer.
+        self.offset = 0
 
     def push(self, float_data):
+        """Puts new data into the buffer.
+
+        Parameters
+        ----------
+        float_data: array-like
+            An array of floats representing the new input data.
+
+        """
+        # Grab the shape of the new data
         channels = float_data.shape[0]
         data_length = float_data.shape[1]
 
@@ -43,6 +73,7 @@ class RingBuffer:
         if channels != self.buffer.shape[0]:
             # Adjust if needed
             self.buffer = zeros((channels, 2 * self.buffer_length))
+
 
         self.grow_if_needed(data_length)
 
@@ -52,7 +83,7 @@ class RingBuffer:
         # second copy, can be folded
         direct = min(data_length, self.buffer_length - offset)
         folded = data_length - direct
-        self.buffer[:, offset + self.buffer_length: offset + self.buffer_length + direct] = float_data[:, 0: direct]
+        self.buffer[:, (offset + self.buffer_length):(offset + self.buffer_length + direct)] = float_data[:, 0: direct]
         self.buffer[:, :folded] = float_data[:, direct:]
 
         self.offset += data_length
@@ -96,16 +127,14 @@ class RingBuffer:
         return self.buffer[:, start0: stop0]
 
     def grow_if_needed(self, length):
+
         if length > self.buffer_length:
             # let the buffer grow according to our needs
             old_length = self.buffer_length
-            new_length = int(1.5 * length)
+            new_length = int(2 * length)
 
-            message = "Ringbuffer: growing buffer for length %d" % (new_length)
-            if self.logger is not None:
-                self.logger.push(message)
-            else:
-                print(message)
+            message = "Ringbuffer: growing buffer to length %d" % new_length
+            self.logger.push(message)
 
             # create new buffer
             newbuffer = zeros((self.buffer.shape[0], 2 * new_length))

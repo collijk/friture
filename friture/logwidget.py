@@ -59,7 +59,7 @@ class LogWidget(QtWidgets.QWidget):
     # slot
     # update the log time_plot with the new log content
     def log_changed(self):
-        self.LabelLog.setText(self.logger.text())
+        self.LabelLog.setText(self.logger.get_log())
 
     # slot
     # scroll the log time_plot so that the last line is visible

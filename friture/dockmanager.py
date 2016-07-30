@@ -45,7 +45,7 @@ class DockManager(QtCore.QObject):
             index = max(dockindexes) + 1
         name = "Dock %d" % index
         new_dock = Dock(self.parent(), self.logger, name)
-        self.parent().addDockWidget(QtCore.Qt.TopDockWidgetArea, new_dock)
+        self.parent().addDockWidget(QtCore.Qt.RightDockWidgetArea, new_dock)
 
         self.docks += [new_dock]
 
