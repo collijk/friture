@@ -25,19 +25,24 @@ class Logger(QtCore.QObject):
 
     Parameters
     ----------
-    verbose: bool, optional
+    verbose : bool, optional
         Whether the logger should print to console in addition to writing to the log.
 
     Attributes
     ----------
-    count: int
+    count : int
         Number of messages passed to the logger.
-    log: str
-        A string containing every message passed to this instance of the logger
+    log : str
+        A string containing every message passed to this instance of the logger.
+
+    Signals
+    -------
+    log_changed :
+        Signal emitted whenever the log is updated.
 
     """
 
-    logChanged = QtCore.pyqtSignal()
+    log_changed = QtCore.pyqtSignal()  # Signal
 
     def __init__(self, verbose=False):
         super(Logger, self).__init__()
@@ -50,7 +55,7 @@ class Logger(QtCore.QObject):
 
         Parameters
         ----------
-        text: str
+        text : str
             The message to be added to the log.
 
         """
@@ -61,7 +66,7 @@ class Logger(QtCore.QObject):
             self.log += "[1] %s" % text
         else:
             self.log += "\n[%d] %s" % (self.count, text)
-        self.logChanged.emit()
+        self.log_changed.emit()
 
         if self.verbose:  # Also print to the console, if the user wants.
             print(text)
@@ -74,17 +79,19 @@ class Logger(QtCore.QObject):
 class PrintLogger(object):
     """A default logger that prints to the console"""
 
-    def push(self, text):
+    @staticmethod
+    def push(text):
         """Prints a message to the console.
 
         Parameters
         ----------
-        text: str
+        text : str
             The message to print to the console.
 
         """
         print(text)
 
-    def get_log(self):
+    @staticmethod
+    def get_log():
         """Placeholder method returning an empty string for consistency with application logger"""
         return ""

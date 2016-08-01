@@ -170,7 +170,7 @@ setup(name="friture",
                 'friture.generators'],
       scripts=['scripts/friture'],
       cmdclass={"build_ext": build_ext},
-      ext_modules=ext_modules,
+      ext_modules=ext_modules, install_requires=['pyaudio', 'numpy', 'PyQt5'],
       **extra_options
       )
 

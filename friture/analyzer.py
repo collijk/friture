@@ -33,7 +33,7 @@ from friture.settings import Settings_Dialog  # Setting dialog
 from friture.logger import Logger  # Logging class
 from friture.audiobuffer import AudioBuffer  # audio ring buffer class
 from friture.audiobackend import AudioBackend  # audio backend class
-from friture.centralwidget import CentralWidget
+from friture.defaults import DEFAULT_CENTRAL_WIDGET
 from friture.dockmanager import DockManager
 
 # the display timer could be made faster when the processing
@@ -80,7 +80,8 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.settings_dialog = Settings_Dialog(self, self.logger, self.audiobackend)
 
         self.centralwidget.logger = logger
-        self.centralwidget.widget_select(0)
+        self.centralwidget.io_widget_changed.connect(self.update_io_state)
+        self.centralwidget.widget_select(DEFAULT_CENTRAL_WIDGET)
 
         self.dockmanager = DockManager(self, self.logger)
 
@@ -118,6 +119,17 @@ class Friture(QMainWindow, Ui_MainWindow):
     # slot
     def about_called(self):
         self.about_dialog.show()
+
+    def update_io_state(self, io_widget_name):
+        if io_widget_name == "Listen and Record":
+            pass
+        elif io_widget_name == "Load and Playback":
+            pass
+        else:  # io_widget_name == "Sound Generator"
+            pass
+        print(io_widget_name)
+
+
 
     # event handler
     def closeEvent(self, event):
@@ -226,7 +238,7 @@ def main():
     app.processEvents()
 
     # Logger class
-    logger = Logger()
+    logger = Logger(verbose=True)
 
     window = Friture(logger)
     window.show()

@@ -118,7 +118,7 @@ class Generator_Widget(QtWidgets.QWidget):
         self.start_stop_button.toggled.connect(self.start_stop_button_toggle)
 
         # initialize the settings dialog
-        devices = self.audiobackend.get_readable_output_devices_list()
+        devices = self.audiobackend.get_readable_output_devices()
         if self.device is not None:
             device_index = self.audiobackend.output_devices.index(self.device)
         else:
@@ -127,18 +127,6 @@ class Generator_Widget(QtWidgets.QWidget):
 
         self.settings_dialog.combobox_output_device.currentIndexChanged.connect(self.device_changed)
 
-#        channels = self.audiobackend.get_readable_current_output_channels()
-#        for channel in channels:
-#            self.settings_dialog.comboBox_firstChannel.addItem(channel)
-#            self.settings_dialog.comboBox_secondChannel.addItem(channel)
-
-#        current_device = self.audiobackend.get_readable_current_output_device()
-#        self.settings_dialog.combobox_output_device.setCurrentIndex(current_device)
-
-#        first_channel = self.audiobackend.get_current_first_channel()
-#        self.settings_dialog.comboBox_firstChannel.setCurrentIndex(first_channel)
-#        second_channel = self.audiobackend.get_current_second_channel()
-#        self.settings_dialog.comboBox_secondChannel.setCurrentIndex(second_channel)
 
     def device_changed(self, index):
         device = self.audiobackend.output_devices[index]

@@ -41,7 +41,7 @@ class Settings_Dialog(QtWidgets.QDialog, Ui_Settings_Dialog):
         self.audiobackend = audiobackend
         self.logger = logger
 
-        devices = self.audiobackend.get_readable_devices_list()
+        devices = self.audiobackend.get_readable_input_devices()
 
         if devices == []:
             # no audio input device: display a message and exit

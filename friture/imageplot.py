@@ -90,7 +90,7 @@ class PlotImage:
 
     def restart(self):
         self.isPlaying = True
-        self.last_time = self.audiobackend.get_stream_time()
+        self.last_time = self.audiobackend.get_input_stream_time()
         self.timer.restart()
 
     def draw(self, painter, xMap, yMap, rect):
@@ -117,7 +117,7 @@ class PlotImage:
             pixel_advance = delta_t / (self.T + self.jitter_s) * rect.width()
             self.canvasscaledspectrogram.addPixelAdvance(pixel_advance)
 
-            time = self.audiobackend.get_stream_time()
+            time = self.audiobackend.get_input_stream_time()
             time_delay = time - self.last_data_time
             pixel_delay = rect.width() * time_delay / self.T
 

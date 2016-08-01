@@ -53,7 +53,7 @@ class LogWidget(QtWidgets.QWidget):
         self.tab_log_layout = QtWidgets.QGridLayout(self)
         self.tab_log_layout.addWidget(self.log_scrollarea)
 
-        self.logger.logChanged.connect(self.log_changed)
+        self.logger.log_changed.connect(self.log_changed)
         self.log_scrollarea.verticalScrollBar().rangeChanged.connect(self.log_scroll_range_changed)
 
     # slot

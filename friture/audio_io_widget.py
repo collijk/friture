@@ -16,20 +16,24 @@
 # You should have received a copy of the GNU General Public License
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5 import QtWidgets
-from friture.generator import Generator_Widget
+from PyQt5 import QtWidgets, QtCore
 from friture.listen import ListenWidget
 from friture.playback import PlaybackWidget
+from friture.generator import Generator_Widget
 from friture.controlbar import AudioIOControlBar
-from friture.defaults import DEFAULT_CENTRAL_WIDGET
 from friture.logger import PrintLogger
+from friture.defaults import DEFAULT_CENTRAL_WIDGET
 
 
 class AudioIOWidget(QtWidgets.QWidget):
 
+    io_widget_changed = QtCore.pyqtSignal(str)
+
     def __init__(self, parent, logger=PrintLogger()):
         super(AudioIOWidget, self).__init__(parent)
+
         self.setObjectName("Audio IO Widget")
+
         self.control_bar = AudioIOControlBar(self)
         self.control_bar.combobox_select.activated.connect(self.widget_select)
 
@@ -43,8 +47,8 @@ class AudioIOWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
         self.logger = logger
+        self.type = None
         self.audiowidget = None
-        self.type = DEFAULT_CENTRAL_WIDGET
 
     # slot
     def widget_select(self, item):
@@ -56,10 +60,11 @@ class AudioIOWidget(QtWidgets.QWidget):
 
         if item is 0:
             self.audiowidget = ListenWidget(self, self.logger)
-        elif item is 1:
+        else:
             self.audiowidget = PlaybackWidget(self, self.logger)
-        elif item is 2:
-            self.audiowidget = Generator_Widget(self, self.parent().audiobackend, self.logger)
+        # TODO: Come back and make the generator widget compatible.
+        # elif item is 2:
+        #     self.audiowidget = Generator_Widget(self, self.parent().audiobackend, self.logger)
 
         self.audiowidget.set_buffer(self.parent().audiobuffer)
         self.parent().audiobuffer.new_data_available.connect(self.audiowidget.handle_new_data)

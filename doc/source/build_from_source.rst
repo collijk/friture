@@ -26,8 +26,8 @@ If friture.ui or resource.qrc are changed, the corresponding python
 files need to be rebuilt::
 
     pyuic4 ui/friture.ui --from-imports > friture/ui_friture.py
-	pyuic4 ui/settings.ui --from-imports > friture/ui_settings.py
-	pyrcc4 resources/friture.qrc -o friture/friture_rc.py
+    pyuic4 ui/settings.ui --from-imports > friture/ui_settings.py
+    pyrcc4 resources/friture.qrc -o friture/friture_rc.py
 
 Cython extension
 ----------------
@@ -39,7 +39,7 @@ extensions can be built automatically with::
 
 On Windows, if you use mingw::
 
-	python setup.py build_ext --inplace --compiler=mingw32)
+    python setup.py build_ext --inplace --compiler=mingw32)
 
 Alternatively, to build the 'exp_smoothing_conv' extension manually on
 Linux, you can do::
