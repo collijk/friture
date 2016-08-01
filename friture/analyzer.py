@@ -77,7 +77,7 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.slow_timer.setInterval(SLOW_TIMER_PERIOD_MS)  # constant timing
 
         self.about_dialog = About_Dialog(self, self.logger, self.audiobackend, self.slow_timer)
-        self.settings_dialog = Settings_Dialog(self, self.logger, self.audiobackend)
+        #self.settings_dialog = Settings_Dialog(self, self.logger, self.audiobackend)
 
         self.centralwidget.logger = logger
         self.centralwidget.io_widget_changed.connect(self.update_io_state)
@@ -157,7 +157,7 @@ class Friture(QMainWindow, Ui_MainWindow):
         settings.endGroup()
 
         settings.beginGroup("AudioBackend")
-        self.settings_dialog.saveState(settings)
+        #self.settings_dialog.saveState(settings)
         settings.endGroup()
 
     # method
@@ -178,7 +178,7 @@ class Friture(QMainWindow, Ui_MainWindow):
         settings.endGroup()
 
         settings.beginGroup("AudioBackend")
-        self.settings_dialog.restoreState(settings)
+        #self.settings_dialog.restoreState(settings)
         settings.endGroup()
 
     # slot

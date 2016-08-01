@@ -75,7 +75,7 @@ class AudioStreamManager(QtCore.QObject):
                                                        frames_per_buffer=FRAMES_PER_BUFFER)
         self.current_input_stream.start_stream()
         lat_ms = 1000 * self.current_input_stream.get_input_latency()
-        self.logger.push("Device claims %d ms latency" % lat_ms)
+        self._logger.push("Device claims %d ms latency" % lat_ms)
 
     def open_output_stream(self, device, callback):
         if self.current_output_stream is not None:
@@ -89,7 +89,7 @@ class AudioStreamManager(QtCore.QObject):
                                                         frames_per_buffer=FRAMES_PER_BUFFER)
         self.current_output_stream.start_stream()
         lat_ms = 1000 * self.current_output_stream.get_input_latency()
-        self.logger.push("Device claims %d ms latency" % lat_ms)
+        self._logger.push("Device claims %d ms latency" % lat_ms)
 
     def is_input_format_supported(self, device, input_format):
         return self._pyaudio.is_format_supported(SAMPLING_RATE,
@@ -111,7 +111,13 @@ class AudioStreamManager(QtCore.QObject):
 
     def restart(self):
         self.current_input_stream.start_stream()
-        self.current_output_stream.start_stream()
+        #self.current_output_stream.start_stream()
+
+    def close(self):
+        if self.current_input_stream:
+            self.current_input_stream.close()
+        if self.current_output_stream:
+            self.current_output_stream.close()
 
     def get_input_stream_time(self):
         try:

@@ -147,7 +147,7 @@ class AudioBackend(QtCore.QObject):
         if input_time == 0.:
             input_time = time_info['current_time']
         if input_time == 0.:
-            input_time = self.stream.get_time()
+            input_time = self.get_input_stream_time()
 
         self.new_data_available_from_callback.emit(in_data, frame_count, input_time, status)
 
@@ -189,7 +189,7 @@ class AudioBackend(QtCore.QObject):
 
     def pause(self):
         self.stream_manager.pause_input_stream()
-        self.stream_manager.pause_output_stream()
+        #self.stream_manager.pause_output_stream()
 
     def restart(self):
         self.stream_manager.restart()
