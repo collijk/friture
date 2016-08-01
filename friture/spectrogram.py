@@ -53,7 +53,6 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         self.gridLayout.addWidget(self.PlotZoneImage, 0, 1, 1, 1)
 
         self.audiobuffer = None
-        self.audiobackend = audiobackend
 
         # initialize the class instance that will do the fft
         self.proc = audioproc(self.logger)
@@ -90,8 +89,6 @@ class Spectrogram_Widget(QtWidgets.QWidget):
 
         # initialize the settings dialog
         self.settings_dialog = Spectrogram_Settings_Dialog(self, self.logger)
-
-        self.audiobackend.underflow.connect(self.PlotZoneImage.plotImage.canvasscaledspectrogram.syncOffsets)
 
         self.last_data_time = 0.
 
