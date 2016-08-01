@@ -135,7 +135,7 @@ class TimePlot(QtWidgets.QWidget):
     def __init__(self, parent, logger):
         super(TimePlot, self).__init__()
 
-        # store the logger instance
+        # store the _logger instance
         self.logger = logger
 
         self.verticalScaleDivision = ScaleDivision(-1, 1, 100)

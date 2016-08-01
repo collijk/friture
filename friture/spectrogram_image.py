@@ -29,7 +29,7 @@ class CanvasScaledSpectrogram(QtCore.QObject):
     def __init__(self, logger, canvas_height=2, canvas_width=2):
         super().__init__()
 
-        # store the logger instance
+        # store the _logger instance
         self.logger = logger
 
         self.canvas_height = canvas_height

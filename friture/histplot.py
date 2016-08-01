@@ -293,7 +293,7 @@ class HistPlot(QtWidgets.QWidget):
     def __init__(self, parent, logger):
         super(HistPlot, self).__init__()
 
-        # store the logger instance
+        # store the _logger instance
         self.logger = logger
 
         self.verticalScaleDivision = ScaleDivision(-140, 0, 100)

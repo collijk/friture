@@ -9,7 +9,7 @@ class AudioDeviceManager(QtCore.QObject):
     pyaudio : :class:`PyAudio`
         The client application's instance of PyAudio
     logger : :class:`Logger`
-        The client application logger.
+        The client application _logger.
 
     Attributes
     ----------

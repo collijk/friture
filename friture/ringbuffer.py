@@ -32,12 +32,12 @@ class RingBuffer(object):
     Parameters
     ----------
     logger : :class:`Logger`
-        The application logger.  Notifies user when RingBuffer performs logged actions.
+        The application _logger.  Notifies user when RingBuffer performs logged actions.
 
     Attributes
     ----------
     logger: :class:`Logger`
-        The application logger.  Notifies user when RingBuffer performs logged actions.
+        The application _logger.  Notifies user when RingBuffer performs logged actions.
     buffer_length: int
         The number of float data points that the buffer stores.
     buffer: array-like

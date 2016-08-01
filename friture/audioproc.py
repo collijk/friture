@@ -46,7 +46,7 @@ class audioproc():
 
         self.fft_size = 10
 
-        # store the logger instance
+        # store the _logger instance
         self.logger = logger
 
     def analyzelive(self, samples, spectrum_type):

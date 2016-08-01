@@ -20,7 +20,7 @@
 from PyQt5 import QtGui, QtWidgets
 
 
-class ControlBar(QtWidgets.QWidget):
+class ControlBarWithSettings(QtWidgets.QWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -59,21 +59,17 @@ class ControlBar(QtWidgets.QWidget):
         self.layout.setSpacing(0)
 
 
-class AudioIOControlBar(QtWidgets.QWidget):
+class ControlBar(QtWidgets.QWidget):
 
     def __init__(self, parent):
-        super(AudioIOControlBar, self).__init__(parent)
+        super(ControlBar, self).__init__(parent)
 
-        self.setObjectName("Audio I/O Control Bar")
+        self.setObjectName("Control Bar")
 
         self.layout = QtWidgets.QHBoxLayout(self)
 
         self.combobox_select = QtWidgets.QComboBox(self)
-        self.combobox_select.addItem("Listen and Record")
-        self.combobox_select.addItem("Load and Playback")
-        self.combobox_select.addItem("Sound Generator")
         self.combobox_select.setCurrentIndex(0)
-        self.combobox_select.setToolTip("Select the Audio I/O method")
 
         self.layout.addWidget(self.combobox_select)
         self.layout.addStretch()
@@ -83,3 +79,8 @@ class AudioIOControlBar(QtWidgets.QWidget):
         self.setMaximumHeight(24)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.layout.setSpacing(0)
+
+    def add_widgets(self, widget_names, current_widget_index, tool_tip_message):
+        self.combobox_select.addItems(widget_names)
+        self.combobox_select.setCurrentIndex(current_widget_index)
+        self.combobox_select.setToolTip(tool_tip_message)

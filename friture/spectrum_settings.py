@@ -174,7 +174,7 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
 
     # slot
     def fftsizechanged(self, index):
-        # FIXME default logger
+        # FIXME default _logger
         if self.logger is not None:
             self.logger.push("fft_size_changed slot %d %d %f" % (index, 2 ** index * 32, 150000 / 2 ** index * 32))
         # FIXME the size should not be found from the index, but attached as item data
@@ -183,7 +183,7 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
 
     # slot
     def freqscalechanged(self, index):
-        # FIXME default logger
+        # FIXME default _logger
         if self.logger is not None:
             self.logger.push("freq_scale slot %d" % index)
         if index == 1:
@@ -193,7 +193,7 @@ class Spectrum_Settings_Dialog(QtWidgets.QDialog):
 
     # slot
     def intensity_scale_changed(self, index):
-        # FIXME default logger
+        # FIXME default _logger
         if self.logger is not None:
             self.logger.push("freq_scale slot %d" % index)
         if index == 0:

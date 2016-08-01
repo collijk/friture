@@ -10,7 +10,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 class PlaybackWidgetUI(object):
     def setupUi(self, playback_widget):
-        playback_widget.setObjectName("playback_widget")
+        playback_widget.setObjectName("Load and Playback")
         playback_widget.resize(400, 222)
         self.gridLayout = QtWidgets.QGridLayout(playback_widget)
         self.gridLayout.setObjectName("gridLayout")
@@ -29,10 +29,10 @@ class PlaybackWidgetUI(object):
         self.button_clear.setEnabled(False)
         self.button_clear.setObjectName("button_clear")
         self.gridLayout.addWidget(self.button_clear, 2, 1, 1, 1)
-        self.widget = LongTimePlot(playback_widget)
-        self.widget.setMinimumSize(QtCore.QSize(300, 100))
-        self.widget.setObjectName("time_plot")
-        self.gridLayout.addWidget(self.widget, 3, 0, 1, 2)
+        self.time_plot = LongTimePlot(playback_widget)
+        self.time_plot.setMinimumSize(QtCore.QSize(300, 100))
+        self.time_plot.setObjectName("time_plot")
+        self.gridLayout.addWidget(self.time_plot, 3, 0, 1, 2)
         self.button_playback_and_stop = QtWidgets.QPushButton(playback_widget)
         self.button_playback_and_stop.setEnabled(False)
         self.button_playback_and_stop.setObjectName("button_playback_and_stop")

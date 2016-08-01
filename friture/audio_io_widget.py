@@ -19,8 +19,7 @@
 from PyQt5 import QtWidgets, QtCore
 from friture.listen import ListenWidget
 from friture.playback import PlaybackWidget
-from friture.generator import Generator_Widget
-from friture.controlbar import AudioIOControlBar
+from friture.controlbar import ControlBar
 from friture.logger import PrintLogger
 from friture.defaults import DEFAULT_CENTRAL_WIDGET
 
@@ -29,13 +28,12 @@ class AudioIOWidget(QtWidgets.QWidget):
 
     io_widget_changed = QtCore.pyqtSignal(str)
 
-    def __init__(self, parent, logger=PrintLogger()):
+    def __init__(self, parent=None, logger=PrintLogger()):
         super(AudioIOWidget, self).__init__(parent)
-
         self.setObjectName("Audio IO Widget")
 
-        self.control_bar = AudioIOControlBar(self)
-        self.control_bar.combobox_select.activated.connect(self.widget_select)
+        self.control_bar = ControlBar(self)
+        self.control_bar.combobox_select.currentIndexChanged.connect(self.widget_select)
 
         self.label = QtWidgets.QLabel(self)
         self.label.setText(" Audio I/O ")  # spaces before and after for nicer alignment
@@ -48,57 +46,54 @@ class AudioIOWidget(QtWidgets.QWidget):
 
         self.logger = logger
         self.type = None
-        self.audiowidget = None
+        self.io_widgets = None
+        self.audio_widget = None
+
+    def set_logger(self, logger):
+        self.logger = logger
+
+    def set_io_widgets(self, io_widgets, widget_index):
+        [widget.hide() for widget in io_widgets]
+
+        self.io_widgets = io_widgets
+        self.audio_widget = io_widgets[widget_index]
+        self.audio_widget.show()
+        self.layout.addWidget(self.audio_widget)
+
+        widget_names = [widget.objectName() for widget in io_widgets]
+        tool_tip_text = "Select the Audio I/O Widget"
+        self.control_bar.add_widgets(widget_names, widget_index, tool_tip_text)
 
     # slot
     def widget_select(self, item):
-        if self.audiowidget is not None:
-            self.audiowidget.close()
-            self.audiowidget.deleteLater()
+        self.audio_widget.idle_signal.emit(self.audio_widget.get_state())
+        self.audio_widget.hide()
+        self.layout.removeWidget(self.audio_widget)
 
-        self.type = item
+        self.audio_widget = self.io_widgets[item]
 
-        if item is 0:
-            self.audiowidget = ListenWidget(self, self.logger)
-        else:
-            self.audiowidget = PlaybackWidget(self, self.logger)
-        # TODO: Come back and make the generator widget compatible.
-        # elif item is 2:
-        #     self.audiowidget = Generator_Widget(self, self.parent().audiobackend, self.logger)
-
-        self.audiowidget.set_buffer(self.parent().audiobuffer)
-        self.parent().audiobuffer.new_data_available.connect(self.audiowidget.handle_new_data)
-
-        self.layout.addWidget(self.audiowidget)
-
-        self.control_bar.combobox_select.setCurrentIndex(item)
+        self.audio_widget.show()
+        self.layout.addWidget(self.audio_widget)
+        self.io_widget_changed.emit(self.audio_widget.objectName())
 
     def canvasUpdate(self):
-        if self.audiowidget is not None:
-            self.audiowidget.canvasUpdate()
+        if self.audio_widget is not None:
+            self.audio_widget.canvas_update()
 
     def pause(self):
-        if self.audiowidget is not None:
-            try:
-                self.audiowidget.pause()
-            except AttributeError:
-                pass
+        self.audio_widget.pause()
 
     def restart(self):
-        if self.audiowidget is not None:
-            try:
-                self.audiowidget.restart()
-            except AttributeError:
-                pass
+        self.audio_widget.restart()
 
 
     # method
     def saveState(self, settings):
         settings.setValue("type", self.type)
-        self.audiowidget.saveState(settings)
+        self.audio_widget.save_state(settings)
 
     # method
     def restoreState(self, settings):
         widget_type = settings.value("type", DEFAULT_CENTRAL_WIDGET, type=int)
         self.widget_select(widget_type)
-        self.audiowidget.restoreState(settings)
+        self.audio_widget.restore_state(settings)

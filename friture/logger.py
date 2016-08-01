@@ -26,14 +26,14 @@ class Logger(QtCore.QObject):
     Parameters
     ----------
     verbose : bool, optional
-        Whether the logger should print to console in addition to writing to the log.
+        Whether the _logger should print to console in addition to writing to the log.
 
     Attributes
     ----------
     count : int
-        Number of messages passed to the logger.
+        Number of messages passed to the _logger.
     log : str
-        A string containing every message passed to this instance of the logger.
+        A string containing every message passed to this instance of the _logger.
 
     Signals
     -------
@@ -77,7 +77,7 @@ class Logger(QtCore.QObject):
 
 
 class PrintLogger(object):
-    """A default logger that prints to the console"""
+    """A default _logger that prints to the console"""
 
     @staticmethod
     def push(text):
@@ -93,5 +93,5 @@ class PrintLogger(object):
 
     @staticmethod
     def get_log():
-        """Placeholder method returning an empty string for consistency with application logger"""
+        """Placeholder method returning an empty string for consistency with application _logger"""
         return ""

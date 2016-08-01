@@ -26,7 +26,7 @@ from friture.scope import Scope_Widget
 from friture.generator import Generator_Widget
 from friture.delay_estimator import Delay_Estimator_Widget
 from friture.longlevels import LongLevelWidget
-from friture.controlbar import ControlBar
+from friture.controlbar import ControlBarWithSettings
 
 
 class Dock(QtWidgets.QDockWidget):
@@ -38,7 +38,7 @@ class Dock(QtWidgets.QDockWidget):
 
         self.logger = logger
 
-        self.control_bar = ControlBar(self)
+        self.control_bar = ControlBarWithSettings(self)
 
         self.control_bar.combobox_select.activated.connect(self.widget_select)
         self.control_bar.settings_button.clicked.connect(self.settings_slot)

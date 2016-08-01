@@ -10,8 +10,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class ListenWidgetUI(object):
+
     def setupUi(self, listen_widget):
-        listen_widget.setObjectName("listen_widget")
+        listen_widget.setObjectName("Listen and Record")
         listen_widget.resize(332, 322)
         self.gridLayout = QtWidgets.QGridLayout(listen_widget)
         self.gridLayout.setObjectName("gridLayout")

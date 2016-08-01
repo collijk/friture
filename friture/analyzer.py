@@ -29,12 +29,14 @@ from PyQt5.QtGui import QPixmap
 from friture.exceptionhandler import errorBox, fileexcepthook
 from friture.ui_friture import Ui_MainWindow
 from friture.about import About_Dialog  # About dialog
-from friture.settings import Settings_Dialog  # Setting dialog
 from friture.logger import Logger  # Logging class
 from friture.audiobuffer import AudioBuffer  # audio ring buffer class
 from friture.audiobackend import AudioBackend  # audio backend class
 from friture.defaults import DEFAULT_CENTRAL_WIDGET
 from friture.dockmanager import DockManager
+
+from friture.listen import ListenWidget
+from friture.playback import PlaybackWidget
 
 # the display timer could be made faster when the processing
 # power allows it, firing down to every 10 ms
@@ -56,7 +58,7 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.errorDialogOpened = False
         sys.excepthook = self.excepthook
 
-        # logger
+        # _logger
         self.logger = logger
 
         # Initialize the audio data ring buffer
@@ -77,11 +79,12 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.slow_timer.setInterval(SLOW_TIMER_PERIOD_MS)  # constant timing
 
         self.about_dialog = About_Dialog(self, self.logger, self.audiobackend, self.slow_timer)
-        #self.settings_dialog = Settings_Dialog(self, self.logger, self.audiobackend)
+        #self.settings_dialog = Settings_Dialog(self, self._logger, self.audiobackend)
 
-        self.centralwidget.logger = logger
-        self.centralwidget.io_widget_changed.connect(self.update_io_state)
-        self.centralwidget.widget_select(DEFAULT_CENTRAL_WIDGET)
+        self.io_widgets = [ListenWidget(self, self.logger), PlaybackWidget(self, self.logger)]
+        self.centralwidget.set_logger(logger)
+        logger.push(type(self.centralwidget))
+        self.centralwidget.set_io_widgets(self.io_widgets, DEFAULT_CENTRAL_WIDGET)
 
         self.dockmanager = DockManager(self, self.logger)
 
