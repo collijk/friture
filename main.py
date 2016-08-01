@@ -4,7 +4,7 @@ import sys
 # allow this script to be executed as a child of another script (lsprofcalltree, for example)
 sys.path.insert(0, '.')
 
-from friture.analyzer import main
+from friture.friture_main import main
 
 if __name__ == '__main__':
     main()

@@ -17,8 +17,6 @@
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtWidgets, QtCore
-from friture.listen import ListenWidget
-from friture.playback import PlaybackWidget
 from friture.controlbar import ControlBar
 from friture.logger import PrintLogger
 from friture.defaults import DEFAULT_CENTRAL_WIDGET
@@ -45,7 +43,6 @@ class AudioIOWidget(QtWidgets.QWidget):
         self.setLayout(self.layout)
 
         self.logger = logger
-        self.type = None
         self.io_widgets = None
         self.audio_widget = None
 
@@ -81,15 +78,14 @@ class AudioIOWidget(QtWidgets.QWidget):
             self.audio_widget.canvas_update()
 
     def pause(self):
-        self.audio_widget.pause()
+        pass
 
     def restart(self):
-        self.audio_widget.restart()
-
+        pass
 
     # method
     def saveState(self, settings):
-        settings.setValue("type", self.type)
+        settings.setValue("type", self.io_widgets.index(self.audio_widget))
         self.audio_widget.save_state(settings)
 
     # method

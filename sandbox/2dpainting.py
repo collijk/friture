@@ -27,7 +27,7 @@
 import sys
 import math
 
-from PyQt4 import QtCore, QtGui, QtOpenGL
+from PyQt5 import QtCore, QtGui, QtOpenGL
 
 try:
     from OpenGL import GL
