@@ -29,6 +29,8 @@ FRAMES_PER_BUFFER = 512
 
 class AudioBackend(QtCore.QObject):
 
+    IDLE, LISTENING, RECORDING, PLAYING = range(4)
+
     underflow = QtCore.pyqtSignal()
     new_data_available_from_callback = QtCore.pyqtSignal(bytes, int, float, int)
     new_data_available = QtCore.pyqtSignal(ndarray, float, int)
@@ -37,6 +39,7 @@ class AudioBackend(QtCore.QObject):
         super(AudioBackend, self).__init__()
 
         self.logger = logger
+        self.state = AudioBackend.IDLE
 
         self.logger.push("Initializing PyAudio")
         self.pa = PyAudio()
@@ -45,16 +48,8 @@ class AudioBackend(QtCore.QObject):
         self.device_manager = AudioDeviceManager(self.pa, logger)
         self.stream_manager = AudioStreamManager(self.pa, logger)
 
-        # we will try to open all the input devices until one
-        # works, starting by the default input device
-        success = False
-        for device in self.device_manager.get_input_devices():
-            success = self.open_input_stream(device, self.callback)
-            if success:
-                break
+        self._initialize_devices()
 
-        if not success:
-            self.logger.push("No valid input devices")
 
         self.new_data_available_from_callback.connect(self.handle_new_data)
 
@@ -189,7 +184,7 @@ class AudioBackend(QtCore.QObject):
 
     def pause(self):
         self.stream_manager.pause_input_stream()
-        #self.stream_manager.pause_output_stream()
+        self.stream_manager.pause_output_stream()
 
     def restart(self):
         self.stream_manager.restart()
@@ -205,3 +200,25 @@ class AudioBackend(QtCore.QObject):
 
             # avoid calling PortAudio methods in the callback/slots
             self.pyaudio_terminated = True
+
+    def _initialize_devices(self):
+        for device in self.device_manager.get_input_devices():
+            success = self.stream_manager.is_input_format_supported(device, paInt16)
+            if not success:
+                self.device_manager.remove_input_device(device)
+        if self.device_manager.num_input_devices():
+            self.device_manager.set_current_input_device(self.device_manager.get_input_device(0))
+        else:
+            self.logger.push("No valid input devices")
+
+        for device in self.device_manager.get_output_devices():
+            success = self.stream_manager.is_output_format_supported(device, paInt16)
+            if not success:
+                self.device_manager.remove_output_device(device)
+        if self.device_manager.num_output_devices():
+            self.device_manager.set_current_output_device(self.device_manager.get_output_device(0))
+        else:
+            self.logger.push("No valid output devices")
+
+
+

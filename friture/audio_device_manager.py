@@ -1,5 +1,5 @@
 from PyQt5 import QtCore
-
+import pyaudio
 
 class AudioDeviceManager(QtCore.QObject):
     """Wrapper class to manage audio devices.
@@ -23,6 +23,12 @@ class AudioDeviceManager(QtCore.QObject):
         The output device currently being used.
 
     """
+
+    standard_sample_rates = [8000.0, 9600.0, 11025.0, 12000.0,
+                             16000.0, 22050.0, 24000.0, 32000.0,
+                             44100.0, 48000.0, 88200.0, 96000.0,
+                             192000.0]
+
     def __init__(self, pyaudio, logger):
         super(AudioDeviceManager, self).__init__()
 
@@ -60,8 +66,8 @@ class AudioDeviceManager(QtCore.QObject):
     def get_output_devices(self):
         return self.output_devices
 
-    def set_current_output_device(self, index):
-        self.current_output_device = self.output_devices[index]
+    def set_current_output_device(self, device):
+        self.current_output_device = device
 
     def input_is_dual_channel(self):
         return self.current_input_device.input_is_dual_channel
@@ -92,6 +98,18 @@ class AudioDeviceManager(QtCore.QObject):
 
     def get_readable_output_devices(self):
         return [str(device) for device in self.output_devices]
+
+    def remove_input_device(self, device):
+        self.input_devices.remove(device)
+
+    def remove_output_device(self, device):
+        self.output_devices.remove(device)
+
+    def num_input_devices(self):
+        return len(self.input_devices)
+
+    def num_output_devices(self):
+        return len(self.output_devices)
 
     def _get_audio_io_devices(self):
         """Retrieves a list of input and output devices available on the system.
@@ -134,6 +152,8 @@ class AudioDeviceManager(QtCore.QObject):
             A pared down list of devices of the requested i/o type with the default device at the front.
         """
 
+
+
         devices = []
         # Get the system default device for this i/o type
         default_device = self._get_default_device(device_type)
@@ -168,6 +188,110 @@ class AudioDeviceManager(QtCore.QObject):
                 return self._pyaudio.get_default_output_device_info()['index']
         except IOError:
             return None
+
+    def _audio_system_info(self):
+        max_apis = self._pyaudio.get_host_api_count()
+        max_devs = self._pyaudio.get_device_count()
+
+        self._logger.push("\nPortAudio System Info:\n======================")
+        self._logger.push("Version: %d" % pyaudio.get_portaudio_version())
+        self._logger.push("Version Text: %s" % pyaudio.get_portaudio_version_text())
+        self._logger.push("Number of Host APIs: %d" % max_apis)
+        self._logger.push("Number of Devices  : %d" % max_devs)
+        self._logger.push("\nHost APIs:\n==========")
+
+        for i in range(max_apis):
+            apiinfo = self._pyaudio.get_host_api_info_by_index(i)
+            for k in apiinfo.items():
+                self._logger.push("%s: %s" % k)
+
+        self._logger.push("--------------------------")
+        self._logger.push("\nDevices:\n========")
+
+        for i in range(max_devs):
+            devinfo = self._pyaudio.get_device_info_by_index(i)
+            for k in devinfo.items():
+                name, value = k
+                # if host API, then get friendly name
+                if name == 'hostApi':
+                    value = str(value) + " (%s)" % self._pyaudio.get_host_api_info_by_index(k[1])['name']
+                    self._logger.push("\t%s: %s" % (name, value))
+
+            input_supported_rates = []
+            output_supported_rates = []
+            full_duplex_rates = []
+            for f in self.standard_sample_rates:
+                if devinfo['maxInputChannels'] > 0:
+                    try:
+                        if self._pyaudio.is_format_supported(
+                                f,
+                                input_device=devinfo['index'],
+                                input_channels=devinfo['maxInputChannels'],
+                                input_format=pyaudio.paInt16):
+                            input_supported_rates.append(f)
+                    except ValueError:
+                        pass
+
+                if devinfo['maxOutputChannels'] > 0:
+                    try:
+                        if self._pyaudio.is_format_supported(
+                                f,
+                                output_device=devinfo['index'],
+                                output_channels=devinfo['maxOutputChannels'],
+                                output_format=pyaudio.paInt16):
+                            output_supported_rates.append(f)
+                    except ValueError:
+                        pass
+
+                if (devinfo['maxInputChannels'] > 0) and (devinfo['maxOutputChannels'] > 0):
+                    try:
+                        if self._pyaudio.is_format_supported(
+                                f,
+                                input_device=devinfo['index'],
+                                input_channels=devinfo['maxInputChannels'],
+                                input_format=pyaudio.paInt16,
+                                output_device=devinfo['index'],
+                                output_channels=devinfo['maxOutputChannels'],
+                                output_format=pyaudio.paInt16):
+                            full_duplex_rates.append(f)
+                    except ValueError:
+                        pass
+
+            if len(input_supported_rates):
+                self._logger.push("\tInput rates:" + str(input_supported_rates))
+            if len(output_supported_rates):
+                self._logger.push("\tOutput rates:" + str(output_supported_rates))
+            if len(full_duplex_rates):
+                self._logger.push("\tFull duplex: " + str(full_duplex_rates))
+
+            self._logger.push("\t--------------------------------")
+
+        self._logger.push("\nDefault Devices:\n================")
+        try:
+            def_index = self._pyaudio.get_default_input_device_info()['index']
+            self._logger.push("Default Input Device :" + str(def_index))
+            devinfo = self._pyaudio.get_device_info_by_index(def_index)
+            for k in devinfo.items():
+                name, value = k
+                if name == 'hostApi':
+                    value = str(value) + " (%s)" % self._pyaudio.get_host_api_info_by_index(k[1])['name']
+                self._logger.push("\t%s: %s" % (name, value))
+            self._logger.push("\t--------------------------------")
+        except IOError as err:
+            self._logger.push("No Input devices: %s" % err[0])
+
+        try:
+            def_index = self._pyaudio.get_default_output_device_info()['index']
+            self._logger.push("Default Output Device:" + str(def_index))
+            devinfo = self._pyaudio.get_device_info_by_index(def_index)
+            for k in devinfo.items():
+                name, value = k
+                if name == 'hostApi':
+                    value = str(value) + " (%s)" % self._pyaudio.get_host_api_info_by_index(k[1])['name']
+                self._logger.push("\t%s: %s" % (name, value))
+            self._logger.push("\t--------------------------------")
+        except IOError as err:
+            self._logger.push("No Output devices: %s" % err[0])
 
     def __repr__(self):
         return ("%s" % self.__class__).join(

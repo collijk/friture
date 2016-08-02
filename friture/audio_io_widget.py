@@ -54,6 +54,7 @@ class AudioIOWidget(QtWidgets.QWidget):
 
         self.io_widgets = io_widgets
         self.audio_widget = io_widgets[widget_index]
+        self.io_widget_changed.emit(self.audio_widget.objectName())
         self.audio_widget.show()
         self.layout.addWidget(self.audio_widget)
 

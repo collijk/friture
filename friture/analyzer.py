@@ -79,9 +79,11 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.about_dialog = About_Dialog(self, self.logger, self.audiobackend, self.slow_timer)
         #self.settings_dialog = Settings_Dialog(self, self._logger, self.audiobackend)
 
-        self.io_widgets = [ListenWidget(self, self.logger), PlaybackWidget(self, self.logger)]
+        self.io_widgets = self._get_audio_io_widgets()
+
+        self.io_widget_names = [widget.objectName() for widget in self.io_widgets]
+        self.centralwidget.io_widget_changed.connect(self.update_io)
         self.centralwidget.set_logger(logger)
-        logger.push(type(self.centralwidget))
         self.centralwidget.set_io_widgets(self.io_widgets, DEFAULT_CENTRAL_WIDGET)
 
         self.dockmanager = DockManager(self, self.logger)
@@ -112,6 +114,9 @@ class Friture(QMainWindow, Ui_MainWindow):
             self.errorDialogOpened = True
             errorBox(gui_message)
             self.errorDialogOpened = False
+
+    def update_io(self, io_widget_name):
+        pass
 
     # slot
     def settings_called(self):
@@ -185,6 +190,17 @@ class Friture(QMainWindow, Ui_MainWindow):
             self.audiobackend.restart()
             self.centralwidget.restart()
             self.dockmanager.restart()
+
+    def _get_audio_io_widgets(self):
+        listen_widget = ListenWidget(self, self.logger)
+        listen_widget.add_input_devices(self.audiobackend.get_readable_input_devices(),
+                                        self.audiobackend.get_current_input_device_index())
+        listen_widget.add_output_devices(self.audiobackend.get_readable_output_devices(),
+                                         self.audiobackend.get_current_output_device_index())
+        playback_widget = PlaybackWidget(self, self.logger)
+        playback_widget.add_output_devices(self.audiobackend.get_readable_output_devices(),
+                                           self.audiobackend.get_current_output_device_index())
+        return [listen_widget, playback_widget]
 
 
 
