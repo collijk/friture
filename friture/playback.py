@@ -41,7 +41,7 @@ class PlaybackWidget(QtWidgets.QWidget, PlaybackWidgetUI):
     clear_data_signal = QtCore.pyqtSignal()
 
     # Device signals
-    output_device_change_signal = QtCore.pyqtSignal(int)
+    output_device_changed_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None, logger=PrintLogger()):
         super(PlaybackWidget, self).__init__(parent)
