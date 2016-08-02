@@ -52,7 +52,8 @@ class Dock(QtWidgets.QDockWidget):
         self.setWidget(self.dockwidget)
 
         self.audiowidget = None
-        self.widget_select(widget_type)
+        self.type = widget_type
+        self.widget_select(self.type)
 
     # note that by default the closeEvent is accepted, no need to do it explicitely
     def closeEvent(self, event):
@@ -66,28 +67,30 @@ class Dock(QtWidgets.QDockWidget):
 
         self.type = item
 
+        # FIXME: audiowidgets shouldn't have direct access to the audiobuffer
         if item is 0:
             self.audiowidget = Levels_Widget(self, self.logger)
         elif item is 1:
             self.audiowidget = Scope_Widget(self, self.logger)
+            self.audiowidget.set_buffer(self.parent().audiobuffer)
         elif item is 2:
             self.audiowidget = Spectrum_Widget(self, self.logger)
+            self.audiowidget.set_buffer(self.parent().audiobuffer)
         elif item is 3:
             self.audiowidget = Spectrogram_Widget(self, self.parent().audiobackend, self.logger)
             self.parent().audiobackend.underflow.connect(
                 self.audiowidget.PlotZoneImage.plotImage.canvasscaledspectrogram.syncOffsets)
+            self.audiowidget.set_buffer(self.parent().audiobuffer)
         elif item is 4:
             self.audiowidget = OctaveSpectrum_Widget(self, self.logger)
         elif item is 5:
-            self.audiowidget = Generator_Widget(self, self.parent().audiobackend, self.logger)
-        elif item is 6:
             self.audiowidget = Delay_Estimator_Widget(self, self.logger)
-        elif item is 7:
+        elif item is 6:
             self.audiowidget = LongLevelWidget(self, self.logger)
-        else:
+            self.audiowidget.set_buffer(self.parent().audiobuffer)
+        else:  # Default to the levels widget
             self.audiowidget = Levels_Widget(self, self.logger)
 
-        self.audiowidget.set_buffer(self.parent().audiobuffer)
         self.parent().audiobuffer.new_data_available.connect(self.audiowidget.handle_new_data)
 
         self.layout.addWidget(self.audiowidget)

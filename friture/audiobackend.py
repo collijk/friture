@@ -74,35 +74,17 @@ class AudioBackend(QtCore.QObject):
 
     def set_input_device(self, index):
         device = self.device_manager.get_input_device(index)
-        success = self.open_input_stream(device, self.callback)
+        success = self.stream_manager.is_input_format_supported(device, paInt16)
 
         self.input_device_changed_signal.emit(success,
                                               self.device_manager.get_current_output_device_index())
 
     def set_output_device(self, index):
         device = self.device_manager.get_output_device(index)
-        success = self.open_output_stream(device, self.callback)
+        success = self.stream_manager.is_output_format_supported(device, paInt16)
 
         self.output_device_changed_signal.emit(success,
                                                self.device_manager.get_current_output_device_index())
-
-    def open_input_stream(self, device, callback):
-        success = self.stream_manager.is_input_format_supported(device, paInt16)
-
-        if success:
-            self.device_manager.current_input_device = device
-            self.stream_manager.open_input_stream(device, callback)
-
-        return success
-
-    def open_output_stream(self, device, callback):
-        success = self.stream_manager.is_output_format_supported(device, paInt16)
-
-        if success:
-            self.device_manager.current_output_device = device
-            self.stream_manager.open_output_stream(device, callback)
-
-        return success
 
     def get_input_stream_time(self):
         return self.stream_manager.get_input_stream_time()
@@ -118,11 +100,11 @@ class AudioBackend(QtCore.QObject):
         device = self.device_manager.get_output_device(device_index)
         return self.stream_manager.is_output_format_supported(device, output_format)
 
-    def set_single_channel_input(self):
-        self.device_manager.set_single_channel_input()
-
-    def set_dual_channel_input(self):
-        self.device_manager.set_dual_channel_input()
+    def set_input_channels(self, num_channels):
+        if num_channels == 1:
+            self.device_manager.set_single_channel_input()
+        elif num_channels == 2:
+            self.device_manager.set_dual_channel_input()
 
     def select_first_channel(self, index):
         self.device_manager.set_first_input_channel(index)

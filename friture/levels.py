@@ -100,7 +100,6 @@ class Levels_Widget(QtWidgets.QWidget):
         # self.label_peak_legend.setSizePolicy(QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding))
 
         self.logger = logger
-        self.audiobuffer = None
 
         # initialize the settings dialog
         self.settings_dialog = Levels_Settings_Dialog(self, self.logger)
@@ -139,10 +138,6 @@ class Levels_Widget(QtWidgets.QWidget):
         self.two_channels = False
 
         self.i = 0
-
-    # method
-    def set_buffer(self, buffer):
-        self.audiobuffer = buffer
 
     def handle_new_data(self, floatdata):
         if floatdata.shape[0] > 1 and not self.two_channels:

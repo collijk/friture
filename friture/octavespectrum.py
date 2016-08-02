@@ -48,7 +48,6 @@ class OctaveSpectrum_Widget(QtWidgets.QWidget):
         super().__init__(parent)
 
         self.logger = logger
-        self.audiobuffer = None
 
         self.setObjectName("Spectrum_Widget")
         self.gridLayout = QtWidgets.QGridLayout(self)
@@ -74,11 +73,8 @@ class OctaveSpectrum_Widget(QtWidgets.QWidget):
         # initialize the settings dialog
         self.settings_dialog = OctaveSpectrum_Settings_Dialog(self, self.logger)
 
-    # method
-    def set_buffer(self, buffer):
-        self.audiobuffer = buffer
-
-    def compute_kernels(self, alphas, Ns):
+    @staticmethod
+    def compute_kernels(alphas, Ns):
         kernels = []
         for alpha, N in zip(alphas, Ns):
             kernels += [(1. - alpha) ** arange(N - 1, -1, -1)]

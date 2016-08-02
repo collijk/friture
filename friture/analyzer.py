@@ -48,6 +48,8 @@ SLOW_TIMER_PERIOD_MS = 1000
 
 class Friture(QMainWindow, Ui_MainWindow):
 
+    io_widget_classes = [ListenWidget, PlaybackWidget]
+
     def __init__(self, logger, parent=None):
         super(Friture, self).__init__(parent)
         self.setupUi(self)
@@ -79,12 +81,8 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.about_dialog = About_Dialog(self, self.logger, self.audiobackend, self.slow_timer)
         #self.settings_dialog = Settings_Dialog(self, self._logger, self.audiobackend)
 
-        self.io_widgets = self._get_audio_io_widgets()
-
-        self.io_widget_names = [widget.objectName() for widget in self.io_widgets]
-        self.centralwidget.io_widget_changed.connect(self.update_io)
         self.centralwidget.set_logger(logger)
-        self.centralwidget.set_io_widgets(self.io_widgets, DEFAULT_CENTRAL_WIDGET)
+        self.centralwidget.set_io_widgets(self._get_audio_io_widgets(), DEFAULT_CENTRAL_WIDGET)
 
         self.dockmanager = DockManager(self, self.logger)
 
@@ -114,23 +112,6 @@ class Friture(QMainWindow, Ui_MainWindow):
             self.errorDialogOpened = True
             errorBox(gui_message)
             self.errorDialogOpened = False
-
-    def update_io(self, io_widget_name):
-        io_widget = self.io_widgets[self.io_widget_names.index(io_widget_name)]
-        if io_widget_name == "Listen and Record":
-            io_widget.idle_signal.connect(self.audiobackend.set_idle)
-            io_widget.listening_signal.connect(self.audiobackend.set_listening)
-            io_widget.recording_signal.connect(self.audiobackend.set_recording)
-            io_widget.playing_signal.connect(self.audiobackend.set_playing)
-            io_widget.clear_data_signal.connect(self.audiobackend.clear_playback_buffer)
-            io_widget.input_device_changed_signal.connect(self.audiobackend.set_input_device)
-            io_widget.output_device_changed_signal.connect(self.audiobackend.set_output_device)
-        elif io_widget_name == "Load and Playback":
-            PlaybackWidget.idle_signal.connect(self.audiobackend.set_idle)
-            PlaybackWidget.playing_signal.connect(self.audiobackend.set_playing)
-            PlaybackWidget.clear_data_signal.connect(self.audiobackend.clear_playback_buffer)
-            PlaybackWidget.output_device_changed_signal.connect(self.audiobackend.set_output_device)
-            PlaybackWidget.load_signal.connect(self.load_file)
 
     # slot
     def settings_called(self):
@@ -209,15 +190,33 @@ class Friture(QMainWindow, Ui_MainWindow):
             self.dockmanager.restart()
 
     def _get_audio_io_widgets(self):
-        listen_widget = ListenWidget(self, self.logger)
-        listen_widget.add_input_devices(self.audiobackend.get_readable_input_devices(),
-                                        self.audiobackend.get_current_input_device_index())
-        listen_widget.add_output_devices(self.audiobackend.get_readable_output_devices(),
-                                         self.audiobackend.get_current_output_device_index())
-        playback_widget = PlaybackWidget(self, self.logger)
-        playback_widget.add_output_devices(self.audiobackend.get_readable_output_devices(),
-                                           self.audiobackend.get_current_output_device_index())
-        return [listen_widget, playback_widget]
+        widgets = []
+        for widget_class in self.io_widget_classes:
+            widget = widget_class(self, self.logger)
+            widget.add_input_devices(self.audiobackend.get_readable_input_devices(),
+                                     self.audiobackend.get_current_input_device_index())
+            widget.add_output_devices(self.audiobackend.get_readable_output_devices(),
+                                      self.audiobackend.get_current_output_device_index())
+            widgets.append(widget)
 
+        return widgets
 
+    def connect_io_widget(self, io_widget):
+        io_widget.idle_signal.connect(self.audiobackend.set_idle)
+        io_widget.listening_signal.connect(self.audiobackend.set_listening)
+        io_widget.recording_signal.connect(self.audiobackend.set_recording)
+        io_widget.playing_signal.connect(self.audiobackend.set_playing)
 
+        io_widget.save_data_signal.connect(self.save_data)
+        io_widget.load_data_signal.connect(self.load_data)
+        io_widget.clear_data_signal.connect(self.audiobackend.clear_playback_buffer)
+
+        io_widget.input_device_changed_signal.connect(self.audiobackend.set_input_device)
+        io_widget.input_channel_number_changed_signal.connect(self.audiobackend.set_input_channels)
+        io_widget.output_device_changed_signal.connect(self.audiobackend.set_output_device)
+
+    def save_data(self):
+        pass
+
+    def load_data(self):
+        pass

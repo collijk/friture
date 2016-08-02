@@ -35,7 +35,6 @@ class ControlBarWithSettings(QtWidgets.QWidget):
         self.combobox_select.addItem("FFT Spectrum")
         self.combobox_select.addItem("2D Spectrogram")
         self.combobox_select.addItem("Octave Spectrum")
-        self.combobox_select.addItem("Generator")
         self.combobox_select.addItem("Delay Estimator")
         self.combobox_select.addItem("Long-time levels")
         self.combobox_select.setCurrentIndex(0)

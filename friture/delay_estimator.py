@@ -98,7 +98,6 @@ class Delay_Estimator_Widget(QtWidgets.QWidget):
     def __init__(self, parent=None, logger=PrintLogger()):
         super().__init__(parent)
 
-        self.audiobuffer = None
         self.logger = logger
 
         self.previous_delay_message = ""
@@ -178,10 +177,6 @@ class Delay_Estimator_Widget(QtWidgets.QWidget):
         self.distance_m = 0.
         self.correlation = 0.
         self.Xcorr_extremum = 0.
-
-    # method
-    def set_buffer(self, buffer):
-        self.audiobuffer = buffer
 
     def handle_new_data(self, floatdata):
         if floatdata.shape[0] == 1:

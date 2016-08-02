@@ -1,9 +1,9 @@
-from PyQt5 import QtCore, QtWidgets
+from friture.audio_io_widget import AudioIOWidget
 from friture.ui_listen_widget import ListenWidgetUI
 from friture.logger import PrintLogger
 
 
-class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
+class ListenWidget(AudioIOWidget, ListenWidgetUI):
     """Widget providing controls for listening to microphone input and recording/playing audio snippets.
 
     Parameters
@@ -13,51 +13,19 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
     logger : :class:`Logger`, optional
         The application _logger. Defaults to a simple print _logger.
 
-    Signals
-    -------
-    idle_signal :
-        Emitted when this widget enters the idle state
-    listening_signal :
-        Emitted when this widget enters the listening to microphone input state.
-    recording_signal :
-        Emitted when this widget enters the recording from microphone state.
-    playing_signal :
-        Emitted when this widget enters the playback from recording state.
-    clear_data_signal :
-        Emitted when this widget requests recorded data to be deleted.
-    input_device_changed_signal :
-        Emitted when this widget requests the input device to be changed.
-    input_channel_type_changed_signal :
-        Emitted when this widget requests the input channel type (single or dual) to be changed.
-    output_device_changed_signal :
-        Emitted when this widget request the output device to be changed.
+    See Also
+    --------
+    For available signals see :class:'~audio_io_widget.AudioIOWidget`
 
     """
 
-    # States for this widget.
-    IDLE, LISTENING, RECORDING, PLAYING = range(4)
-
-    # State signals
-    idle_signal = QtCore.pyqtSignal(int)
-    listening_signal = QtCore.pyqtSignal(int)
-    recording_signal = QtCore.pyqtSignal(int)
-    playing_signal = QtCore.pyqtSignal(int)
-
-    # Data signals
-    clear_data_signal = QtCore.pyqtSignal()
-
-    # Device signals
-    input_device_changed_signal = QtCore.pyqtSignal(int)
-    input_channel_type_changed_signal = QtCore.pyqtSignal(int)
-    output_device_changed_signal = QtCore.pyqtSignal(int)
-
     def __init__(self, parent=None, logger=PrintLogger()):
-        super(ListenWidget, self).__init__(parent)
+        super().__init__(parent)
         self.setupUi(self)
         self._logger = logger
         self._data_available_for_playback = False
-        self._state = ListenWidget.IDLE
         self._connect_ui()
+        self._connect_internal_signals()
 
     def add_input_devices(self, input_devices, current_device_index):
         """Adds audio input devices to this widgets input device combo box.
@@ -70,6 +38,8 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
             The currently selected input device.
 
         """
+        super().add_input_devices(input_devices, current_device_index)
+
         self.comboBox_input_device.addItems(input_devices)
         self.comboBox_input_device.setCurrentIndex(current_device_index)
         self.comboBox_input_device.setEnabled(True)
@@ -86,60 +56,24 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
             The currently selected input device.
 
         """
+        super().add_output_devices(output_devices, current_device_index)
+
         self.comboBox_output_device.addItems(output_devices)
         self.comboBox_output_device.setCurrentIndex(current_device_index)
         self.comboBox_output_device.setEnabled(True)
         self.comboBox_input_device.currentIndexChanged.connect(self._output_device_changed)
 
     def disconnect_all_signals(self):
-        self._disconnect_signal(self.idle_signal)
-        self._disconnect_signal(self.listening_signal)
-        self._disconnect_signal(self.recording_signal)
-        self._disconnect_signal(self.playing_signal)
-        self._disconnect_signal(self.clear_data_signal)
-        self._disconnect_signal(self.input_device_changed_signal)
-        self._disconnect_signal(self.output_device_changed_signal)
-        self._disconnect_signal(self.input_channel_type_changed_signal)
+        """Disconnects all external slots from this widget's signals"""
+        super().disconnect_all_signals()
 
-    @staticmethod
-    def _disconnect_signal(signal):
-        while True:
-            try:
-                signal.disconnect()
-            except TypeError:  # The signal is not connected to anything
-                break
-
-    def get_state(self):
-        """Returns the current state of this widget."""
-        return self._state
+        self._connect_internal_signals()
 
     def canvas_update(self):
         """Updates this widgets display"""
+        super().canvas_update()
+
         self.time_plot.canvas_update()
-
-    def save_state(self, settings):
-        """Save the current widget configuration
-
-        Parameters
-        ----------
-        settings : :class:`QSettings`
-            The application settings object to be written to.
-
-        """
-        # TODO: Implement settings saving.
-        pass
-
-    def restore_state(self, settings):
-        """Restore the current widget's configuration from settings
-
-        Parameters
-        ----------
-        settings : :class:`QSettings`
-            The application settings object from which this widgets settings may be loaded.
-
-        """
-        # TODO: Implement settings loading.
-        pass
 
     def _connect_ui(self):
         self.button_listen.released.connect(self._listen_button_pressed)
@@ -147,31 +81,31 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
         self.button_clear.released.connect(self._clear_button_pressed)
         self.button_playback_and_stop.released.connect(self._play_button_pressed)
         self.button_save.released.connect(self._save_button_pressed)
-
         # TODO: Connect radio buttons to signals
 
+    def _connect_internal_signals(self):
         self.idle_signal.connect(self._change_state_to_idle)
         self.listening_signal.connect(self._change_state_to_listening)
         self.recording_signal.connect(self._change_state_to_recording)
         self.playing_signal.connect(self._change_state_to_playing)
-        self.clear_data_signal.connect(self._data_cleared)
-
+        self.clear_data_signal.connect(self._clear_data)
+        
     def _listen_button_pressed(self):
-        if self._state == ListenWidget.IDLE:
+        if self._state == AudioIOWidget.IDLE:
             self.listening_signal.emit(self._state)
-        elif self._state == ListenWidget.LISTENING:
+        elif self._state == AudioIOWidget.LISTENING:
             self.idle_signal.emit(self._state)
-        elif self._state == ListenWidget.RECORDING:
+        elif self._state == AudioIOWidget.RECORDING:
             self.idle_signal.emit(self._state)
-        # else self._state == ListenWidget.PLAYING: listen button should be inactive
+        # else self._state == AudioIOWidget.PLAYING: listen button should be inactive
 
     def _record_button_pressed(self):
-        # if self._state == ListenWidget.IDLE: record button should be inactive
-        if self._state == ListenWidget.LISTENING:
+        # if self._state == AudioIOWidget.IDLE: record button should be inactive
+        if self._state == AudioIOWidget.LISTENING:
             self.recording_signal.emit(self._state)
-        elif self._state == ListenWidget.RECORDING:
+        elif self._state == AudioIOWidget.RECORDING:
             self.listening_signal.emit(self._state)
-        # else: self._state == ListenWidget.PLAYING: record button should be inactive
+        # else: self._state == AudioIOWidget.PLAYING: record button should be inactive
 
     def _clear_button_pressed(self):
         if self._data_available_for_playback:
@@ -180,18 +114,16 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
 
     def _play_button_pressed(self):
         if self._data_available_for_playback:
-            if self._state == ListenWidget.IDLE:
+            if self._state == AudioIOWidget.IDLE:
                 self.playing_signal.emit(self._state)
             # elif self._state == ListeningWidget.LISTENING: play button should be inactive
             # elif self._state == ListeningWidget.RECORDING: play button should be inactive
-            elif self._state == ListenWidget.PLAYING:
+            elif self._state == AudioIOWidget.PLAYING:
                 self.idle_signal.emit(self._state)
         # else: play button should be inactive
 
     def _save_button_pressed(self):
-        if self._data_available_for_playback:
-            # TODO: Make saving data work
-            pass
+        self.save_data_signal.emit()
 
     def _input_device_changed(self, index):
         self.input_device_changed_signal.emit(index)
@@ -217,16 +149,16 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
             self.button_playback_and_stop.setText("Play")
             self.button_clear.setEnabled(True)
 
-        if previous_state == ListenWidget.IDLE:
+        if previous_state == AudioIOWidget.IDLE:
             pass  # Shouldn't be able to get here.
-        elif previous_state == ListenWidget.LISTENING:
+        elif previous_state == AudioIOWidget.LISTENING:
             pass  # Covered by defaults.
-        elif previous_state == ListenWidget.RECORDING:
+        elif previous_state == AudioIOWidget.RECORDING:
             self.button_record_and_stop.setText("Record")
-        elif previous_state == ListenWidget.PLAYING:
+        elif previous_state == AudioIOWidget.PLAYING:
             pass  # Covered by defaults.
 
-        self._state = ListenWidget.IDLE
+        self._state = AudioIOWidget.IDLE
 
     def _change_state_to_listening(self, previous_state):
 
@@ -238,17 +170,17 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
         self.button_record_and_stop.setEnabled(True)
         self.button_listen.setText("Stop Listening")
 
-        if previous_state == ListenWidget.IDLE:
+        if previous_state == AudioIOWidget.IDLE:
             pass  # Covered by default
-        elif previous_state == ListenWidget.LISTENING:
+        elif previous_state == AudioIOWidget.LISTENING:
             pass  # Shouldn't be able to get here.
-        elif previous_state == ListenWidget.RECORDING:
+        elif previous_state == AudioIOWidget.RECORDING:
             self.button_record_and_stop.setText("Record")
             self.button_save.setEnabled(True)
-        elif previous_state == ListenWidget.PLAYING:
+        elif previous_state == AudioIOWidget.PLAYING:
             pass  # Shouldn't be able to get here.
 
-        self._state = ListenWidget.LISTENING
+        self._state = AudioIOWidget.LISTENING
 
     def _change_state_to_recording(self, previous_state):
         self.button_record_and_stop.setText("Stop Recording")
@@ -256,17 +188,17 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
         self.button_save.setEnabled(False)
         self.button_playback_and_stop.setEnabled(False)
 
-        if previous_state == ListenWidget.IDLE:
+        if previous_state == AudioIOWidget.IDLE:
             pass  # Shouldn't be able to get here.
-        elif previous_state == ListenWidget.LISTENING:
+        elif previous_state == AudioIOWidget.LISTENING:
             pass  # Covered by defaults.
-        elif previous_state == ListenWidget.RECORDING:
+        elif previous_state == AudioIOWidget.RECORDING:
             pass  # Shouldn't be able to get here.
-        elif previous_state == ListenWidget.PLAYING:
+        elif previous_state == AudioIOWidget.PLAYING:
             pass  # Shouldn't be able to get here.
 
         self._data_available_for_playback = True
-        self._state = ListenWidget.RECORDING
+        self._state = AudioIOWidget.RECORDING
 
     def _change_state_to_playing(self, previous_state):
         self.button_listen.setEnabled(False)
@@ -274,20 +206,22 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
         self.comboBox_output_device.setEnabled(False)
         self.button_playback_and_stop.setText("Stop Playback")
 
-        if previous_state == ListenWidget.IDLE:
+        if previous_state == AudioIOWidget.IDLE:
             pass
-        elif previous_state == ListenWidget.LISTENING:
+        elif previous_state == AudioIOWidget.LISTENING:
             pass  # Shouldn't be able to get here.
-        elif previous_state == ListenWidget.RECORDING:
+        elif previous_state == AudioIOWidget.RECORDING:
             pass  # Shouldn't be able to get here.
-        elif previous_state == ListenWidget.PLAYING:
+        elif previous_state == AudioIOWidget.PLAYING:
             pass  # Shouldn't be able to get here.
 
-        self._state = ListenWidget.PLAYING
+        self._state = AudioIOWidget.PLAYING
 
-    def _data_cleared(self):
-        if self._state == ListenWidget.RECORDING:
+    def _clear_data(self):
+        if self._state == AudioIOWidget.RECORDING:
             return
 
         self._data_available_for_playback = False
         self.button_clear.setEnabled(False)
+        self.button_playback_and_stop.setEnabled(False)
+        self.button_save.setEnabled(False)

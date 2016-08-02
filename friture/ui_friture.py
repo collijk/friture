@@ -17,7 +17,7 @@ class Ui_MainWindow(object):
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap(":/images-src/window-icon.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
         MainWindow.setWindowIcon(icon)
-        self.centralwidget = AudioIOWidget(MainWindow)
+        self.centralwidget = AudioIOWidgetManager(MainWindow)
         self.centralwidget.setStyleSheet("")
         self.centralwidget.setObjectName("centralwidget")
         MainWindow.setCentralWidget(self.centralwidget)
@@ -47,5 +47,5 @@ class Ui_MainWindow(object):
         self.actionNew_dock.setText(_translate("MainWindow", "New dock"))
         self.actionNew_dock.setToolTip(_translate("MainWindow", "Add a new dock to Friture window"))
 
-from friture.audio_io_widget import AudioIOWidget
+from friture.audio_io_widget_manager import AudioIOWidgetManager
 from friture import friture_rc
