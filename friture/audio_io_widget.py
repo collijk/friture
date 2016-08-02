@@ -67,6 +67,7 @@ class AudioIOWidget(QtWidgets.QWidget):
         self.audio_widget.idle_signal.emit(self.audio_widget.get_state())
         self.audio_widget.hide()
         self.layout.removeWidget(self.audio_widget)
+        self.audio_widget.disconnect_all_signals()
 
         self.audio_widget = self.io_widgets[item]
 

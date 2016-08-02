@@ -36,7 +36,7 @@ class AudioStreamManager(QtCore.QObject):
         if self.current_output_stream is not None:
             self.current_output_stream.close()
         self.current_output_stream = self._pyaudio.open(format=paInt16,
-                                                        channels=device.num_input_channels,
+                                                        channels=device.num_output_channels,
                                                         rate=SAMPLING_RATE,
                                                         output=True,
                                                         output_device_index=device.index,

@@ -91,6 +91,24 @@ class ListenWidget(QtWidgets.QWidget, ListenWidgetUI):
         self.comboBox_output_device.setEnabled(True)
         self.comboBox_input_device.currentIndexChanged.connect(self._output_device_changed)
 
+    def disconnect_all_signals(self):
+        self._disconnect_signal(self.idle_signal)
+        self._disconnect_signal(self.listening_signal)
+        self._disconnect_signal(self.recording_signal)
+        self._disconnect_signal(self.playing_signal)
+        self._disconnect_signal(self.clear_data_signal)
+        self._disconnect_signal(self.input_device_changed_signal)
+        self._disconnect_signal(self.output_device_changed_signal)
+        self._disconnect_signal(self.input_channel_type_changed_signal)
+
+    @staticmethod
+    def _disconnect_signal(signal):
+        while True:
+            try:
+                signal.disconnect()
+            except TypeError:  # The signal is not connected to anything
+                break
+
     def get_state(self):
         """Returns the current state of this widget."""
         return self._state

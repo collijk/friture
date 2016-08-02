@@ -35,6 +35,14 @@ class AudioBackend(QtCore.QObject):
     new_data_available_from_callback = QtCore.pyqtSignal(bytes, int, float, int)
     new_data_available = QtCore.pyqtSignal(ndarray, float, int)
 
+    idle_signal = QtCore.pyqtSignal(int)
+    listening_signal = QtCore.pyqtSignal(int)
+    recording_signal = QtCore.pyqtSignal(int)
+    playing_signal = QtCore.pyqtSignal(int)
+
+    input_device_changed_signal = QtCore.pyqtSignal(bool, int)
+    output_device_changed_signal = QtCore.pyqtSignal(bool, int)
+
     def __init__(self, logger):
         super(AudioBackend, self).__init__()
 
@@ -49,7 +57,6 @@ class AudioBackend(QtCore.QObject):
         self.stream_manager = AudioStreamManager(self.pa, logger)
 
         self._initialize_devices()
-
 
         self.new_data_available_from_callback.connect(self.handle_new_data)
 
@@ -69,16 +76,18 @@ class AudioBackend(QtCore.QObject):
         device = self.device_manager.get_input_device(index)
         success = self.open_input_stream(device, self.callback)
 
-        return success, self.device_manager.get_current_input_device_index()
+        self.input_device_changed_signal.emit(success,
+                                              self.device_manager.get_current_output_device_index())
 
     def set_output_device(self, index):
         device = self.device_manager.get_output_device(index)
         success = self.open_output_stream(device, self.callback)
 
-        return success, self.device_manager.get_current_output_device_index()
+        self.output_device_changed_signal.emit(success,
+                                               self.device_manager.get_current_output_device_index())
 
     def open_input_stream(self, device, callback):
-        success = self.stream_manager.test_input_device(device)
+        success = self.stream_manager.is_input_format_supported(device, paInt16)
 
         if success:
             self.device_manager.current_input_device = device
@@ -87,7 +96,7 @@ class AudioBackend(QtCore.QObject):
         return success
 
     def open_output_stream(self, device, callback):
-        success = self.stream_manager.test_output_device(device)
+        success = self.stream_manager.is_output_format_supported(device, paInt16)
 
         if success:
             self.device_manager.current_output_device = device
@@ -133,6 +142,21 @@ class AudioBackend(QtCore.QObject):
 
     def get_current_second_channel(self):
         return self.device_manager.get_second_input_channel()
+
+    def set_idle(self, previous_widget_state):
+        self.state = AudioBackend.IDLE
+
+    def set_listening(self, previous_widget_state):
+        self.state = AudioBackend.LISTENING
+
+    def set_recording(self, previous_widget_state):
+        self.state = AudioBackend.RECORDING
+
+    def set_playing(self, previous_widget_state):
+        self.state = AudioBackend.PLAYING
+
+    def clear_playback_buffer(self):
+        pass
 
     def callback(self, in_data, frame_count, time_info, status):
         # do the minimum from here to prevent overflows, just pass the data to the main thread

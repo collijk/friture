@@ -116,11 +116,28 @@ class Friture(QMainWindow, Ui_MainWindow):
             self.errorDialogOpened = False
 
     def update_io(self, io_widget_name):
-        pass
+        io_widget = self.io_widgets[self.io_widget_names.index(io_widget_name)]
+        if io_widget_name == "Listen and Record":
+            io_widget.idle_signal.connect(self.audiobackend.set_idle)
+            io_widget.listening_signal.connect(self.audiobackend.set_listening)
+            io_widget.recording_signal.connect(self.audiobackend.set_recording)
+            io_widget.playing_signal.connect(self.audiobackend.set_playing)
+            io_widget.clear_data_signal.connect(self.audiobackend.clear_playback_buffer)
+            io_widget.input_device_changed_signal.connect(self.audiobackend.set_input_device)
+            io_widget.output_device_changed_signal.connect(self.audiobackend.set_output_device)
+        elif io_widget_name == "Load and Playback":
+            PlaybackWidget.idle_signal.connect(self.audiobackend.set_idle)
+            PlaybackWidget.playing_signal.connect(self.audiobackend.set_playing)
+            PlaybackWidget.clear_data_signal.connect(self.audiobackend.clear_playback_buffer)
+            PlaybackWidget.output_device_changed_signal.connect(self.audiobackend.set_output_device)
+            PlaybackWidget.load_signal.connect(self.load_file)
 
     # slot
     def settings_called(self):
         self.settings_dialog.show()
+
+    def load_file(self):
+        pass
 
     # slot
     def about_called(self):
