@@ -73,7 +73,7 @@ class Dock(QtWidgets.QDockWidget):
         elif item is 1:
             self.audiowidget = Scope_Widget(self, self.logger)
         elif item is 2:
-            self.audiowidget = Spectrum_Widget(self, self.logger
+            self.audiowidget = Spectrum_Widget(self, self.logger)
         elif item is 3:
             self.audiowidget = Spectrogram_Widget(self, self.parent().audiobackend, self.logger)
             self.parent().audiobackend.underflow.connect(
@@ -85,7 +85,6 @@ class Dock(QtWidgets.QDockWidget):
             self.audiowidget = Delay_Estimator_Widget(self, self.logger)
         elif item is 6:
             self.audiowidget = LongLevelWidget(self, self.logger)
-            self.audiowidget.set_buffer(self.parent().audiobuffer)
         else:  # Default to the levels widget
             self.audiowidget = Levels_Widget(self, self.logger)
 

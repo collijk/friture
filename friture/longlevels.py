@@ -31,6 +31,7 @@ from .filter import decimate, lfilter
 from friture import generated_filters
 from friture.exp_smoothing_conv import pyx_exp_smoothed_value
 from .ringbuffer import RingBuffer
+from friture import ring_buffer
 
 from friture.audiobackend import SAMPLING_RATE
 
@@ -107,7 +108,6 @@ class LongLevelWidget(QtWidgets.QWidget):
         self.gridLayout.addWidget(self.PlotZoneUp, 0, 0, 1, 1)
 
         self.logger = logger
-        self.audiobuffer = None
 
         # initialize the settings dialog
         self.settings_dialog = LongLevels_Settings_Dialog(self, self.logger)
@@ -122,13 +122,13 @@ class LongLevelWidget(QtWidgets.QWidget):
 
         self.i = 0
 
-        self.old_index = 0
-
         #self.response_time = 60. # 1 minute
         self.response_time = 20.
 
         # how many times we should decimate to end up with 100 points in the kernel
         self.Ndec = int(max(0, np.floor((np.log2(self.response_time * SAMPLING_RATE/100.)))))
+        self.data_buffer = ring_buffer.RingBuffer(1, int(4*self.response_time*SAMPLING_RATE/100.))
+
 
         Ngauss = 4
         self.b = gauss(10*Ngauss+1, 2.*Ngauss)
@@ -145,48 +145,32 @@ class LongLevelWidget(QtWidgets.QWidget):
         # ringbuffer for the subsampled data
         self.ringbuffer = RingBuffer(self.logger)
 
-    # method
-    def set_buffer(self, buffer):
-        self.audiobuffer = buffer
-
     def handle_new_data(self, floatdata):
-        # we need to maintain an index of where we are in the buffer
-        index = self.audiobuffer.get_offset()
-        self.last_data_time = self.audiobuffer.lastDataTime
+        self.data_buffer.push(floatdata)
 
-        available = index - self.old_index
-
-        if available < 0:
-            # ringbuffer must have grown or something...
-            available = 0
-            self.old_index = index
+        num_data_points = self.data_buffer.num_unread_data_points()
 
         # if we have enough data to add a frequency column in the time-frequency plane, compute it
-        needed = 2**self.Ndec
-        realizable = int(np.floor(available / needed))
+        needed = int(2**self.Ndec)
+        realizable = int(np.floor(num_data_points / needed))
 
         if realizable > 0:
             for i in range(realizable):
-                floatdata = self.audiobuffer.data_indexed(self.old_index, needed)
+                floatdata = self.data_buffer.pop(needed)
 
                 # first channel
                 y0 = floatdata[0, :]
-
                 y0_squared = y0**2
 
                 # subsample
                 y0_squared_dec = self.subsampler.push(y0_squared)
 
                 self.level, self.zf = lfilter(self.b, self.a, y0_squared_dec, zi=self.zf)
-
                 self.level_rms = 10. * np.log10(max(self.level, 1e-150))
-
                 l = np.array([self.level_rms])
                 l.shape = (1, 1)
 
                 self.ringbuffer.push(l)
-
-                self.old_index += int(needed)
 
             self.time = np.arange(self.length_samples) / self.subsampled_sampling_rate
 

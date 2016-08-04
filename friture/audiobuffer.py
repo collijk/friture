@@ -25,7 +25,7 @@ FRAMES_PER_BUFFER = 1024
 
 
 class AudioBuffer(QtCore.QObject):
-    new_data_available = QtCore.pyqtSignal(np.ndarray)
+    new_data_available = QtCore.pyqtSignal(np.ndarray, float)
 
     def __init__(self, logger):
         super().__init__()
