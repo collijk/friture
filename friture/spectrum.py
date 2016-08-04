@@ -73,8 +73,8 @@ class Spectrum_Widget(QtWidgets.QWidget):
         self.freq = self.proc.get_freq_scale()
 
         self.overlap = 3. / 4.
-        self.data_buffer = RingBuffer(4 * self.fft_size)
-        self.smoothing_buffer = RingBuffer(self.fft_size*self.overlap)
+        self.data_buffer = RingBuffer(1, 4 * self.fft_size)
+        self.smoothing_buffer = RingBuffer(1, self.fft_size*self.overlap)
 
 
         self.update_display_buffers()
@@ -115,7 +115,8 @@ class Spectrum_Widget(QtWidgets.QWidget):
             sp2n = zeros((len(self.freq), realizable), dtype=float64)
 
             for i in range(realizable):
-                floatdata = data[i*needed, i*needed + self.fft_size]
+                floatdata = data[:, i*needed:i*needed + self.fft_size]
+                self.smoothing_buffer.push(floatdata[:, (self.fft_size - needed):])
 
                 # first channel
                 # FFT transform

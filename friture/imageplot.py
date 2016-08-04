@@ -39,28 +39,18 @@ def tickFormatter(value, digits):
 
 class PlotImage:
 
-    def __init__(self, logger, audiobackend):
+    def __init__(self, logger):
         self.canvasscaledspectrogram = CanvasScaledSpectrogram(logger)
         self.T = 0.
         self.dT = 1.
-        self.audiobackend = audiobackend
 
         self.jitter_s = 0.
-
-        self.last_data_time = 0.
-
-        self.isPlaying = True
 
         self.sfft_rate_frac = Fraction(1, 1)
         self.frequency_resampler = Frequency_Resampler()
         self.resampler = Online_Linear_2D_resampler()
 
-        self.timer = QtCore.QElapsedTimer()
-        self.timer.start()
-
-        self.last_time = 0.
-
-    def addData(self, freq, xyzs, logfreqscale, last_data_time):
+    def addData(self, freq, xyzs, logfreqscale):
         self.frequency_resampler.setlogfreqscale(logfreqscale)
 
         # Note: both the frequency and the time resampler work
@@ -82,17 +72,6 @@ class PlotImage:
 
         self.canvasscaledspectrogram.addData(resampled_data)
 
-        if i > 0:
-            self.last_data_time = last_data_time
-
-    def pause(self):
-        self.isPlaying = False
-
-    def restart(self):
-        self.isPlaying = True
-        self.last_time = self.audiobackend.get_input_stream_time()
-        self.timer.restart()
-
     def draw(self, painter, xMap, yMap, rect):
         # update the spectrogram according to possibly new canvas dimensions
         self.frequency_resampler.setnsamples(rect.height())
@@ -105,27 +84,8 @@ class PlotImage:
         screen_rate_frac = Fraction(rect.width(), int(self.T * 1000))
         self.resampler.set_ratio(self.sfft_rate_frac, screen_rate_frac)
 
-        # time advance
-        # This function is meant to be called at paintevent time, for better time sync.
-
         pixmap = self.canvasscaledspectrogram.getpixmap()
         offset = self.canvasscaledspectrogram.getpixmapoffset(delay=jitter_pix / 2)
-
-        if self.isPlaying:
-            delta_t = self.timer.nsecsElapsed() * 1e-9
-            self.timer.restart()
-            pixel_advance = delta_t / (self.T + self.jitter_s) * rect.width()
-            self.canvasscaledspectrogram.addPixelAdvance(pixel_advance)
-
-            time = self.audiobackend.get_input_stream_time()
-            time_delay = time - self.last_data_time
-            pixel_delay = rect.width() * time_delay / self.T
-
-            draw_delay = time - self.last_time
-
-            self.last_time = time
-
-            offset += pixel_delay
 
         rolling = True
         if rolling:
@@ -174,7 +134,7 @@ class PlotImage:
 
 class ImagePlot(QtWidgets.QWidget):
 
-    def __init__(self, parent, logger, audiobackend):
+    def __init__(self, parent, logger):
         super(ImagePlot, self).__init__(parent)
 
         self.verticalScaleDivision = ScaleDivision(20, 20000, 100)
@@ -212,7 +172,7 @@ class ImagePlot(QtWidgets.QWidget):
         self.needfullreplot = False
 
         # attach a plot image
-        self.plotImage = PlotImage(logger, audiobackend)
+        self.plotImage = PlotImage(logger)
         self.canvasWidget.attach(self.plotImage)
 
         self.setlinfreqscale()
@@ -222,8 +182,8 @@ class ImagePlot(QtWidgets.QWidget):
         # need to replot here for the size Hints to be computed correctly (depending on axis scales...)
         self.update()
 
-    def addData(self, freq, xyzs, last_data_time):
-        self.plotImage.addData(freq, xyzs, self.logfreqscale, last_data_time)
+    def addData(self, freq, xyzs):
+        self.plotImage.addData(freq, xyzs, self.logfreqscale)
 
     def draw(self):
         if self.needfullreplot:

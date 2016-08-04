@@ -75,10 +75,7 @@ class Dock(QtWidgets.QDockWidget):
         elif item is 2:
             self.audiowidget = Spectrum_Widget(self, self.logger)
         elif item is 3:
-            self.audiowidget = Spectrogram_Widget(self, self.parent().audiobackend, self.logger)
-            self.parent().audiobackend.underflow.connect(
-                self.audiowidget.PlotZoneImage.plotImage.canvasscaledspectrogram.syncOffsets)
-            self.audiowidget.set_buffer(self.parent().audiobuffer)
+            self.audiowidget = Spectrogram_Widget(self, self.logger)
         elif item is 4:
             self.audiowidget = OctaveSpectrum_Widget(self, self.logger)
         elif item is 5:

@@ -31,7 +31,6 @@ class AudioBackend(QtCore.QObject):
 
     IDLE, LISTENING, RECORDING, PLAYING = range(4)
 
-    underflow = QtCore.pyqtSignal()
     new_data_available_from_callback = QtCore.pyqtSignal(bytes, int, float, int)
     new_data_available = QtCore.pyqtSignal(ndarray, float, int)
 
@@ -160,7 +159,6 @@ class AudioBackend(QtCore.QObject):
 
         if status & paInputOverflow:
             print("Stream overflow!")
-            self.underflow.emit()
 
         intdata_all_channels = fromstring(in_data, int16)
 

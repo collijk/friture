@@ -20,7 +20,7 @@
 """Spectrogram time_plot, that displays a rolling 2D image of the time-frequency spectrum."""
 
 from PyQt5 import QtWidgets
-from numpy import log10, floor, zeros, float64, tile, array
+from numpy import log10, floor, zeros, float64, tile, array, append
 from friture.imageplot import ImagePlot
 from friture.audioproc import audioproc  # audio processing class
 from friture.spectrogram_settings import (Spectrogram_Settings_Dialog,  # settings dialog
@@ -35,12 +35,13 @@ from friture.spectrogram_settings import (Spectrogram_Settings_Dialog,  # settin
 
 from friture.audiobackend import SAMPLING_RATE, FRAMES_PER_BUFFER
 from friture.logger import PrintLogger
+from friture.ring_buffer import RingBuffer
 from fractions import Fraction
 
 
 class Spectrogram_Widget(QtWidgets.QWidget):
 
-    def __init__(self, parent, audiobackend, logger=PrintLogger()):
+    def __init__(self, parent, logger=PrintLogger()):
         super().__init__(parent)
 
         self.logger = logger
@@ -48,11 +49,10 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         self.setObjectName("Spectrogram_Widget")
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
-        self.PlotZoneImage = ImagePlot(self, self.logger, audiobackend)
+        self.PlotZoneImage = ImagePlot(self, self.logger)
         self.PlotZoneImage.setObjectName("PlotZoneImage")
         self.gridLayout.addWidget(self.PlotZoneImage, 0, 1, 1, 1)
 
-        self.audiobuffer = None
 
         # initialize the class instance that will do the fft
         self.proc = audioproc(self.logger)
@@ -72,10 +72,11 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         self.timerange_s = DEFAULT_TIMERANGE
         self.canvas_width = 100.
 
-        self.old_index = 0
         self.overlap = 3. / 4.
         self.overlap_frac = Fraction(3, 4)
         self.dT_s = self.fft_size * (1. - self.overlap) / float(SAMPLING_RATE)
+        self.data_buffer = RingBuffer(1, 4 * self.fft_size)
+        self.smoothing_buffer = RingBuffer(1, self.fft_size * self.overlap)
 
         self.PlotZoneImage.setlog10freqscale()  # DEFAULT_FREQ_SCALE = 1 #log10
         self.PlotZoneImage.setfreqrange(self.minfreq, self.maxfreq)
@@ -90,16 +91,10 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         # initialize the settings dialog
         self.settings_dialog = Spectrogram_Settings_Dialog(self, self.logger)
 
-        self.last_data_time = 0.
-
         self.mustRestart = False
 
-    # method
-    def set_buffer(self, buffer):
-        self.audiobuffer = buffer
-        self.old_index = self.audiobuffer.get_offset()
-
-    def log_spectrogram(self, sp):
+    @staticmethod
+    def log_spectrogram(sp):
         # Note: implementing the log10 of the array in Cython did not bring
         # any speedup.
         # Idea: Instead of computing the log of the data, I could pre-compute
@@ -112,26 +107,20 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         return (sp - self.spec_min) / (self.spec_max - self.spec_min)
 
     def handle_new_data(self, floatdata):
-        # we need to maintain an index of where we are in the buffer
-        index = self.audiobuffer.get_offset()
-        self.last_data_time = self.audiobuffer.lastDataTime
-
-        available = index - self.old_index
-
-        if available < 0:
-            # buffer must have grown or something...
-            available = 0
-            self.old_index = index
+        self.data_buffer.push(floatdata)
+        new_sample_points = self.data_buffer.num_unread_data_points()
 
         # if we have enough data to add a frequency column in the time-frequency plane, compute it
-        needed = self.fft_size * (1. - self.overlap)
-        realizable = int(floor(available / needed))
+        needed = int(self.fft_size * (1. - self.overlap))
+        realizable = int(floor(new_sample_points / needed))
+        data = append(self.smoothing_buffer.unwound_data(), self.data_buffer.pop(realizable * needed))
 
         if realizable > 0:
             spn = zeros((len(self.freq), realizable), dtype=float64)
 
             for i in range(realizable):
-                floatdata = self.audiobuffer.data_indexed(self.old_index, self.fft_size)
+                floatdata = data[:, i * needed:i * needed + self.fft_size]
+                self.smoothing_buffer.push(floatdata[:, (self.fft_size - needed):])
 
                 # for now, take the first channel only
                 floatdata = floatdata[0, :]
@@ -139,11 +128,9 @@ class Spectrogram_Widget(QtWidgets.QWidget):
                 # FFT transform
                 spn[:, i] = self.proc.analyzelive(floatdata, "Power")
 
-                self.old_index += int(needed)
-
             w = tile(self.w, (1, realizable))
             norm_spectrogram = self.scale_spectrogram(self.log_spectrogram(spn) + w)
-            self.PlotZoneImage.addData(self.freq, norm_spectrogram, self.last_data_time)
+            self.PlotZoneImage.addData(self.freq, norm_spectrogram)
 
             if self.mustRestart:
                 self.PlotZoneImage.restart()
@@ -174,7 +161,6 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         self.PlotZoneImage.pause()
 
     def restart(self):
-        # defer the restart until we get data from the audio source (so that a fresh lastdatatime is passed to the spectrogram image)
         self.mustRestart = True
 
     def setminfreq(self, freq):
