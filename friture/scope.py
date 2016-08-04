@@ -18,10 +18,11 @@
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtWidgets
-from numpy import log10, where, sign, arange, zeros
+import numpy
 from friture.timeplot import TimePlot
 from friture.audiobackend import SAMPLING_RATE
 from friture.logger import PrintLogger
+from friture.ring_buffer import RingBuffer
 
 SMOOTH_DISPLAY_TIMER_PERIOD_MS = 25
 DEFAULT_TIMERANGE = 2 * SMOOTH_DISPLAY_TIMER_PERIOD_MS
@@ -32,7 +33,6 @@ class Scope_Widget(QtWidgets.QWidget):
     def __init__(self, parent, logger=PrintLogger()):
         super().__init__(parent)
 
-        self.audiobuffer = None
         self.logger = logger
 
         self.setObjectName("Scope_Widget")
@@ -44,69 +44,58 @@ class Scope_Widget(QtWidgets.QWidget):
 
         self.settings_dialog = Scope_Settings_Dialog(self, self.logger)
 
-        self.timerange = DEFAULT_TIMERANGE
+        self.time_range_s = DEFAULT_TIMERANGE * 0.001
+        self.num_sample_points = int(self.time_range_s * SAMPLING_RATE)
 
-        self.time = zeros(10)
-        self.y = zeros(10)
-        self.y2 = zeros(10)
-
-    # method
-    def set_buffer(self, buffer):
-        self.audiobuffer = buffer
+        self.time = numpy.linspace(0, self.time_range_s, self.num_sample_points)
+        # Keep a small display buffer so we can use triggering in the data display.
+        self.display_buffer = RingBuffer(1, 2*self.num_sample_points)
 
     def handle_new_data(self, floatdata):
-        time = self.timerange * 1e-3
-        width = int(time * SAMPLING_RATE)
-        # basic trigger capability on leading edge
-        # FIXME Shouldn't be requesting new data from the audio buffer. This method is already connected to the buffer signal.
-        floatdata = self.audiobuffer.data(2 * width)
+        self.display_buffer.push(floatdata)
 
-        twoChannels = False
-        if floatdata.shape[0] > 1:
-            twoChannels = True
+        data = self.display_buffer.unwound_data()
+        is_dual_channel = data.shape[0] == 2
 
         # trigger on the first channel only
-        triggerdata = floatdata[0, :]
+        trigger_data = data[0, :]
         # trigger on half of the waveform
-        trig_search_start = width / 2
-        trig_search_stop = -width / 2
-        triggerdata = triggerdata[trig_search_start: trig_search_stop]
+        trig_search_start = self.num_sample_points / 2
+        trig_search_stop = -self.num_sample_points / 2
+        trigger_data = trigger_data[trig_search_start: trig_search_stop]
 
-        trigger_level = floatdata.max() * 2. / 3.
-        trigger_pos = where((triggerdata[:-1] < trigger_level) * (triggerdata[1:] >= trigger_level))[0]
-
-        if len(trigger_pos) == 0:
-            return
+        trigger_level = data.max() * 2. / 3.
+        trigger_pos = numpy.where((trigger_data[:-1] < trigger_level) * (trigger_data[1:] >= trigger_level))[0]
 
         if len(trigger_pos) > 0:
             shift = trigger_pos[0]
         else:
-            shift = 0
-        shift += trig_search_start
-        datarange = width
-        floatdata = floatdata[:, shift - datarange / 2: shift + datarange / 2]
+            return
 
-        self.y = floatdata[0, :]
-        if twoChannels:
-            self.y2 = floatdata[1, :]
+        shift += trig_search_start
+        data = data[:, shift - self.num_sample_points / 2: shift + self.num_sample_points / 2]
+
+        y = data[0, :]
+        if is_dual_channel:
+            y2 = data[1, :]
         else:
-            self.y2 = None
+            y2 = None
 
         dBscope = False
         if dBscope:
             dBmin = -50.
-            self.y = sign(self.y) * (20 * log10(abs(self.y))).clip(dBmin, 0.) / (-dBmin) + sign(self.y) * 1.
-            if twoChannels:
-                self.y2 = sign(self.y2) * (20 * log10(abs(self.y2))).clip(dBmin, 0.) / (-dBmin) + sign(self.y2) * 1.
+            y = numpy.sign(y) * (20 * numpy.log10(
+                abs(y))).clip(dBmin, 0.) / (-dBmin) + numpy.sign(y) * 1.
+            if is_dual_channel:
+                y2 = numpy.sign(y2) * (20 * numpy.log10(
+                    abs(y2))).clip(dBmin, 0.) / (-dBmin) + numpy.sign(y2) * 1.
             else:
-                self.y2 = None
+                y2 = None
 
-        self.time = (arange(len(self.y)) - datarange / 2) / float(SAMPLING_RATE)
-
-        if self.y2 is not None:
-            self.PlotZoneUp.setdataTwoChannels(self.time*1e3, self.y, self.y2)
+        if y2 is not None:
+            self.PlotZoneUp.setdataTwoChannels(self.time, y, y2)
         else:
-            self.PlotZoneUp.setdata(self.time*1e3, self.y)
+            self.PlotZoneUp.setdata(self.time, y)
 
     # method
     def canvasUpdate(self):
@@ -120,7 +109,10 @@ class Scope_Widget(QtWidgets.QWidget):
 
     # slot
     def set_timerange(self, timerange):
-        self.timerange = timerange
+        self.time_range_s = timerange*0.001
+        self.num_sample_points = int(self.time_range_s * SAMPLING_RATE)
+        self.time = numpy.linspace(0, self.time_range_s, self.num_sample_points)
+        self.display_buffer.reset(self.display_buffer.num_channels, self.num_sample_points)
 
     # slot
     def settings_called(self, checked):

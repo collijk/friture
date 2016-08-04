@@ -71,15 +71,15 @@ class RingBuffer(object):
 
         # Make sure the buffer and the input data have the same number of channels.
         if channels != self.buffer.shape[0]:
-            # Adjust if needed
+            # If they don't, clear the buffer and reshape.
             self.buffer = zeros((channels, 2 * self.buffer_length))
-
 
         self.grow_if_needed(data_length)
 
         # first copy, always complete
         offset = self.offset % self.buffer_length
-        self.buffer[:, offset: offset + data_length] = float_data[:, :]
+        self.buffer[:, offset:(offset + data_length)] = float_data[:, :]
+
         # second copy, can be folded
         direct = min(data_length, self.buffer_length - offset)
         folded = data_length - direct
@@ -133,11 +133,10 @@ class RingBuffer(object):
             old_length = self.buffer_length
             new_length = int(2 * length)
 
-            message = "Ringbuffer: growing buffer to length %d" % new_length
-            self.logger.push(message)
+            self.logger.push("Ringbuffer: growing buffer to length %d" % new_length)
 
             # create new buffer
-            newbuffer = zeros((self.buffer.shape[0], 2 * new_length))
+            newbuffer = zeros(self.buffer.shape[0], 2 * new_length)
             # copy existing data so that self.offset does not have to be changed
             old_offset_mod = self.offset % old_length
             new_offset_mod = self.offset % new_length
