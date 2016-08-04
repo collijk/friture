@@ -21,7 +21,7 @@ import sys
 
 from PyQt5 import QtCore
 # specifically import from PyQt5.QtGui and QWidgets for startup time improvement :
-from PyQt5.QtWidgets import QMainWindow
+from PyQt5.QtWidgets import QMainWindow, QFileDialog
 
 # importing friture.exceptionhandler also installs a temporary exception hook
 from friture.exceptionhandler import errorBox, fileexcepthook
@@ -216,7 +216,16 @@ class Friture(QMainWindow, Ui_MainWindow):
         io_widget.output_device_changed_signal.connect(self.audiobackend.set_output_device)
 
     def save_data(self):
-        pass
+        # PyCharm thinks there are errors here, even though there aren't.
+        # noinspection PyTypeChecker,PyCallByClass
+        file_name = QFileDialog.getSaveFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
+        if file_name:
+            self.logger.push(file_name)
 
     def load_data(self):
-        pass
+        # PyCharm thinks there are errors here, even though there aren't.
+        # noinspection PyTypeChecker,PyCallByClass
+        file_name = QFileDialog.getOpenFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
+
+        if file_name:
+            self.logger.push(file_name)

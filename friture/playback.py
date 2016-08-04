@@ -2,6 +2,10 @@ from friture.audio_io_widget import AudioIOWidget
 from friture.logger import PrintLogger
 from friture.ui_playback_widget import PlaybackWidgetUI
 
+# FIXME:
+# The widget needs to be modified to receive feedback, ie a file is actually opened when the load button is
+# pressed.  Currently we just assume so.
+
 
 class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
     """Widget providing controls for loading audio files and playing them.
@@ -50,6 +54,12 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
 
         self.time_plot.canvas_update()
 
+    def disconnect_all_signals(self):
+        """Disconnects all external slots from this widget's signals"""
+        super().disconnect_all_signals()
+
+        self._connect_internal_signals()
+
     def _connect_ui(self):
         self.button_load.released.connect(self._load_button_pressed)
         self.button_playback_and_stop.released.connect(self._play_button_pressed)
@@ -58,12 +68,11 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
     def _connect_internal_signals(self):
         self.idle_signal.connect(self._change_state_to_idle)
         self.playing_signal.connect(self._change_state_to_playing)
+        self.clear_data_signal.connect(self._clear_data)
+        self.load_data_signal.connect(self._load_data)
 
     def _load_button_pressed(self):
-        # TODO: Implement file loading logic
-        self._data_available_for_playback = True
-        self.button_playback_and_stop.setEnabled(True)
-        self.button_clear.setEnabled(True)
+        self.load_data_signal.emit()
 
     def _play_button_pressed(self):
         if self._state == PlaybackWidget.IDLE:
@@ -72,28 +81,38 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
             self.idle_signal.emit(self._state)
 
     def _clear_button_pressed(self):
-        if self._data_available_for_playback:
-            self.clear_data_signal.emit()
+        self.clear_data_signal.emit()
 
     def _output_device_changed(self, index):
         self.output_device_changed_signal.emit(index)
 
     def _change_state_to_idle(self, previous_state):
+
         self.comboBox_output_device.setEnabled(True)
         self.button_playback_and_stop.setText("Play")
-        self.button_clear.setEnabled(True)
+        if self._data_available_for_playback:
+            self.button_clear.setEnabled(True)
         self.button_load.setEnabled(True)
+
         self._state = PlaybackWidget.IDLE
 
     def _change_state_to_playing(self, previous_state):
         self.comboBox_output_device.setEnabled(False)
-        self.button_playback_and_stop.setText("Stop")
         self.button_clear.setEnabled(False)
         self.button_load.setEnabled(False)
+
+        self.button_playback_and_stop.setText("Stop")
+
         self._state = PlaybackWidget.PLAYING
 
     def _clear_data(self):
         self._data_available_for_playback = False
         self.button_playback_and_stop.setEnabled(False)
         self.button_clear.setEnabled(False)
+
+    def _load_data(self):
+        self._data_available_for_playback = True
+        self.button_playback_and_stop.setEnabled(True)
+        self.button_clear.setEnabled(True)
+
 

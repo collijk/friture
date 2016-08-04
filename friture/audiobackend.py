@@ -209,7 +209,8 @@ class AudioBackend(QtCore.QObject):
         for device in self.device_manager.get_input_devices():
             success = self.stream_manager.is_input_format_supported(device, paInt16)
             if not success:
-                self.device_manager.remove_input_device(device)
+                pass
+                #self.device_manager.remove_input_device(device)
         if self.device_manager.num_input_devices():
             self.device_manager.set_current_input_device(self.device_manager.get_input_device(0))
         else:

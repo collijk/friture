@@ -92,4 +92,5 @@ class AudioIOWidgetManager(QtWidgets.QWidget):
     def restoreState(self, settings):
         widget_type = settings.value("type", DEFAULT_CENTRAL_WIDGET, type=int)
         self.widget_select(widget_type)
+        self.control_bar.combobox_select.setCurrentIndex(self.io_widgets.index(self.audio_widget))
         self.audio_widget.restore_state(settings)
