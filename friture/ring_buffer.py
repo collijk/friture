@@ -17,7 +17,6 @@ class RingBuffer(object):
         if new_data.shape[0] != self.num_channels:
             self.reset(new_data.shape[0], self.length)
 
-
         new_data_read_position = 0
         end_write_position = self.write_position + new_data.shape[1]
         adjust_read_position = False
@@ -66,6 +65,12 @@ class RingBuffer(object):
     def all_data(self):
         return self.data
 
+    def num_unread_data_points(self):
+        if self.write_position >= self.read_position:
+            return self.write_position - self.read_position
+        else:
+            return self.length - (self.read_position - self.write_position)
+
     def unwound_data(self):
         """Returns a linear array of the data, unwound and starting with the oldest data."""
 
@@ -81,6 +86,7 @@ class RingBuffer(object):
         self.write_position = 0
         self.read_position = 0
         self.is_full = False
+
 
 
 

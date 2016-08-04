@@ -72,10 +72,8 @@ class Dock(QtWidgets.QDockWidget):
             self.audiowidget = Levels_Widget(self, self.logger)
         elif item is 1:
             self.audiowidget = Scope_Widget(self, self.logger)
-            self.audiowidget.set_buffer(self.parent().audiobuffer)
         elif item is 2:
-            self.audiowidget = Spectrum_Widget(self, self.logger)
-            self.audiowidget.set_buffer(self.parent().audiobuffer)
+            self.audiowidget = Spectrum_Widget(self, self.logger
         elif item is 3:
             self.audiowidget = Spectrogram_Widget(self, self.parent().audiobackend, self.logger)
             self.parent().audiobackend.underflow.connect(

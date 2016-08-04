@@ -18,7 +18,7 @@
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtWidgets
-from numpy import log10, argmax, zeros, arange, floor, float64, real, imag
+from numpy import log10, argmax, zeros, arange, floor, float64, append
 from friture.audioproc import audioproc  # audio processing class
 from friture.spectrum_settings import (Spectrum_Settings_Dialog,  # settings dialog
                                        DEFAULT_FFT_SIZE,
@@ -33,6 +33,7 @@ from friture.spectrum_settings import (Spectrum_Settings_Dialog,  # settings dia
 
 from friture.logger import PrintLogger
 from friture.audiobackend import SAMPLING_RATE
+from friture.ring_buffer import RingBuffer
 from friture.spectrumPlotWidget import SpectrumPlotWidget
 from friture.exp_smoothing_conv import pyx_exp_smoothed_value_numpy
 
@@ -43,7 +44,6 @@ class Spectrum_Widget(QtWidgets.QWidget):
         super().__init__(parent)
 
         self.logger = logger
-        self.audiobuffer = None
 
         self.setObjectName("Spectrum_Widget")
         self.gridLayout = QtWidgets.QGridLayout(self)
@@ -59,6 +59,7 @@ class Spectrum_Widget(QtWidgets.QWidget):
         self.proc.set_maxfreq(self.maxfreq)
         self.minfreq = DEFAULT_MINFREQ
         self.fft_size = 2 ** DEFAULT_FFT_SIZE * 32
+
         self.proc.set_fftsize(self.fft_size)
         self.spec_min = DEFAULT_SPEC_MIN
         self.spec_max = DEFAULT_SPEC_MAX
@@ -71,8 +72,10 @@ class Spectrum_Widget(QtWidgets.QWidget):
         self.update_weighting()
         self.freq = self.proc.get_freq_scale()
 
-        self.old_index = 0
         self.overlap = 3. / 4.
+        self.data_buffer = RingBuffer(4 * self.fft_size)
+        self.smoothing_buffer = RingBuffer(self.fft_size*self.overlap)
+
 
         self.update_display_buffers()
 
@@ -90,11 +93,6 @@ class Spectrum_Widget(QtWidgets.QWidget):
         # initialize the settings dialog
         self.settings_dialog = Spectrum_Settings_Dialog(self, self.logger)
 
-    # method
-    def set_buffer(self, buffer):
-        self.audiobuffer = buffer
-        self.old_index = self.audiobuffer.get_offset()
-
     def log_spectrogram(self, sp):
         # Note: implementing the log10 of the array in Cython did not bring
         # any speedup.
@@ -104,26 +102,20 @@ class Spectrum_Widget(QtWidgets.QWidget):
         return 10. * log10(sp + epsilon)
 
     def handle_new_data(self, floatdata):
-        # we need to maintain an index of where we are in the buffer
-        index = self.audiobuffer.get_offset()
-
-        available = index - self.old_index
-
-        if available < 0:
-            # ringbuffer must have grown or something...
-            available = 0
-            self.old_index = index
+        self.data_buffer.push(floatdata)
+        new_sample_points = self.data_buffer.num_unread_data_points()
 
         # if we have enough data to add a frequency column in the time-frequency plane, compute it
-        needed = self.fft_size * (1. - self.overlap)
-        realizable = int(floor(available / needed))
+        needed = int(self.fft_size * (1. - self.overlap))
+        realizable = int(floor(new_sample_points / needed))
+        data = append(self.smoothing_buffer.unwound_data(), self.data_buffer.pop(realizable*needed))
 
         if realizable > 0:
             sp1n = zeros((len(self.freq), realizable), dtype=float64)
             sp2n = zeros((len(self.freq), realizable), dtype=float64)
 
             for i in range(realizable):
-                floatdata = self.audiobuffer.data_indexed(self.old_index, self.fft_size)
+                floatdata = data[i*needed, i*needed + self.fft_size]
 
                 # first channel
                 # FFT transform
@@ -132,8 +124,6 @@ class Spectrum_Widget(QtWidgets.QWidget):
                 if self.dual_channels and floatdata.shape[0] > 1:
                     # second channel for comparison
                     sp2n[:, i] = self.proc.analyzelive(floatdata[1, :], self.spectrum_type)
-
-                self.old_index += int(needed)
 
             # compute the time_plot data
             sp1 = pyx_exp_smoothed_value_numpy(self.kernel, self.alpha, sp1n, self.dispbuffers1)
