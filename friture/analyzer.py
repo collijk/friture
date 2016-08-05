@@ -35,6 +35,7 @@ from friture.dockmanager import DockManager
 
 from friture.listen import ListenWidget
 from friture.playback import PlaybackWidget
+import wave
 
 # the display timer could be made faster when the processing
 # power allows it, firing down to every 10 ms
@@ -96,7 +97,7 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.actionNew_dock.triggered.connect(self.dockmanager.new_dock)
 
         # restore the settings and widgets geometries
-        #self.restoreAppState()
+        self.restoreAppState()
 
         # start timers
         self.slow_timer.start()
@@ -214,9 +215,11 @@ class Friture(QMainWindow, Ui_MainWindow):
         io_widget.clear_data_signal.connect(self.audiobackend.clear_playback_buffer)
 
         # Connect to device management
-        io_widget.input_device_changed_signal.connect(self.audiobackend.set_input_device)
-        io_widget.input_channel_number_changed_signal.connect(self.audiobackend.set_num_input_channels)
-        io_widget.output_device_changed_signal.connect(self.audiobackend.set_output_device)
+        io_widget.input_device_change_request_signal.connect(self.audiobackend.set_input_device)
+        self.audiobackend.input_device_changed_success_signal.connect(io_widget.change_input_device)
+        io_widget.input_channel_number_change_request_signal.connect(self.audiobackend.set_num_input_channels)
+        io_widget.output_device_change_request_signal.connect(self.audiobackend.set_output_device)
+        self.audiobackend.output_device_changed_success_signal.connect(io_widget.change_output_device)
 
     def save_data(self):
         # PyCharm thinks there are errors here, even though there aren't.
@@ -231,4 +234,5 @@ class Friture(QMainWindow, Ui_MainWindow):
         file_name = QFileDialog.getOpenFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
 
         if file_name:
-            self.logger.push(file_name)
+            playback_file = wave.open(file_name[1], 'rb')
+

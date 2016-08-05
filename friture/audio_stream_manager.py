@@ -2,7 +2,7 @@ from PyQt5 import QtCore
 from pyaudio import paInt16
 
 SAMPLING_RATE = 48000
-FRAMES_PER_BUFFER = 512
+FRAMES_PER_BUFFER = 256  # 512 Causes stream overflows for some reason.
 
 
 class AudioStreamManager(QtCore.QObject):

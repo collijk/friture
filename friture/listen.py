@@ -49,6 +49,15 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
         self.comboBox_input_device.setEnabled(True)
         self.comboBox_input_device.currentIndexChanged.connect(self._input_device_changed)
 
+    def change_input_device(self, device_index):
+        super().change_input_device(device_index)
+        current_device_index = self.comboBox_input_device.currentIndex()
+        if device_index == current_device_index:
+            pass  # Everything is peachy, device was changed successfully.
+        else:
+            self.comboBox_input_device.setCurrentIndex(device_index)
+            self._logger.push("Device change unsuccessful, reverting to previous input device.")
+
     def add_output_devices(self, output_devices, current_device_index):
         """Adds audio output devices to this widgets output device combo box.
 
@@ -65,7 +74,17 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
         self.comboBox_output_device.addItems(output_devices)
         self.comboBox_output_device.setCurrentIndex(current_device_index)
         self.comboBox_output_device.setEnabled(True)
-        self.comboBox_input_device.currentIndexChanged.connect(self._output_device_changed)
+        self.comboBox_output_device.currentIndexChanged.connect(self._output_device_changed)
+
+    def change_output_device(self, device_index):
+        super().change_output_device(device_index)
+        current_device_index = self.comboBox_output_device.currentIndex()
+        if device_index == current_device_index:
+            pass  # Everything is peachy, device was changed successfully.
+        else:
+            self.comboBox_output_device.setCurrentIndex(device_index)
+            self._logger.push("Device change unsuccessful, reverting to previous output device.")
+
 
     def disconnect_all_signals(self):
         """Disconnects all external slots from this widget's signals"""
@@ -130,10 +149,10 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
         self.save_data_signal.emit()
 
     def _input_device_changed(self, index):
-        self.input_device_changed_signal.emit(index)
+        self.input_device_change_request_signal.emit(index)
 
     def _output_device_changed(self, index):
-        self.output_device_changed_signal.emit(index)
+        self.output_device_change_request_signal.emit(index)
 
     def _change_state_to_idle(self):
 

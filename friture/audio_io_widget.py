@@ -23,11 +23,11 @@ class AudioIOWidget(QtWidgets. QWidget):
             Emitted when this widget enters the playback from recording state.
         clear_data_signal :
             Emitted when this widget requests recorded data to be deleted.
-        input_device_changed_signal :
+        input_device_change_request_signal :
             Emitted when this widget requests the input device to be changed.
-        input_channel_type_changed_signal :
+        input_channel_type_change_request_signal :
             Emitted when this widget requests the input channel type (single or dual) to be changed.
-        output_device_changed_signal :
+        output_device_change_request_signal :
             Emitted when this widget request the output device to be changed.
 
         """
@@ -47,9 +47,9 @@ class AudioIOWidget(QtWidgets. QWidget):
     clear_data_signal = QtCore.pyqtSignal()
 
     # Device signals
-    input_device_changed_signal = QtCore.pyqtSignal(int)
-    input_channel_number_changed_signal = QtCore.pyqtSignal(int)
-    output_device_changed_signal = QtCore.pyqtSignal(int)
+    input_device_change_request_signal = QtCore.pyqtSignal(int)
+    input_channel_number_change_request_signal = QtCore.pyqtSignal(int)
+    output_device_change_request_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -62,7 +62,13 @@ class AudioIOWidget(QtWidgets. QWidget):
     def add_input_devices(self, input_devices, current_device_index):
         pass
 
+    def change_input_device(self, device_index):
+        pass
+
     def add_output_devices(self, output_device, current_device_index):
+        pass
+
+    def change_output_device(self, device_index):
         pass
 
     def disconnect_all_signals(self):
@@ -76,9 +82,9 @@ class AudioIOWidget(QtWidgets. QWidget):
         self.disconnect_signal(self.load_data_signal)
         self.disconnect_signal(self.clear_data_signal)
 
-        self.disconnect_signal(self.input_device_changed_signal)
-        self.disconnect_signal(self.output_device_changed_signal)
-        self.disconnect_signal(self.input_channel_number_changed_signal)
+        self.disconnect_signal(self.input_device_change_request_signal)
+        self.disconnect_signal(self.output_device_change_request_signal)
+        self.disconnect_signal(self.input_channel_number_change_request_signal)
 
     def canvas_update(self):
         pass

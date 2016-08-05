@@ -67,13 +67,14 @@ def pre_tree_rebin(x1, x2):
 
 
 def tree_rebin(y, ns, N):
+    N = int(N)
     y2 = zeros(N)
 
     n = 0
     for i in range(len(ns) - 1):
         y3 = y[ns[i]:ns[i + 1]]
-        d = 2 ** i
-        l = len(y3) / d
+        d = int(2 ** i)
+        l = int(len(y3) / d)
         y3.shape = (l, d)
 
         # Note: the FFT spectrum is mostly used to identify frequency content

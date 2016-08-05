@@ -20,41 +20,27 @@
 from PyQt5 import QtCore
 import numpy as np
 from friture.ringbuffer import RingBuffer
+from friture.linear_buffer import LinearBuffer
 
 FRAMES_PER_BUFFER = 1024
 
 
 class AudioBuffer(QtCore.QObject):
+
+    LISTEN, RECORD = 1, 2
     new_data_available = QtCore.pyqtSignal(np.ndarray)
 
     def __init__(self, logger):
         super().__init__()
+        self._logger = logger
+        self._live_buffer = RingBuffer(logger)
+        self._playback_buffer = LinearBuffer(1, 100*FRAMES_PER_BUFFER)
 
-        self.buffer = RingBuffer(logger)
-        self.newpoints = 0
-        self.lastDataTime = 0.
+    def handle_new_data(self, floatdata, data_action):
+        self._live_buffer.push(floatdata)
+        if data_action == self.RECORD:
+            self._playback_buffer.push(floatdata)
+            self._logger.push("recording")
 
-    def data(self, length):
-        return self.buffer.data(length)
-
-    def data_older(self, length, delay_samples):
-        return self.buffer.data_older(length, delay_samples)
-
-    def newdata(self):
-        return self.data(self.newpoints)
-
-    def set_newdata(self, newpoints):
-        self.newpoints = newpoints
-
-    def data_indexed(self, start, length):
-        return self.buffer.data_indexed(start, length)
-
-    def get_offset(self):
-        return self.buffer.offset
-
-    def handle_new_data(self, floatdata, input_time):
-        self.buffer.push(floatdata)
-        self.set_newdata(floatdata.shape[1])
         self.new_data_available.emit(floatdata)
-        self.lastDataTime = input_time
 

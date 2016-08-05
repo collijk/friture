@@ -48,6 +48,15 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
         self.comboBox_output_device.setCurrentIndex(current_device_index)
         self.comboBox_output_device.currentIndexChanged.connect(self._output_device_changed)
 
+    def change_output_device(self, device_index):
+        super().change_output_device(device_index)
+        current_device_index = self.comboBox_output_device.currentIndex()
+        if device_index == current_device_index:
+            pass  # Everything is peachy, device was changed successfully.
+        else:
+            self.comboBox_output_device.setCurrentIndex(device_index)
+            self._logger.push("Device change unsuccessful, reverting to previous output device.")
+
     def canvas_update(self):
         """Updates this widgets display"""
         super().canvas_update()

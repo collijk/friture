@@ -21,10 +21,7 @@ from PyQt5 import QtCore
 from pyaudio import PyAudio, paInt16, paInputOverflow
 from numpy import ndarray, int16, fromstring, vstack, iinfo, float64
 from friture.audio_device_manager import AudioDeviceManager
-from friture.audio_stream_manager import AudioStreamManager
-# the sample rate below should be dynamic, taken from PyAudio/PortAudio
-SAMPLING_RATE = 48000
-FRAMES_PER_BUFFER = 512
+from friture.audio_stream_manager import AudioStreamManager, SAMPLING_RATE, FRAMES_PER_BUFFER
 
 
 class AudioBackend(QtCore.QObject):
@@ -45,10 +42,10 @@ class AudioBackend(QtCore.QObject):
     IDLE, LISTENING, RECORDING, PLAYING = range(4)
 
     new_data_available_from_callback = QtCore.pyqtSignal(bytes, int, float, int)
-    new_data_available = QtCore.pyqtSignal(ndarray, float)
+    new_data_available = QtCore.pyqtSignal(ndarray, int)
 
-    input_device_changed_signal = QtCore.pyqtSignal(bool, int)
-    output_device_changed_signal = QtCore.pyqtSignal(bool, int)
+    input_device_changed_success_signal = QtCore.pyqtSignal(int)
+    output_device_changed_success_signal = QtCore.pyqtSignal(int)
 
     def __init__(self, logger):
         super().__init__()
@@ -130,8 +127,7 @@ class AudioBackend(QtCore.QObject):
         else:
             success = True
 
-        self.input_device_changed_signal.emit(success,
-                                              self._device_manager.get_current_input_device_index())
+        self.input_device_changed_success_signal.emit(self._device_manager.get_current_input_device_index())
 
     def set_output_device(self, index):
         """Attempts to set the audio output device.
@@ -156,8 +152,7 @@ class AudioBackend(QtCore.QObject):
         else:
             success = True
 
-        self.output_device_changed_signal.emit(success,
-                                               self._device_manager.get_current_output_device_index())
+        self.output_device_changed_success_signal.emit(self._device_manager.get_current_output_device_index())
 
     def set_num_input_channels(self, num_channels):
         """Sets the number of input channels
@@ -276,8 +271,6 @@ class AudioBackend(QtCore.QObject):
 
         channel = self._device_manager.get_first_input_channel()
         nchannels = len(self._device_manager.get_input_channels())
-        if self._device_manager.input_is_dual_channel():
-            channel_2 = self._device_manager.get_second_input_channel()
 
         if len(floatdata_all_channels) != frame_count*nchannels:
             print("Incoming data is not consistent with current channel settings.")
@@ -286,13 +279,14 @@ class AudioBackend(QtCore.QObject):
         floatdata1 = floatdata_all_channels[channel::nchannels]
 
         if self._device_manager.input_is_dual_channel():
+            channel_2 = self._device_manager.get_second_input_channel()
             floatdata2 = floatdata_all_channels[channel_2::nchannels]
             floatdata = vstack((floatdata1, floatdata2))
         else:
             floatdata = floatdata1
             floatdata.shape = (1, floatdata.size)
 
-        self.new_data_available.emit(floatdata, input_time)
+        self.new_data_available.emit(floatdata, self._state)
 
     def restart(self):
         self._stream_manager.restart()

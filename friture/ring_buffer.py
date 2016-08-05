@@ -5,9 +5,9 @@ class RingBuffer(object):
     """A statically sized circular buffer"""
 
     def __init__(self, num_channels, length):
-        self.num_channels = num_channels
-        self.length = length
-        self.data = numpy.zeros([num_channels, length])
+        self.num_channels = int(num_channels)
+        self.length = int(length)
+        self.data = numpy.zeros([self.num_channels, self.length])
         self.write_position = 0
         self.read_position = 0
         self.is_full = False
