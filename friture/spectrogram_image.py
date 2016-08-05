@@ -120,7 +120,7 @@ class CanvasScaledSpectrogram(QtCore.QObject):
     # NOTE: QImage with a colormap is slower (by a factor of 2) than the custom
     # colormap code here.
     @staticmethod
-    def prepare_image(self, byteString, width, height):
+    def prepare_image(byteString, width, height):
         myimage = QtGui.QImage(byteString, width, height, QtGui.QImage.Format_RGB32)
         return myimage
 

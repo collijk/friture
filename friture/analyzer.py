@@ -79,7 +79,6 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.slow_timer.setInterval(SLOW_TIMER_PERIOD_MS)  # constant timing
 
         self.about_dialog = About_Dialog(self, self.logger, self.audiobackend, self.slow_timer)
-        #self.settings_dialog = Settings_Dialog(self, self._logger, self.audiobackend)
 
         self.centralwidget.set_logger(logger)
         self.centralwidget.set_io_widgets(self._get_audio_io_widgets(), DEFAULT_CENTRAL_WIDGET)
@@ -87,7 +86,9 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.dockmanager = DockManager(self, self.logger)
 
         # timer ticks
+        # noinspection PyUnresolvedReferences
         self.display_timer.timeout.connect(self.centralwidget.canvasUpdate)
+        # noinspection PyUnresolvedReferences
         self.display_timer.timeout.connect(self.dockmanager.canvasUpdate)
 
         # toolbar clicks
@@ -95,10 +96,9 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.actionNew_dock.triggered.connect(self.dockmanager.new_dock)
 
         # restore the settings and widgets geometries
-        self.restoreAppState()
+        #self.restoreAppState()
 
         # start timers
-        self.timer_toggle()
         self.slow_timer.start()
 
         self.logger.push("Init finished, entering the main loop")
@@ -149,10 +149,6 @@ class Friture(QMainWindow, Ui_MainWindow):
         settings.setValue("windowState", windowState)
         settings.endGroup()
 
-        settings.beginGroup("AudioBackend")
-        #self.settings_dialog.saveState(settings)
-        settings.endGroup()
-
     # method
     def restoreAppState(self):
         settings = QtCore.QSettings("Friture", "Friture")
@@ -166,28 +162,27 @@ class Friture(QMainWindow, Ui_MainWindow):
         settings.endGroup()
 
         settings.beginGroup("MainWindow")
+        # PyCharm thinks there's an argument error here when there's not.
+        # noinspection PyArgumentList
         self.restoreGeometry(settings.value("windowGeometry", type=QtCore.QByteArray))
+        # noinspection PyArgumentList
         self.restoreState(settings.value("windowState", type=QtCore.QByteArray))
         settings.endGroup()
 
-        settings.beginGroup("AudioBackend")
-        #self.settings_dialog.restoreState(settings)
-        settings.endGroup()
-
     # slot
-    def timer_toggle(self):
+    def timer_on(self):
+        if not self.display_timer.isActive():
+            self.logger.push("Timer start")
+            self.display_timer.start()
+            self.centralwidget.restart()
+            self.dockmanager.restart()
+
+    def timer_off(self):
         if self.display_timer.isActive():
             self.logger.push("Timer stop")
             self.display_timer.stop()
-            self.audiobackend.pause()
             self.centralwidget.pause()
             self.dockmanager.pause()
-        else:
-            self.logger.push("Timer start")
-            self.display_timer.start()
-            self.audiobackend.restart()
-            self.centralwidget.restart()
-            self.dockmanager.restart()
 
     def _get_audio_io_widgets(self):
         widgets = []
@@ -202,17 +197,25 @@ class Friture(QMainWindow, Ui_MainWindow):
         return widgets
 
     def connect_io_widget(self, io_widget):
+        # Connect to the display timer
+        io_widget.idle_signal.connect(self.timer_off)
+        io_widget.playing_signal.connect(self.timer_on)
+        io_widget.listening_signal.connect(self.timer_on)
+
+        # Connect to the audiobackend state
         io_widget.idle_signal.connect(self.audiobackend.set_idle)
         io_widget.listening_signal.connect(self.audiobackend.set_listening)
         io_widget.recording_signal.connect(self.audiobackend.set_recording)
         io_widget.playing_signal.connect(self.audiobackend.set_playing)
 
+        # Connect to file handling
         io_widget.save_data_signal.connect(self.save_data)
         io_widget.load_data_signal.connect(self.load_data)
         io_widget.clear_data_signal.connect(self.audiobackend.clear_playback_buffer)
 
+        # Connect to device management
         io_widget.input_device_changed_signal.connect(self.audiobackend.set_input_device)
-        io_widget.input_channel_number_changed_signal.connect(self.audiobackend.set_input_channels)
+        io_widget.input_channel_number_changed_signal.connect(self.audiobackend.set_num_input_channels)
         io_widget.output_device_changed_signal.connect(self.audiobackend.set_output_device)
 
     def save_data(self):

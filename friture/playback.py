@@ -76,9 +76,9 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
 
     def _play_button_pressed(self):
         if self._state == PlaybackWidget.IDLE:
-            self.playing_signal.emit(self._state)
+            self.playing_signal.emit()
         elif self._state == PlaybackWidget.PLAYING:
-            self.idle_signal.emit(self._state)
+            self.idle_signal.emit()
 
     def _clear_button_pressed(self):
         self.clear_data_signal.emit()
@@ -86,7 +86,7 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
     def _output_device_changed(self, index):
         self.output_device_changed_signal.emit(index)
 
-    def _change_state_to_idle(self, previous_state):
+    def _change_state_to_idle(self):
 
         self.comboBox_output_device.setEnabled(True)
         self.button_playback_and_stop.setText("Play")
@@ -96,7 +96,7 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
 
         self._state = PlaybackWidget.IDLE
 
-    def _change_state_to_playing(self, previous_state):
+    def _change_state_to_playing(self):
         self.comboBox_output_device.setEnabled(False)
         self.button_clear.setEnabled(False)
         self.button_load.setEnabled(False)

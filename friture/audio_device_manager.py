@@ -159,6 +159,8 @@ class AudioDeviceManager(QtCore.QObject):
         default_device = self._get_default_device(device_type)
 
         for device in all_devices:
+            if "pulse" in str(device):  # For linux, pulse audio devices cause issues.
+                continue
             if device.type == device_type or device.type == AudioDevice.IO:
                 devices += [device]
                 # Now see if this device is also the system default for the i/o type

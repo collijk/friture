@@ -62,7 +62,7 @@ class AudioIOWidgetManager(QtWidgets.QWidget):
 
     # slot
     def widget_select(self, item):
-        self.audio_widget.idle_signal.emit(self.audio_widget.get_state())
+        self.audio_widget.idle_signal.emit()
         self.audio_widget.hide()
         self.layout.removeWidget(self.audio_widget)
         self.audio_widget.disconnect_all_signals()

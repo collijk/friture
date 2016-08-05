@@ -60,9 +60,10 @@ class Scope_Widget(QtWidgets.QWidget):
         # trigger on the first channel only
         trigger_data = data[0, :]
         # trigger on half of the waveform
-        trig_search_start = self.num_sample_points / 2
-        trig_search_stop = -self.num_sample_points / 2
-        trigger_data = trigger_data[trig_search_start: trig_search_stop]
+        half_sample = int(self.num_sample_points/2)
+        trig_search_start = half_sample
+        trig_search_stop = -half_sample
+        trigger_data = trigger_data[trig_search_start:trig_search_stop]
 
         trigger_level = data.max() * 2. / 3.
         trigger_pos = numpy.where((trigger_data[:-1] < trigger_level) * (trigger_data[1:] >= trigger_level))[0]
@@ -73,7 +74,7 @@ class Scope_Widget(QtWidgets.QWidget):
             return
 
         shift += trig_search_start
-        data = data[:, shift - self.num_sample_points / 2: shift + self.num_sample_points / 2]
+        data = data[:, shift - half_sample: shift + half_sample]
 
         y = data[0, :]
         if is_dual_channel:

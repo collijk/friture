@@ -91,8 +91,6 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         # initialize the settings dialog
         self.settings_dialog = Spectrogram_Settings_Dialog(self, self.logger)
 
-        self.mustRestart = False
-
     @staticmethod
     def log_spectrogram(sp):
         # Note: implementing the log10 of the array in Cython did not bring
@@ -113,10 +111,15 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         # if we have enough data to add a frequency column in the time-frequency plane, compute it
         needed = int(self.fft_size * (1. - self.overlap))
         realizable = int(floor(new_sample_points / needed))
-        data = append(self.smoothing_buffer.unwound_data(), self.data_buffer.pop(realizable * needed))
 
         if realizable > 0:
             spn = zeros((len(self.freq), realizable), dtype=float64)
+
+            data = append(self.smoothing_buffer.unwound_data(), self.data_buffer.pop(realizable * needed))
+
+            # append flattens 1d arrays, so reshape if necessary
+            if data.size == data.shape[0]:
+                data = data.reshape([1, data.size])
 
             for i in range(realizable):
                 floatdata = data[:, i * needed:i * needed + self.fft_size]
@@ -131,10 +134,6 @@ class Spectrogram_Widget(QtWidgets.QWidget):
             w = tile(self.w, (1, realizable))
             norm_spectrogram = self.scale_spectrogram(self.log_spectrogram(spn) + w)
             self.PlotZoneImage.addData(self.freq, norm_spectrogram)
-
-            if self.mustRestart:
-                self.PlotZoneImage.restart()
-                self.mustRestart = False
 
         # thickness of a frequency column depends on FFT size and window overlap
         # hamming window with 75% overlap provides good quality (Perfect reconstruction,
@@ -158,10 +157,7 @@ class Spectrogram_Widget(QtWidgets.QWidget):
         self.PlotZoneImage.plotImage.set_jitter(canvas_jitter)
 
     def pause(self):
-        self.PlotZoneImage.pause()
-
-    def restart(self):
-        self.mustRestart = True
+        pass
 
     def setminfreq(self, freq):
         self.minfreq = freq

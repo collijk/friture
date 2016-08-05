@@ -96,19 +96,19 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
         
     def _listen_button_pressed(self):
         if self._state == AudioIOWidget.IDLE:
-            self.listening_signal.emit(self._state)
+            self.listening_signal.emit()
         elif self._state == AudioIOWidget.LISTENING:
-            self.idle_signal.emit(self._state)
+            self.idle_signal.emit()
         elif self._state == AudioIOWidget.RECORDING:
-            self.idle_signal.emit(self._state)
+            self.idle_signal.emit()
         # else self._state == AudioIOWidget.PLAYING: listen button should be inactive
 
     def _record_button_pressed(self):
         # if self._state == AudioIOWidget.IDLE: record button should be inactive
         if self._state == AudioIOWidget.LISTENING:
-            self.recording_signal.emit(self._state)
+            self.recording_signal.emit()
         elif self._state == AudioIOWidget.RECORDING:
-            self.listening_signal.emit(self._state)
+            self.listening_signal.emit()
         # else: self._state == AudioIOWidget.PLAYING: record button should be inactive
 
     def _clear_button_pressed(self):
@@ -119,11 +119,11 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
     def _play_button_pressed(self):
         if self._data_available_for_playback:
             if self._state == AudioIOWidget.IDLE:
-                self.playing_signal.emit(self._state)
+                self.playing_signal.emit()
             # elif self._state == ListeningWidget.LISTENING: play button should be inactive
             # elif self._state == ListeningWidget.RECORDING: play button should be inactive
             elif self._state == AudioIOWidget.PLAYING:
-                self.idle_signal.emit(self._state)
+                self.idle_signal.emit()
         # else: play button should be inactive
 
     def _save_button_pressed(self):
@@ -135,7 +135,7 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
     def _output_device_changed(self, index):
         self.output_device_changed_signal.emit(index)
 
-    def _change_state_to_idle(self, previous_state):
+    def _change_state_to_idle(self):
 
         self.button_listen.setText("Listen")
         self.button_listen.setEnabled(True)
@@ -153,18 +153,18 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
             self.button_playback_and_stop.setText("Play")
             self.button_clear.setEnabled(True)
 
-        if previous_state == AudioIOWidget.IDLE:
+        if self._state == AudioIOWidget.IDLE:
             pass  # Shouldn't be able to get here.
-        elif previous_state == AudioIOWidget.LISTENING:
+        elif self._state == AudioIOWidget.LISTENING:
             pass  # Covered by defaults.
-        elif previous_state == AudioIOWidget.RECORDING:
+        elif self._state == AudioIOWidget.RECORDING:
             self.button_record_and_stop.setText("Record")
-        elif previous_state == AudioIOWidget.PLAYING:
+        elif self._state == AudioIOWidget.PLAYING:
             pass  # Covered by defaults.
 
         self._state = AudioIOWidget.IDLE
 
-    def _change_state_to_listening(self, previous_state):
+    def _change_state_to_listening(self):
 
         self.comboBox_input_device.setEnabled(False)
         self.radioButton_single_channel.setEnabled(False)
@@ -174,49 +174,49 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
         self.button_record_and_stop.setEnabled(True)
         self.button_listen.setText("Stop Listening")
 
-        if previous_state == AudioIOWidget.IDLE:
+        if self._state == AudioIOWidget.IDLE:
             pass  # Covered by default
-        elif previous_state == AudioIOWidget.LISTENING:
+        elif self._state == AudioIOWidget.LISTENING:
             pass  # Shouldn't be able to get here.
-        elif previous_state == AudioIOWidget.RECORDING:
+        elif self._state == AudioIOWidget.RECORDING:
             self.button_record_and_stop.setText("Record")
             self.button_save.setEnabled(True)
-        elif previous_state == AudioIOWidget.PLAYING:
+        elif self._state == AudioIOWidget.PLAYING:
             pass  # Shouldn't be able to get here.
 
         self._state = AudioIOWidget.LISTENING
 
-    def _change_state_to_recording(self, previous_state):
+    def _change_state_to_recording(self):
         self.button_record_and_stop.setText("Stop Recording")
         self.button_clear.setEnabled(True)
         self.button_save.setEnabled(False)
         self.button_playback_and_stop.setEnabled(False)
 
-        if previous_state == AudioIOWidget.IDLE:
+        if self._state == AudioIOWidget.IDLE:
             pass  # Shouldn't be able to get here.
-        elif previous_state == AudioIOWidget.LISTENING:
+        elif self._state == AudioIOWidget.LISTENING:
             pass  # Covered by defaults.
-        elif previous_state == AudioIOWidget.RECORDING:
+        elif self._state == AudioIOWidget.RECORDING:
             pass  # Shouldn't be able to get here.
-        elif previous_state == AudioIOWidget.PLAYING:
+        elif self._state == AudioIOWidget.PLAYING:
             pass  # Shouldn't be able to get here.
 
         self._data_available_for_playback = True
         self._state = AudioIOWidget.RECORDING
 
-    def _change_state_to_playing(self, previous_state):
+    def _change_state_to_playing(self):
         self.button_listen.setEnabled(False)
         self.button_clear.setEnabled(False)
         self.comboBox_output_device.setEnabled(False)
         self.button_playback_and_stop.setText("Stop Playback")
 
-        if previous_state == AudioIOWidget.IDLE:
+        if self._state == AudioIOWidget.IDLE:
             pass
-        elif previous_state == AudioIOWidget.LISTENING:
+        elif self._state == AudioIOWidget.LISTENING:
             pass  # Shouldn't be able to get here.
-        elif previous_state == AudioIOWidget.RECORDING:
+        elif self._state == AudioIOWidget.RECORDING:
             pass  # Shouldn't be able to get here.
-        elif previous_state == AudioIOWidget.PLAYING:
+        elif self._state == AudioIOWidget.PLAYING:
             pass  # Shouldn't be able to get here.
 
         self._state = AudioIOWidget.PLAYING

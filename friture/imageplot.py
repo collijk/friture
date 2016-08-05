@@ -217,12 +217,6 @@ class ImagePlot(QtWidgets.QWidget):
         self.needfullreplot = True
         self.draw()
 
-    def pause(self):
-        self.plotImage.pause()
-
-    def restart(self):
-        self.plotImage.restart()
-
     def setlinfreqscale(self):
         self.plotImage.erase()
         self.logfreqscale = 0

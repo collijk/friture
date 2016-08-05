@@ -16,7 +16,9 @@ class AudioStreamManager(QtCore.QObject):
         self._logger.push("Initializing audio stream manager")
 
         self.current_input_stream = None
+        self._input_open = False
         self.current_output_stream = None
+        self._output_open = False
 
     def open_input_stream(self, device, callback):
         if self.current_input_stream is not None:
@@ -29,6 +31,7 @@ class AudioStreamManager(QtCore.QObject):
                                                        stream_callback=callback,
                                                        frames_per_buffer=FRAMES_PER_BUFFER)
         self.current_input_stream.start_stream()
+        self._input_open = True
         lat_ms = 1000 * self.current_input_stream.get_input_latency()
         self._logger.push("Device claims %d ms latency" % lat_ms)
 
@@ -43,6 +46,7 @@ class AudioStreamManager(QtCore.QObject):
                                                         stream_callback=callback,
                                                         frames_per_buffer=FRAMES_PER_BUFFER)
         self.current_output_stream.start_stream()
+        self._output_open = True
         lat_ms = 1000 * self.current_output_stream.get_input_latency()
         self._logger.push("Device claims %d ms latency" % lat_ms)
 
@@ -68,8 +72,32 @@ class AudioStreamManager(QtCore.QObject):
 
         return success
 
+    def input_stream_is_open(self):
+        return self._input_open
+
+    def output_stream_is_open(self):
+        return self._output_open
+
+    def clear_input_stream(self):
+        if self._input_open:
+            self.current_input_stream.close()
+        self.current_input_stream = None
+        self._input_open = False
+
+    def clear_output_stream(self):
+        if self._output_open:
+            self.current_output_stream.close()
+        self.current_output_stream = None
+        self._input_open = False
+
     def pause_input_stream(self):
         self.current_input_stream.stop_stream()
+
+    def restart_input_stream(self):
+        self.current_input_stream.start_stream()
+
+    def restart_output_stream(self):
+        self.current_output_stream.start_stream()
 
     def pause_output_stream(self):
         self.current_output_stream.stop_stream()
@@ -81,9 +109,9 @@ class AudioStreamManager(QtCore.QObject):
             self.current_output_stream.start_stream()
 
     def close(self):
-        if self.current_input_stream:
+        if self._input_open:
             self.current_input_stream.close()
-        if self.current_output_stream:
+        if self._output_open:
             self.current_output_stream.close()
 
     def get_input_stream_time(self):

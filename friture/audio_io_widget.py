@@ -36,10 +36,10 @@ class AudioIOWidget(QtWidgets. QWidget):
     IDLE, LISTENING, RECORDING, PLAYING = range(4)
 
     # State signals
-    idle_signal = QtCore.pyqtSignal(int)
-    listening_signal = QtCore.pyqtSignal(int)
-    recording_signal = QtCore.pyqtSignal(int)
-    playing_signal = QtCore.pyqtSignal(int)
+    idle_signal = QtCore.pyqtSignal()
+    listening_signal = QtCore.pyqtSignal()
+    recording_signal = QtCore.pyqtSignal()
+    playing_signal = QtCore.pyqtSignal()
 
     # Data signals
     save_data_signal = QtCore.pyqtSignal()

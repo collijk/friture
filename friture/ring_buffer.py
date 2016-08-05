@@ -11,6 +11,7 @@ class RingBuffer(object):
         self.write_position = 0
         self.read_position = 0
         self.is_full = False
+        self.unread_data_points = 0
 
     def push(self, new_data):
 
@@ -20,6 +21,8 @@ class RingBuffer(object):
         new_data_read_position = 0
         end_write_position = self.write_position + new_data.shape[1]
         adjust_read_position = False
+
+        self.unread_data_points = min(self.length, self.unread_data_points + new_data.shape[1])
 
         if end_write_position < self.length - 1:
             if self.read_position > self.write_position:
@@ -49,8 +52,10 @@ class RingBuffer(object):
         out_write_position = 0
         end_read_position = self.read_position + data_length
 
+        self.unread_data_points = max(0, self.unread_data_points - data_length)
+
         while end_read_position > (self.length - 1):
-            elements_to_write = self.length - self.write_position
+            elements_to_write = self.length - self.read_position
             segment_end = out_write_position + elements_to_write
             data_out[:, out_write_position:segment_end] = self.data[:, self.read_position:]
             out_write_position += elements_to_write
@@ -66,16 +71,14 @@ class RingBuffer(object):
         return self.data
 
     def num_unread_data_points(self):
-        if self.write_position >= self.read_position:
-            return self.write_position - self.read_position
-        else:
-            return self.length - (self.read_position - self.write_position)
+        return self.unread_data_points
 
     def unwound_data(self):
         """Returns a linear array of the data, unwound and starting with the oldest data."""
 
         if self.is_full:
-            return numpy.append(self.data[:, self.write_position:], self.data[:, :self.write_position])
+            return numpy.append(self.data[:, self.write_position:],
+                                self.data[:, :self.write_position]).reshape(self.data.shape)
         else:  # We haven't filled a buffer yet so start at the beginning.
             return self.data
 
@@ -85,6 +88,7 @@ class RingBuffer(object):
         self.data = numpy.zeros([self.num_channels, self.length])
         self.write_position = 0
         self.read_position = 0
+        self.unread_data_points = 0
         self.is_full = False
 
 

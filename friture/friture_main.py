@@ -2,6 +2,7 @@ import sys
 import os
 import os.path
 import platform
+import subprocess
 
 from PyQt5.QtWidgets import QApplication, QSplashScreen
 from PyQt5.QtGui import QPixmap

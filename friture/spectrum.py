@@ -101,30 +101,35 @@ class Spectrum_Widget(QtWidgets.QWidget):
         epsilon = 1e-30
         return 10. * log10(sp + epsilon)
 
-    def handle_new_data(self, floatdata):
-        self.data_buffer.push(floatdata)
+    def handle_new_data(self, float_data):
+        self.data_buffer.push(float_data)
         new_sample_points = self.data_buffer.num_unread_data_points()
 
         # if we have enough data to add a frequency column in the time-frequency plane, compute it
         needed = int(self.fft_size * (1. - self.overlap))
         realizable = int(floor(new_sample_points / needed))
-        data = append(self.smoothing_buffer.unwound_data(), self.data_buffer.pop(realizable*needed))
 
         if realizable > 0:
+            data = append(self.smoothing_buffer.unwound_data(), self.data_buffer.pop(realizable * needed))
+
+            # append flattens 1d arrays, so reshape if necessary
+            if data.size == data.shape[0]:
+                data = data.reshape([1, data.size])
+
             sp1n = zeros((len(self.freq), realizable), dtype=float64)
             sp2n = zeros((len(self.freq), realizable), dtype=float64)
 
             for i in range(realizable):
-                floatdata = data[:, i*needed:i*needed + self.fft_size]
-                self.smoothing_buffer.push(floatdata[:, (self.fft_size - needed):])
+                float_data = data[:, i * needed:i * needed + self.fft_size]
+                self.smoothing_buffer.push(float_data[:, (self.fft_size - needed):])
 
                 # first channel
                 # FFT transform
-                sp1n[:, i] = self.proc.analyzelive(floatdata[0, :], self.spectrum_type)
+                sp1n[:, i] = self.proc.analyzelive(float_data[0, :], self.spectrum_type)
 
-                if self.dual_channels and floatdata.shape[0] > 1:
+                if self.dual_channels and float_data.shape[0] > 1:
                     # second channel for comparison
-                    sp2n[:, i] = self.proc.analyzelive(floatdata[1, :], self.spectrum_type)
+                    sp2n[:, i] = self.proc.analyzelive(float_data[1, :], self.spectrum_type)
 
             # compute the time_plot data
             sp1 = pyx_exp_smoothed_value_numpy(self.kernel, self.alpha, sp1n, self.dispbuffers1)
@@ -137,7 +142,7 @@ class Spectrum_Widget(QtWidgets.QWidget):
             sp2.shape = self.freq.shape
             self.w.shape = self.freq.shape
 
-            if self.dual_channels and floatdata.shape[0] > 1:
+            if self.dual_channels and float_data.shape[0] > 1:
                 if self.is_dB:
                     spectrogram = self.log_spectrogram(sp2) - self.log_spectrogram(sp1)
                 else:

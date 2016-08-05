@@ -25,7 +25,7 @@ FRAMES_PER_BUFFER = 1024
 
 
 class AudioBuffer(QtCore.QObject):
-    new_data_available = QtCore.pyqtSignal(np.ndarray, float)
+    new_data_available = QtCore.pyqtSignal(np.ndarray)
 
     def __init__(self, logger):
         super().__init__()
@@ -52,7 +52,7 @@ class AudioBuffer(QtCore.QObject):
     def get_offset(self):
         return self.buffer.offset
 
-    def handle_new_data(self, floatdata, input_time, status):
+    def handle_new_data(self, floatdata, input_time):
         self.buffer.push(floatdata)
         self.set_newdata(floatdata.shape[1])
         self.new_data_available.emit(floatdata)
