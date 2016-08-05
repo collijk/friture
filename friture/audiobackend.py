@@ -305,10 +305,14 @@ class AudioBackend(QtCore.QObject):
 
     def _initialize_devices(self):
         for device in self._device_manager.get_input_devices():
+            # FIXME:
+            # Occasionally throws a non-critical error  on linux due to bugs in portaudio/alsa.
+            # Nothing we can do about it for now.  Similar bugs occur in audacity.
+            # Causes a failure to open an input device.  Right now this is handled by reverting
+            # to the system default and allowing the user to try again. Needs further research.
             success = self._stream_manager.is_input_format_supported(device, paInt16)
             if not success:
                 pass
-                #self._device_manager.remove_input_device(device)
         if self._device_manager.num_input_devices():
             self._device_manager.set_current_input_device(self._device_manager.get_input_device(0))
         else:

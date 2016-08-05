@@ -2,10 +2,6 @@ from friture.audio_io_widget import AudioIOWidget
 from friture.logger import PrintLogger
 from friture.ui_playback_widget import PlaybackWidgetUI
 
-# FIXME:
-# The widget needs to be modified to receive feedback, ie a file is actually opened when the load button is
-# pressed.  Currently we just assume so.
-
 
 class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
     """Widget providing controls for loading audio files and playing them.

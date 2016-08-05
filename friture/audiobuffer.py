@@ -40,7 +40,6 @@ class AudioBuffer(QtCore.QObject):
         self._live_buffer.push(floatdata)
         if data_action == self.RECORD:
             self._playback_buffer.push(floatdata)
-            self._logger.push("recording")
 
         self.new_data_available.emit(floatdata)
 

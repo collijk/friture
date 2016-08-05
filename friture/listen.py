@@ -2,10 +2,6 @@ from friture.audio_io_widget import AudioIOWidget
 from friture.ui_listen_widget import ListenWidgetUI
 from friture.logger import PrintLogger
 
-# FIXME:
-# The widget needs to be modified to receive feedback, ie a switching audio devices works.  Currently
-# we just assume it does.
-
 
 class ListenWidget(AudioIOWidget, ListenWidgetUI):
     """Widget providing controls for listening to microphone input and recording/playing audio snippets.

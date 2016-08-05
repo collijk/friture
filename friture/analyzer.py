@@ -33,6 +33,7 @@ from friture.audiobackend import AudioBackend  # audio backend class
 from friture.defaults import DEFAULT_CENTRAL_WIDGET
 from friture.dockmanager import DockManager
 
+
 from friture.listen import ListenWidget
 from friture.playback import PlaybackWidget
 import wave
@@ -67,6 +68,7 @@ class Friture(QMainWindow, Ui_MainWindow):
 
         # Initialize the audio backend
         self.audiobackend = AudioBackend(self.logger)
+
 
         # signal containing new data from the audio callback thread, processed as numpy array
         self.audiobackend.new_data_available.connect(self.audiobuffer.handle_new_data)
@@ -221,6 +223,9 @@ class Friture(QMainWindow, Ui_MainWindow):
         io_widget.output_device_change_request_signal.connect(self.audiobackend.set_output_device)
         self.audiobackend.output_device_changed_success_signal.connect(io_widget.change_output_device)
 
+    def connect_display_widget(self, display_widget):
+        self.audiobuffer.new_data_available.connect(display_widget.handle_new_data)
+
     def save_data(self):
         # PyCharm thinks there are errors here, even though there aren't.
         # noinspection PyTypeChecker,PyCallByClass
@@ -234,5 +239,5 @@ class Friture(QMainWindow, Ui_MainWindow):
         file_name = QFileDialog.getOpenFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
 
         if file_name:
-            playback_file = wave.open(file_name[1], 'rb')
+            pass  # playback_file = wave.open(file_name[1], 'rb')
 

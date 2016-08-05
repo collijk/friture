@@ -17,7 +17,7 @@
 # You should have received a copy of the GNU General Public License
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtCore
 from friture.levels import Levels_Widget
 from friture.spectrum import Spectrum_Widget
 from friture.spectrogram import Spectrogram_Widget
@@ -30,6 +30,8 @@ from friture.controlbar import ControlBarWithSettings
 
 
 class Dock(QtWidgets.QDockWidget):
+
+    new_widget_selected_signal = QtCore.pyqtSignal(QtWidgets.QWidget)
 
     def __init__(self, parent, logger, name, widget_type=0):
         super().__init__(name, parent)
@@ -67,7 +69,6 @@ class Dock(QtWidgets.QDockWidget):
 
         self.type = item
 
-        # FIXME: audiowidgets shouldn't have direct access to the audiobuffer
         if item is 0:
             self.audiowidget = Levels_Widget(self, self.logger)
         elif item is 1:
@@ -85,7 +86,7 @@ class Dock(QtWidgets.QDockWidget):
         else:  # Default to the levels widget
             self.audiowidget = Levels_Widget(self, self.logger)
 
-        self.parent().audiobuffer.new_data_available.connect(self.audiowidget.handle_new_data)
+        self.new_widget_selected_signal.emit(self.audiowidget)
 
         self.layout.addWidget(self.audiowidget)
 

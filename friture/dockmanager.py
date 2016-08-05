@@ -46,6 +46,7 @@ class DockManager(QtCore.QObject):
         name = "Dock %d" % index
         new_dock = Dock(self.parent(), self.logger, name)
         self.parent().addDockWidget(QtCore.Qt.RightDockWidgetArea, new_dock)
+        new_dock.new_widget_selected_signal.connect(self.parent().connect_display_widget)
 
         self.docks += [new_dock]
 
@@ -67,14 +68,17 @@ class DockManager(QtCore.QObject):
             if docknames:
                 self.docks = [Dock(self.parent(), self.logger, name) for name in docknames]
             for dock in self.docks:
+                dock.new_widget_selected_signal.connect(self.parent().connect_display_widget)
                 settings.beginGroup(dock.objectName())
                 dock.restoreState(settings)
                 settings.endGroup()
+
         else:
             self.logger.push("First launch, display a default set of docks")
             self.docks = [Dock(self.parent(), self.logger, "Dock %d" % i, widget_type=widget_type)
                           for i, widget_type in enumerate(DEFAULT_DOCKS)]
             for dock in self.docks:
+                dock.new_widget_selected_signal.connect(self.parent().connect_display_widget)
                 self.parent().addDockWidget(QtCore.Qt.TopDockWidgetArea, dock)
 
     def canvasUpdate(self):
