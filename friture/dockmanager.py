@@ -36,9 +36,11 @@ class DockManager(QtCore.QObject):
 
     # slot
     def new_dock(self):
+
         # the dock objectName is unique
         docknames = [dock.objectName() for dock in self.docks]
         dockindexes = [int(str(name).partition(' ')[-1]) for name in docknames]
+
         if len(dockindexes) == 0:
             index = 1
         else:
@@ -47,6 +49,7 @@ class DockManager(QtCore.QObject):
         new_dock = Dock(self.parent(), self.logger, name)
         self.parent().addDockWidget(QtCore.Qt.RightDockWidgetArea, new_dock)
         new_dock.new_widget_selected_signal.connect(self.parent().connect_display_widget)
+        new_dock.widget_select(0)
 
         self.docks += [new_dock]
 

@@ -84,15 +84,17 @@ class Subsampler:
 
         return x_dec
 
+
 class LongLevelWidget(QtWidgets.QWidget):
+
+    name = "Long-time Sound Level Meter"
 
     def __init__(self, parent=None, logger=PrintLogger()):
         super().__init__(parent)
-        self.setObjectName("LongLevels_Widget")
+        self.setObjectName(self.name)
 
         self.logger = logger
 
-        self.setObjectName("Scope_Widget")
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
         self.PlotZoneUp = TimePlot(self, self.logger)

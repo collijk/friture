@@ -46,9 +46,11 @@ LEVEL_TEXT_LABEL_STEPS = LEVEL_TEXT_LABEL_PERIOD_MS / SMOOTH_DISPLAY_TIMER_PERIO
 
 class Levels_Widget(QtWidgets.QWidget):
 
+    name = "Sound Level Meter"
+
     def __init__(self, parent=None, logger=PrintLogger()):
         super().__init__(parent)
-        self.setObjectName("Levels_Widget")
+        self.setObjectName(self.name)
 
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")

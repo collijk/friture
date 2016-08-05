@@ -33,10 +33,10 @@ from friture.audiobackend import AudioBackend  # audio backend class
 from friture.defaults import DEFAULT_CENTRAL_WIDGET
 from friture.dockmanager import DockManager
 
-
+# Audio IO Widgets
 from friture.listen import ListenWidget
 from friture.playback import PlaybackWidget
-import wave
+
 
 # the display timer could be made faster when the processing
 # power allows it, firing down to every 10 ms

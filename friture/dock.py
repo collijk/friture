@@ -18,18 +18,21 @@
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtWidgets, QtCore
+
 from friture.levels import Levels_Widget
 from friture.spectrum import Spectrum_Widget
 from friture.spectrogram import Spectrogram_Widget
 from friture.octavespectrum import OctaveSpectrum_Widget
 from friture.scope import Scope_Widget
-from friture.generator import Generator_Widget
 from friture.delay_estimator import Delay_Estimator_Widget
 from friture.longlevels import LongLevelWidget
 from friture.controlbar import ControlBarWithSettings
 
 
 class Dock(QtWidgets.QDockWidget):
+
+    display_widgets = [Levels_Widget, Spectrum_Widget, Spectrogram_Widget, OctaveSpectrum_Widget,
+                       Scope_Widget, Delay_Estimator_Widget, LongLevelWidget]
 
     new_widget_selected_signal = QtCore.pyqtSignal(QtWidgets.QWidget)
 
@@ -43,54 +46,42 @@ class Dock(QtWidgets.QDockWidget):
         self.control_bar = ControlBarWithSettings(self)
 
         self.control_bar.combobox_select.activated.connect(self.widget_select)
+        widget_names = [widget.name for widget in self.display_widgets]
+        self.control_bar.add_widgets(widget_names, widget_type, "Select the display widget")
+
+        self.control_bar.settings_button.setToolTip("Customize the display widget")
         self.control_bar.settings_button.clicked.connect(self.settings_slot)
 
         self.dockwidget = QtWidgets.QWidget(self)
+
         self.layout = QtWidgets.QVBoxLayout(self.dockwidget)
         self.layout.addWidget(self.control_bar)
         self.layout.setContentsMargins(0, 0, 0, 0)
         self.dockwidget.setLayout(self.layout)
 
         self.setWidget(self.dockwidget)
-
         self.audiowidget = None
         self.type = widget_type
-        self.widget_select(self.type)
 
     # note that by default the closeEvent is accepted, no need to do it explicitely
     def closeEvent(self, event):
         self.parent().dockmanager.close_dock(self)
 
     # slot
-    def widget_select(self, item):
+    def widget_select(self, widget_index):
         if self.audiowidget is not None:
             self.audiowidget.close()
             self.audiowidget.deleteLater()
 
-        self.type = item
+        self.type = widget_index
 
-        if item is 0:
-            self.audiowidget = Levels_Widget(self, self.logger)
-        elif item is 1:
-            self.audiowidget = Scope_Widget(self, self.logger)
-        elif item is 2:
-            self.audiowidget = Spectrum_Widget(self, self.logger)
-        elif item is 3:
-            self.audiowidget = Spectrogram_Widget(self, self.logger)
-        elif item is 4:
-            self.audiowidget = OctaveSpectrum_Widget(self, self.logger)
-        elif item is 5:
-            self.audiowidget = Delay_Estimator_Widget(self, self.logger)
-        elif item is 6:
-            self.audiowidget = LongLevelWidget(self, self.logger)
-        else:  # Default to the levels widget
-            self.audiowidget = Levels_Widget(self, self.logger)
+        self.audiowidget = self.display_widgets[widget_index](self, self.logger)
 
         self.new_widget_selected_signal.emit(self.audiowidget)
 
         self.layout.addWidget(self.audiowidget)
 
-        self.control_bar.combobox_select.setCurrentIndex(item)
+        self.control_bar.combobox_select.setCurrentIndex(widget_index)
 
     def canvasUpdate(self):
         if self.audiowidget is not None:

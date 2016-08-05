@@ -41,12 +41,14 @@ from fractions import Fraction
 
 class Spectrogram_Widget(QtWidgets.QWidget):
 
+    name = "Spectrogram"
+
     def __init__(self, parent, logger=PrintLogger()):
         super().__init__(parent)
 
         self.logger = logger
 
-        self.setObjectName("Spectrogram_Widget")
+        self.setObjectName(self.name)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
         self.PlotZoneImage = ImagePlot(self, self.logger)

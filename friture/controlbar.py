@@ -19,45 +19,6 @@
 
 from PyQt5 import QtGui, QtWidgets
 
-
-class ControlBarWithSettings(QtWidgets.QWidget):
-
-    def __init__(self, parent):
-        super().__init__(parent)
-
-        self.setObjectName("controlBar")
-
-        self.layout = QtWidgets.QHBoxLayout(self)
-
-        self.combobox_select = QtWidgets.QComboBox(self)
-        self.combobox_select.addItem("Levels")
-        self.combobox_select.addItem("Scope")
-        self.combobox_select.addItem("FFT Spectrum")
-        self.combobox_select.addItem("2D Spectrogram")
-        self.combobox_select.addItem("Octave Spectrum")
-        self.combobox_select.addItem("Delay Estimator")
-        self.combobox_select.addItem("Long-time levels")
-        self.combobox_select.setCurrentIndex(0)
-        self.combobox_select.setToolTip("Select the type of audio time_plot")
-
-        self.settings_button = QtWidgets.QToolButton(self)
-        self.settings_button.setToolTip("Customize the audio time_plot")
-
-        settings_icon = QtGui.QIcon()
-        settings_icon.addPixmap(QtGui.QPixmap(":/images-src/dock-settings.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
-        self.settings_button.setIcon(settings_icon)
-
-        self.layout.addWidget(self.combobox_select)
-        self.layout.addWidget(self.settings_button)
-        self.layout.addStretch()
-
-        self.setLayout(self.layout)
-
-        self.setMaximumHeight(24)
-        self.layout.setContentsMargins(0, 0, 0, 0)
-        self.layout.setSpacing(0)
-
-
 class ControlBar(QtWidgets.QWidget):
 
     def __init__(self, parent):
@@ -83,3 +44,22 @@ class ControlBar(QtWidgets.QWidget):
         self.combobox_select.addItems(widget_names)
         self.combobox_select.setCurrentIndex(current_widget_index)
         self.combobox_select.setToolTip(tool_tip_message)
+
+
+
+class ControlBarWithSettings(ControlBar):
+
+    def __init__(self, parent):
+        super().__init__(parent)
+
+        self.settings_button = QtWidgets.QToolButton(self)
+
+        settings_icon = QtGui.QIcon()
+        settings_icon.addPixmap(QtGui.QPixmap(":/images-src/dock-settings.svg"), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+        self.settings_button.setIcon(settings_icon)
+
+        self.layout.addWidget(self.settings_button)
+
+
+
+

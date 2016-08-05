@@ -30,12 +30,14 @@ DEFAULT_TIMERANGE = 2 * SMOOTH_DISPLAY_TIMER_PERIOD_MS
 
 class Scope_Widget(QtWidgets.QWidget):
 
+    name = "Oscilloscope"
+
     def __init__(self, parent, logger=PrintLogger()):
         super().__init__(parent)
 
         self.logger = logger
 
-        self.setObjectName("Scope_Widget")
+        self.setObjectName(self.name)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
         self.PlotZoneUp = TimePlot(self, self.logger)

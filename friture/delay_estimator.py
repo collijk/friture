@@ -95,6 +95,8 @@ def generalized_cross_correlation(d0, d1):
 
 class Delay_Estimator_Widget(QtWidgets.QWidget):
 
+    name = "Delay Estimator"
+
     def __init__(self, parent=None, logger=PrintLogger()):
         super().__init__(parent)
 
@@ -105,7 +107,7 @@ class Delay_Estimator_Widget(QtWidgets.QWidget):
         self.previous_polarity_message = ""
         self.previous_channel_info_message = ""
 
-        self.setObjectName("Delay_Estimator_Widget")
+        self.setObjectName(self.name)
         self.layout = QtWidgets.QFormLayout(self)
         self.layout.setObjectName("layout")
 

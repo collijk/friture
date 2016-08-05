@@ -40,12 +40,14 @@ from friture.exp_smoothing_conv import pyx_exp_smoothed_value_numpy
 
 class Spectrum_Widget(QtWidgets.QWidget):
 
+    name = "Fourier Spectrum"
+
     def __init__(self, parent, logger=PrintLogger()):
         super().__init__(parent)
 
         self.logger = logger
 
-        self.setObjectName("Spectrum_Widget")
+        self.setObjectName(self.name)
         self.gridLayout = QtWidgets.QGridLayout(self)
         self.gridLayout.setObjectName("gridLayout")
         self.PlotZoneSpect = SpectrumPlotWidget(self, self.logger)
