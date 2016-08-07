@@ -67,11 +67,7 @@ class Friture(QMainWindow, Ui_MainWindow):
         self.audiobuffer = AudioBuffer(self.logger)
 
         # Initialize the audio backend
-        self.audiobackend = AudioBackend(self.logger)
-
-
-        # signal containing new data from the audio callback thread, processed as numpy array
-        self.audiobackend.new_data_available.connect(self.audiobuffer.handle_new_data)
+        self.audiobackend = AudioBackend(self.logger, self.audiobuffer)
 
         # this timer is used to update widgets that just need to display as fast as they can
         self.display_timer = QtCore.QTimer()
@@ -239,5 +235,5 @@ class Friture(QMainWindow, Ui_MainWindow):
         file_name = QFileDialog.getOpenFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
 
         if file_name:
-            pass  # playback_file = wave.open(file_name[1], 'rb')
+            self.audiobackend.set
 

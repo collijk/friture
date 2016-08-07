@@ -65,7 +65,7 @@ class AudioIOWidget(QtWidgets. QWidget):
     def change_input_device(self, device_index):
         pass
 
-    def add_output_devices(self, output_device, current_device_index):
+    def add_output_devices(self, output_devices, current_device_index):
         pass
 
     def change_output_device(self, device_index):

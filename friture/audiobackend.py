@@ -18,10 +18,11 @@
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
 from PyQt5 import QtCore
-from pyaudio import PyAudio, paInt16, paInputOverflow
-from numpy import ndarray, int16, fromstring, vstack, iinfo, float64
-from friture.audio_device_manager import AudioDeviceManager
-from friture.audio_stream_manager import AudioStreamManager, SAMPLING_RATE, FRAMES_PER_BUFFER
+import sounddevice as sound
+from numpy import ndarray, float32, float64, transpose
+
+SAMPLING_RATE = 48000
+FRAMES_PER_BUFFER = 256  # 512 Causes stream overflows for some reason.
 
 
 class AudioBackend(QtCore.QObject):
@@ -41,30 +42,24 @@ class AudioBackend(QtCore.QObject):
 
     IDLE, LISTENING, RECORDING, PLAYING = range(4)
 
-    new_data_available_from_callback = QtCore.pyqtSignal(bytes, int, float, int)
     new_data_available = QtCore.pyqtSignal(ndarray, int)
 
     input_device_changed_success_signal = QtCore.pyqtSignal(int)
     output_device_changed_success_signal = QtCore.pyqtSignal(int)
 
-    def __init__(self, logger):
+    def __init__(self, logger, audio_buffer):
         super().__init__()
 
-        self.input_format = paInt16
-
         self._logger = logger
+        self._audio_buffer = audio_buffer
         self._state = AudioBackend.IDLE
 
-        self._logger.push("Initializing PyAudio")
-        self._pyaudio = PyAudio()
-        self._pyaudio_terminated = False
+        self._input_devices = [device for device in sound.query_devices() if device['max_input_channels'] > 0]
+        self._output_devices = [device for device in sound.query_devices() if device['max_output_channels'] > 0]
+        self._input_stream = None
+        self._output_stream = None
 
-        self._device_manager = AudioDeviceManager(self._pyaudio, logger)
-        self._stream_manager = AudioStreamManager(self._pyaudio, logger)
-
-        self._initialize_devices()
-
-        self.new_data_available_from_callback.connect(self.handle_new_data)
+        self.new_data_available.connect(self._audio_buffer.handle_new_data)
 
     ###################################################################
     # Methods to get information about the state of the audio system. #
@@ -74,31 +69,23 @@ class AudioBackend(QtCore.QObject):
         return self._state
 
     def get_readable_input_devices(self):
-        return self._device_manager.get_readable_input_devices()
+        return [device["name"] for device in self._input_devices]
 
     def get_readable_output_devices(self):
-        return self._device_manager.get_readable_output_devices()
+        return [device["name"] for device in self._output_devices]
 
     def get_current_input_device_index(self):
-        return self._device_manager.get_current_input_device_index()
+        return self._input_devices.index(sound.query_devices(device=sound.default.device[0]))
 
     def get_current_output_device_index(self):
-        return self._device_manager.get_current_output_device_index()
+        return self._output_devices.index(sound.query_devices(device=sound.default.device[1]))
 
-    def get_input_stream_time(self):
-        return self._stream_manager.get_input_stream_time()
-
-    def get_output_stream_time(self):
-        return self._stream_manager.get_output_stream_time()
-
-    def get_readable_current_channels(self):
-        return self._device_manager.get_input_channels()
-
-    def get_first_input_channel(self):
-        return self._device_manager.get_first_input_channel()
-
-    def get_current_second_channel(self):
-        return self._device_manager.get_second_input_channel()
+    @staticmethod
+    def get_readable_current_channels():
+        if sound.query_devices(kind='input')['max_input_channels'] == 2:
+            return ['L', 'R']
+        else:
+            return list(range(sound.query_devices(kind='input')['max_input_channels']))
 
     ########################################################
     # Qt Slots allowing external control over device usage #
@@ -110,24 +97,22 @@ class AudioBackend(QtCore.QObject):
         Parameters
         ----------
         index : int
-            The application's index of the input device (as opposed to the pyaudio index)
+            The application's index of the input device
 
         Notes
         -----
-            Emits the `input_device_changed_signal` with the success status and the index
-            of the current audio input device.
+            Emits the `input_device_changed_signal` with the index of the current audio input device.
 
         """
-        if index != self._device_manager.get_current_input_device_index():
-            device = self._device_manager.get_input_device(index)
-            success = self._stream_manager.is_input_format_supported(device, self.input_format)
-            if success:
-                self._device_manager.set_current_input_device(device)
-                self._stream_manager.clear_input_stream()
-        else:
-            success = True
+        if index != self.get_current_input_device_index():
+            device = self._input_devices[index]
+            try:
+                sound.check_input_settings(device=device['name'])
+                sound.default.device[0] = device['name']
+            except ValueError:
+                self._logger.push("Input device not supported")
 
-        self.input_device_changed_success_signal.emit(self._device_manager.get_current_input_device_index())
+        self.input_device_changed_success_signal.emit(self.get_current_input_device_index())
 
     def set_output_device(self, index):
         """Attempts to set the audio output device.
@@ -135,24 +120,22 @@ class AudioBackend(QtCore.QObject):
         Parameters
         ----------
         index : int
-            The application's index of the output device (as opposed to the pyaudio index)
+            The application's index of the output device
 
         Notes
         -----
-            Emits the `output_device_changed_signal` with the success status and the index
-            of the current audio output device.
+            Emits the `output_device_changed_signal` with  the index of the current audio output device.
 
         """
-        if index != self._device_manager.get_current_output_device_index():
-            device = self._device_manager.get_output_device(index)
-            success = self._stream_manager.is_output_format_supported(device, paInt16)
-            if success:
-                self._device_manager.set_current_output_device(device)
-                self._stream_manager.clear_output_stream()
-        else:
-            success = True
+        if index != self.get_current_output_device_index():
+            device = self._output_devices[index]
+            try:
+                sound.check_output_settings(device=device['name'])
+                sound.default.device[1] = device['name']
+            except ValueError:
+                self._logger.push("Output device not supported")
 
-        self.output_device_changed_success_signal.emit(self._device_manager.get_current_output_device_index())
+        self.output_device_changed_success_signal.emit(self.get_current_output_device_index())
 
     def set_num_input_channels(self, num_channels):
         """Sets the number of input channels
@@ -164,9 +147,9 @@ class AudioBackend(QtCore.QObject):
 
         """
         if num_channels == 1:
-            self._device_manager.set_single_channel_input()
+            sound.default.channels[0] = 1
         elif num_channels == 2:
-            self._device_manager.set_dual_channel_input()
+            sound.default.channels[0] = 2
         else:
             self._logger.push("Invalid number of input channels selected, number of channels unchanged.")
 
@@ -180,7 +163,7 @@ class AudioBackend(QtCore.QObject):
         if self._state == AudioBackend.IDLE:
             pass  # Nothing to do here
         elif self._state == AudioBackend.LISTENING:
-            self._stream_manager.pause_input_stream()
+            self._input_stream.stop()
         elif self._state == AudioBackend.RECORDING:
             pass  # Pause the recording steam.
         elif self._state == AudioBackend.PLAYING:
@@ -191,11 +174,7 @@ class AudioBackend(QtCore.QObject):
     def set_listening(self):
         """Starts an input stream with the current recording device."""
         if self._state == AudioBackend.IDLE:
-            if self._stream_manager.input_stream_is_open():
-                self._stream_manager.restart_input_stream()
-            else:
-                device = self._device_manager.get_current_input_device()
-                self._stream_manager.open_input_stream(device, self.callback)
+            self._start_listening()
         elif self._state == AudioBackend.LISTENING:
             pass # Nothing to do here
         elif self._state == AudioBackend.RECORDING:
@@ -242,90 +221,27 @@ class AudioBackend(QtCore.QObject):
         elif self._state == AudioBackend.PLAYING:
             pass  # Shouldn't be able to get here.
 
-    def callback(self, in_data, frame_count, time_info, status):
-        # do the minimum from here to prevent overflows, just pass the data to the main thread
-        input_time = time_info['input_buffer_adc_time']
-
-        # some API drivers in PortAudio do not return a valid time, so fallback to the current stream time
-        if input_time == 0.:
-            input_time = time_info['current_time']
-        if input_time == 0.:
-            input_time = self.get_input_stream_time()
-
-        self.new_data_available_from_callback.emit(in_data, frame_count, input_time, status)
-
-        return None, 0
-
-    def handle_new_data(self, in_data, frame_count, input_time, status):
-        if self._pyaudio_terminated:
-            return
-
-        if status & paInputOverflow:
-            print("Stream overflow!")
-
-        intdata_all_channels = fromstring(in_data, int16)
-
-        int16info = iinfo(int16)
-        norm_coeff = max(abs(int16info.min), int16info.max)
-        floatdata_all_channels = intdata_all_channels.astype(float64) / float(norm_coeff)
-
-        channel = self._device_manager.get_first_input_channel()
-        nchannels = len(self._device_manager.get_input_channels())
-
-        if len(floatdata_all_channels) != frame_count*nchannels:
-            print("Incoming data is not consistent with current channel settings.")
-            return
-
-        floatdata1 = floatdata_all_channels[channel::nchannels]
-
-        if self._device_manager.input_is_dual_channel():
-            channel_2 = self._device_manager.get_second_input_channel()
-            floatdata2 = floatdata_all_channels[channel_2::nchannels]
-            floatdata = vstack((floatdata1, floatdata2))
-        else:
-            floatdata = floatdata1
-            floatdata.shape = (1, floatdata.size)
-
-        self.new_data_available.emit(floatdata, self._state)
+    def _input_callback(self, in_data, frames, time, status):
+        in_data = transpose(in_data).astype(float64)
+        self.new_data_available.emit(in_data, self._state)
 
     def restart(self):
-        self._stream_manager.restart()
+        pass
 
     def close(self):
-        self._stream_manager.close()
+        pass
 
-        if not self._pyaudio_terminated:
-            # call terminate on PortAudio
-            self._logger.push("Terminating PortAudio")
-            self._pyaudio.terminate()
-            self._logger.push("PortAudio pyaudio_terminated")
+    def _start_listening(self):
+        if self._input_stream is not None:
+            self._input_stream.close()
+            del self._input_stream
 
-            # avoid calling PortAudio methods in the callback/slots
-            self._pyaudio_terminated = True
+        self._input_stream = sound.InputStream(samplerate=SAMPLING_RATE,
+                                               blocksize=FRAMES_PER_BUFFER,
+                                               dtype=float32,
+                                               callback=self._input_callback)
+        self._input_stream.start()
 
-    def _initialize_devices(self):
-        for device in self._device_manager.get_input_devices():
-            # FIXME:
-            # Occasionally throws a non-critical error  on linux due to bugs in portaudio/alsa.
-            # Nothing we can do about it for now.  Similar bugs occur in audacity.
-            # Causes a failure to open an input device.  Right now this is handled by reverting
-            # to the system default and allowing the user to try again. Needs further research.
-            success = self._stream_manager.is_input_format_supported(device, paInt16)
-            if not success:
-                pass
-        if self._device_manager.num_input_devices():
-            self._device_manager.set_current_input_device(self._device_manager.get_input_device(0))
-        else:
-            self._logger.push("No valid input devices")
-
-        for device in self._device_manager.get_output_devices():
-            success = self._stream_manager.is_output_format_supported(device, paInt16)
-            if not success:
-                self._device_manager.remove_output_device(device)
-        if self._device_manager.num_output_devices():
-            self._device_manager.set_current_output_device(self._device_manager.get_output_device(0))
-        else:
-            self._logger.push("No valid output devices")
 
 
 
