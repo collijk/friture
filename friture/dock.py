@@ -74,26 +74,15 @@ class Dock(QtWidgets.QDockWidget):
             self.audiowidget.deleteLater()
 
         self.type = widget_index
-
         self.audiowidget = self.display_widgets[widget_index](self, self.logger)
+        self.layout.addWidget(self.audiowidget)
+        self.control_bar.combobox_select.setCurrentIndex(widget_index)
 
         self.new_widget_selected_signal.emit(self.audiowidget)
-
-        self.layout.addWidget(self.audiowidget)
-
-        self.control_bar.combobox_select.setCurrentIndex(widget_index)
 
     def canvasUpdate(self):
         if self.audiowidget is not None:
             self.audiowidget.canvasUpdate()
-
-    def pause(self):
-        if self.audiowidget is not None:
-            self.audiowidget.pause()
-
-    def restart(self):
-        if self.audiowidget is not None:
-            self.audiowidget.restart()
 
     # slot
     def settings_slot(self, checked):

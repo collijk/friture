@@ -19,10 +19,10 @@
 
 from PyQt5 import QtCore
 import numpy as np
-from friture.ringbuffer import RingBuffer
 from friture.linear_buffer import LinearBuffer
+from friture.audiobackend import FRAMES_PER_BUFFER
 
-FRAMES_PER_BUFFER = 1024
+
 
 
 class AudioBuffer(QtCore.QObject):
@@ -33,11 +33,26 @@ class AudioBuffer(QtCore.QObject):
     def __init__(self, logger):
         super().__init__()
         self._logger = logger
-        self._live_buffer = RingBuffer(logger)
         self._playback_buffer = LinearBuffer(1, 100*FRAMES_PER_BUFFER)
 
+    def set_playback_data(self, float_data):
+        self._playback_buffer.reset(float_data.shape[0], float_data.shape[1])
+        self._playback_buffer.push(float_data)
+
+    def get_playback_data(self):
+        return self._playback_buffer.all_data()
+
+    def clear_playback_data(self):
+        self._playback_buffer.reset(1, 100 * FRAMES_PER_BUFFER)
+
+    def pop_playback_data(self, data_length):
+        return self._playback_buffer.pop(data_length)
+
+    def reset_playback_position(self, position=0):
+        self._playback_buffer.reset_read_position(position)
+
     def handle_new_data(self, floatdata, data_action):
-        self._live_buffer.push(floatdata)
+        print(floatdata.shape)
         if data_action == self.RECORD:
             self._playback_buffer.push(floatdata)
 

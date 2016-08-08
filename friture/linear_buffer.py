@@ -7,7 +7,7 @@ class LinearBuffer(object):
     def __init__(self, num_channels, length):
         self.num_channels = num_channels
         self.length = length
-        self.data = numpy.zeros([num_channels, length])
+        self.data = numpy.zeros([num_channels, length], dtype=numpy.float32)
         self.write_position = 0
         self.read_position = 0
         self.unread_data_points = 0
@@ -24,7 +24,6 @@ class LinearBuffer(object):
         self.write_position += new_data.shape[1]
 
     def pop(self, data_length):
-
         self.unread_data_points = max(0, self.unread_data_points - data_length)
 
         # If they've requested to much data, give them everything we have.
@@ -32,12 +31,16 @@ class LinearBuffer(object):
             data_out = self.data[:, self.read_position:self.write_position]
             self.read_position = self.write_position
         else:
-            data_out = self.data[: self.read_position:self.read_position + data_length]
+            data_out = self.data[:, self.read_position:self.read_position + data_length]
             self.read_position += data_length
         return data_out
 
     def all_data(self):
         return self.data[:, :self.write_position]
+
+    def reset_read_position(self, position):
+        self.read_position = position
+        self.unread_data_points = self.write_position - self.read_position
 
     def num_unread_data_points(self):
         return self.unread_data_points
@@ -51,10 +54,10 @@ class LinearBuffer(object):
         self.unread_data_points = 0
 
     def _grow_if_needed(self, new_data_length):
-        while self.length < (self.read_position + new_data_length):
-            self.data = numpy.append(self.data, numpy.zeros([self.num_channels, self.length]))
-            if self.data.size == self.data.shape[0]:
-                self.data.reshape([1, 2*self.length])
+        while self.length <= (self.write_position + new_data_length):
+            self.data = numpy.append(self.data, numpy.zeros([self.num_channels, self.length])).reshape(
+                [self.num_channels, 2*self.length])
+
             self.length *= 2
 
 

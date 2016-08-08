@@ -18,6 +18,8 @@
 # along with Friture.  If not, see <http://www.gnu.org/licenses/>.
 
 import sys
+import soundfile
+import numpy
 
 from PyQt5 import QtCore
 # specifically import from PyQt5.QtGui and QWidgets for startup time improvement :
@@ -173,15 +175,11 @@ class Friture(QMainWindow, Ui_MainWindow):
         if not self.display_timer.isActive():
             self.logger.push("Timer start")
             self.display_timer.start()
-            self.centralwidget.restart()
-            self.dockmanager.restart()
 
     def timer_off(self):
         if self.display_timer.isActive():
             self.logger.push("Timer stop")
             self.display_timer.stop()
-            self.centralwidget.pause()
-            self.dockmanager.pause()
 
     def _get_audio_io_widgets(self):
         widgets = []
@@ -206,6 +204,8 @@ class Friture(QMainWindow, Ui_MainWindow):
         io_widget.listening_signal.connect(self.audiobackend.set_listening)
         io_widget.recording_signal.connect(self.audiobackend.set_recording)
         io_widget.playing_signal.connect(self.audiobackend.set_playing)
+
+        self.audiobackend.playback_finished_signal.connect(io_widget.playback_finished)
 
         # Connect to file handling
         io_widget.save_data_signal.connect(self.save_data)
@@ -235,5 +235,9 @@ class Friture(QMainWindow, Ui_MainWindow):
         file_name = QFileDialog.getOpenFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
 
         if file_name:
-            self.audiobackend.set
+            data, sample_rate = soundfile.read(file_name[0], dtype=numpy.float32, always_2d=True)
+            self.audiobackend.load_data(data, sample_rate)
+
+
+
 

@@ -71,6 +71,9 @@ class AudioIOWidget(QtWidgets. QWidget):
     def change_output_device(self, device_index):
         pass
 
+    def playback_finished(self):
+        pass
+
     def disconnect_all_signals(self):
         """Disconnects all external slots from this widget's signals"""
         self.disconnect_signal(self.idle_signal)

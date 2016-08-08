@@ -27,6 +27,9 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
         self._connect_ui()
         self._connect_internal_signals()
 
+    def playback_finished(self):
+        self._change_state_to_idle()
+
     def add_output_devices(self, output_devices, current_device_index):
         """Adds audio output devices to this widgets output device combo box.
 
@@ -89,7 +92,7 @@ class PlaybackWidget(AudioIOWidget, PlaybackWidgetUI):
         self.clear_data_signal.emit()
 
     def _output_device_changed(self, index):
-        self.output_device_changed_signal.emit(index)
+        self.output_device_change_request_signal.emit(index)
 
     def _change_state_to_idle(self):
 

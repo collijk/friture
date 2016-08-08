@@ -19,7 +19,7 @@
 
 from PyQt5 import QtCore
 import sounddevice as sound
-from numpy import ndarray, float32, float64, transpose
+import numpy
 
 SAMPLING_RATE = 48000
 FRAMES_PER_BUFFER = 256  # 512 Causes stream overflows for some reason.
@@ -42,10 +42,11 @@ class AudioBackend(QtCore.QObject):
 
     IDLE, LISTENING, RECORDING, PLAYING = range(4)
 
-    new_data_available = QtCore.pyqtSignal(ndarray, int)
+    new_data_available = QtCore.pyqtSignal(numpy.ndarray, int)
 
     input_device_changed_success_signal = QtCore.pyqtSignal(int)
     output_device_changed_success_signal = QtCore.pyqtSignal(int)
+    playback_finished_signal = QtCore.pyqtSignal()
 
     def __init__(self, logger, audio_buffer):
         super().__init__()
@@ -163,11 +164,15 @@ class AudioBackend(QtCore.QObject):
         if self._state == AudioBackend.IDLE:
             pass  # Nothing to do here
         elif self._state == AudioBackend.LISTENING:
-            self._input_stream.stop()
+            if self._input_stream is not None:
+                self._input_stream.stop()
         elif self._state == AudioBackend.RECORDING:
-            pass  # Pause the recording steam.
+            pass  # Audio buffer will automatically stop recording.
         elif self._state == AudioBackend.PLAYING:
-            pass  # Pause the output stream.
+            if self._output_stream is not None and not self._output_stream.stopped:
+                self._output_stream.stop()
+            self._audio_buffer.reset_playback_position()
+            self.playback_finished_signal.emit()
             
         self._state = AudioBackend.IDLE
 
@@ -176,35 +181,41 @@ class AudioBackend(QtCore.QObject):
         if self._state == AudioBackend.IDLE:
             self._start_listening()
         elif self._state == AudioBackend.LISTENING:
-            pass # Nothing to do here
+            pass  # Nothing to do here
         elif self._state == AudioBackend.RECORDING:
-            pass
+            pass  # Audio buffer will automatically stop recording.
         elif self._state == AudioBackend.PLAYING:
-            pass
+            if self._output_stream is not None:
+                self._output_stream.stop()
+            self._start_listening()
 
         self._state = AudioBackend.LISTENING
 
     def set_recording(self):
         """Starts writing from an input stream to a data buffer."""
         if self._state == AudioBackend.IDLE:
-            pass  # Open up a recording stream and buffer.
+            self._start_listening()  # Audio buffer will automatically start recording.
         elif self._state == AudioBackend.LISTENING:
-            pass  # Open up a recording stream and buffer.
+            pass  # Audio buffer will automatically start recording.
         elif self._state == AudioBackend.RECORDING:
             pass  # Nothing to do here.
         elif self._state == AudioBackend.PLAYING:
             pass  # Shouldn't ever get here.
+
         self._state = AudioBackend.RECORDING
 
     def set_playing(self):
         """Starts playback from a static audio data buffer."""
-        # Check we have data available.
         if self._state == AudioBackend.IDLE:
-            pass  # Open an output stream if not one already.  Start reading from the stream.
+            self._start_playing()
         elif self._state == AudioBackend.LISTENING:
-            pass  # Stop the input stream, Open the output steam if not one already.  Start reading from the stream.
+            if self._input_stream is not None:
+                self._input_stream.stop()
+            self._start_playing()
         elif self._state == AudioBackend.RECORDING:
-            pass  # Shouldn't be able to get here.
+            if self._input_stream is not None:
+                self._input_stream.stop()
+            self._start_playing()
         elif self._state == AudioBackend.PLAYING:
             pass  # Nothing to do here
 
@@ -212,35 +223,65 @@ class AudioBackend(QtCore.QObject):
 
     def clear_playback_buffer(self):
         """Clears any data in the playback buffer."""
-        if self._state == AudioBackend.IDLE:
-            pass  # Clear the data.
-        elif self._state == AudioBackend.LISTENING:
-            pass  # Clear the data.
-        elif self._state == AudioBackend.RECORDING:
-            pass  # Clear the data without interrupting the write/display
-        elif self._state == AudioBackend.PLAYING:
-            pass  # Shouldn't be able to get here.
+        self._audio_buffer.clear_playback_data()
 
-    def _input_callback(self, in_data, frames, time, status):
-        in_data = transpose(in_data).astype(float64)
+    def load_data(self, data, sample_rate):
+        data = numpy.transpose(data)
+
+        if sample_rate != SAMPLING_RATE:
+            data = self._resample_data(data, sample_rate)
+
+        self._audio_buffer.set_playback_data(data)
+
+    @staticmethod
+    def _resample_data(data, sample_rate):
+        sampling_ratio = sample_rate / float(SAMPLING_RATE)
+        time_original = numpy.linspace(0, data.shape[1], data.shape[1])
+        time_resampled = numpy.linspace(0, data.shape[1], sampling_ratio*data.shape[1])
+
+        resampled_data = numpy.empty([data.shape[0], time_resampled.size])
+        for channel in numpy.arange(data.shape[0]):
+            resampled_data[channel, :] = numpy.interp(time_resampled, time_original, data[channel, :])
+
+        return resampled_data
+
+    def _input_callback(self, in_data, *_):
+        in_data = numpy.transpose(in_data).astype(numpy.float64)
         self.new_data_available.emit(in_data, self._state)
 
-    def restart(self):
-        pass
+    def _output_callback(self, out_data, *_):
+        temp_data = self._audio_buffer.pop_playback_data(4*FRAMES_PER_BUFFER)
+        if temp_data.shape[1] != 4*FRAMES_PER_BUFFER:
+            self.set_idle()
+        out_data[:] = numpy.transpose(temp_data)
+        self.new_data_available.emit(temp_data.astype(numpy.float64), self._state)
 
     def close(self):
-        pass
+        if self._input_stream is not None:
+            self._input_stream.close()
+        if self._output_stream is not None:
+            self._output_stream.close()
 
     def _start_listening(self):
         if self._input_stream is not None:
             self._input_stream.close()
-            del self._input_stream
 
         self._input_stream = sound.InputStream(samplerate=SAMPLING_RATE,
                                                blocksize=FRAMES_PER_BUFFER,
-                                               dtype=float32,
+                                               dtype=numpy.float32,
                                                callback=self._input_callback)
         self._input_stream.start()
+
+    def _start_playing(self):
+        if self._output_stream is not None:
+            self._output_stream.close()
+
+        self._output_stream = sound.OutputStream(samplerate=SAMPLING_RATE,
+                                                 blocksize=4*FRAMES_PER_BUFFER,
+                                                 channels=2,
+                                                 dtype=numpy.float32,
+                                                 callback=self._output_callback)
+        self._output_stream.start()
 
 
 
