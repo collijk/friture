@@ -87,7 +87,6 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
                 self.comboBox_output_device.setCurrentIndex(device_index)
                 self._logger.push("Device change unsuccessful, reverting to previous output device.")
 
-
     def disconnect_all_signals(self):
         """Disconnects all external slots from this widget's signals"""
         super().disconnect_all_signals()
@@ -99,6 +98,9 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
         super().canvas_update()
 
         self.time_plot.canvas_update()
+
+    def playback_finished(self):
+        self._change_state_to_idle()
 
     def _connect_ui(self):
         self.button_listen.released.connect(self._listen_button_pressed)

@@ -250,7 +250,7 @@ class AudioBackend(QtCore.QObject):
         self.new_data_available.emit(in_data, self._state)
 
     def _output_callback(self, out_data, *_):
-        temp_data, unread_points = self._audio_buffer.pop_playback_data(4*FRAMES_PER_BUFFER)
+        temp_data, unread_points = self._audio_buffer.pop_playback_data(FRAMES_PER_BUFFER)
         out_data[:] = numpy.transpose(temp_data)
         self.new_data_available.emit(temp_data.astype(numpy.float64), self._state)
         if unread_points == 0:
@@ -271,6 +271,7 @@ class AudioBackend(QtCore.QObject):
 
         self._input_stream = sound.InputStream(samplerate=SAMPLING_RATE,
                                                blocksize=FRAMES_PER_BUFFER,
+                                               channels=2,
                                                dtype=numpy.float32,
                                                callback=self._input_callback)
         self._input_stream.start()
@@ -280,7 +281,7 @@ class AudioBackend(QtCore.QObject):
             self._output_stream.close()
 
         self._output_stream = sound.OutputStream(samplerate=SAMPLING_RATE,
-                                                 blocksize=4*FRAMES_PER_BUFFER,
+                                                 blocksize=FRAMES_PER_BUFFER,
                                                  channels=2,
                                                  dtype=numpy.float32,
                                                  callback=self._output_callback,

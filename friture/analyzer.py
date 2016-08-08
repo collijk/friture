@@ -30,8 +30,8 @@ from friture.exceptionhandler import errorBox, fileexcepthook
 from friture.ui_friture import Ui_MainWindow
 from friture.about import About_Dialog  # About dialog
 
-from friture.audiobuffer import AudioBuffer  # audio ring buffer class
-from friture.audiobackend import AudioBackend  # audio backend class
+from friture.audiobuffer import AudioBuffer
+from friture.audiobackend import AudioBackend, SAMPLING_RATE
 from friture.defaults import DEFAULT_CENTRAL_WIDGET
 from friture.dockmanager import DockManager
 
@@ -244,8 +244,11 @@ class Friture(QMainWindow, Ui_MainWindow):
         # PyCharm thinks there are errors here, even though there aren't.
         # noinspection PyTypeChecker,PyCallByClass
         file_name = QFileDialog.getSaveFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
+        data = numpy.transpose(self.audiobuffer.get_playback_data())
         if file_name:
-            self.logger.push(file_name)
+            file_name = file_name[0] + ".wav"
+            print(file_name)
+            soundfile.write(file_name, samplerate=SAMPLING_RATE, data=data)
 
     def load_data(self):
         # PyCharm thinks there are errors here, even though there aren't.

@@ -22,9 +22,6 @@ import numpy as np
 from friture.linear_buffer import LinearBuffer
 from friture.audiobackend import FRAMES_PER_BUFFER
 
-
-
-
 class AudioBuffer(QtCore.QObject):
 
     LISTEN, RECORD = 1, 2
