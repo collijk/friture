@@ -182,13 +182,30 @@ class Friture(QMainWindow, Ui_MainWindow):
             self.display_timer.stop()
 
     def _get_audio_io_widgets(self):
+        """Creates a single instance of all available i/o widgets, and give them access to i/o devices
+
+        Returns
+        -------
+        widgets : list of :class:`AudioIOWidget`
+            A list containing a single instance of every available I/O widget, wired for read-only access
+            to the current input and output devices.
+
+        """
+
         widgets = []
+
         for widget_class in self.io_widget_classes:
+            # Instantiate each widget.
             widget = widget_class(self, self.logger)
+            # Let each widget know about the available i/o devices.
             widget.add_input_devices(self.audiobackend.get_readable_input_devices(),
                                      self.audiobackend.get_current_input_device_index())
             widget.add_output_devices(self.audiobackend.get_readable_output_devices(),
                                       self.audiobackend.get_current_output_device_index())
+            # Keep the display of io devices synchronized
+            self.audiobackend.input_device_changed_success_signal.connect(widget.change_input_device)
+            self.audiobackend.output_device_changed_success_signal.connect(widget.change_output_device)
+
             widgets.append(widget)
 
         return widgets
@@ -196,6 +213,7 @@ class Friture(QMainWindow, Ui_MainWindow):
     def connect_io_widget(self, io_widget):
         # Connect to the display timer
         io_widget.idle_signal.connect(self.timer_off)
+        self.audiobackend.playback_finished_signal.connect(self.timer_off)
         io_widget.playing_signal.connect(self.timer_on)
         io_widget.listening_signal.connect(self.timer_on)
 

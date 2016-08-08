@@ -136,6 +136,8 @@ class AudioBackend(QtCore.QObject):
             except ValueError:
                 self._logger.push("Output device not supported")
 
+        print(self.get_current_output_device_index())
+
         self.output_device_changed_success_signal.emit(self.get_current_output_device_index())
 
     def set_num_input_channels(self, num_channels):
@@ -169,8 +171,6 @@ class AudioBackend(QtCore.QObject):
         elif self._state == AudioBackend.RECORDING:
             pass  # Audio buffer will automatically stop recording.
         elif self._state == AudioBackend.PLAYING:
-            if self._output_stream is not None and not self._output_stream.stopped:
-                self._output_stream.stop()
             self._audio_buffer.reset_playback_position()
             self.playback_finished_signal.emit()
             
@@ -250,11 +250,14 @@ class AudioBackend(QtCore.QObject):
         self.new_data_available.emit(in_data, self._state)
 
     def _output_callback(self, out_data, *_):
-        temp_data = self._audio_buffer.pop_playback_data(4*FRAMES_PER_BUFFER)
-        if temp_data.shape[1] != 4*FRAMES_PER_BUFFER:
-            self.set_idle()
+        temp_data, unread_points = self._audio_buffer.pop_playback_data(4*FRAMES_PER_BUFFER)
         out_data[:] = numpy.transpose(temp_data)
         self.new_data_available.emit(temp_data.astype(numpy.float64), self._state)
+        if unread_points == 0:
+            raise sound.CallbackStop
+
+    def _output_finished_callback(self, *_):
+        self.set_idle()
 
     def close(self):
         if self._input_stream is not None:
@@ -280,7 +283,8 @@ class AudioBackend(QtCore.QObject):
                                                  blocksize=4*FRAMES_PER_BUFFER,
                                                  channels=2,
                                                  dtype=numpy.float32,
-                                                 callback=self._output_callback)
+                                                 callback=self._output_callback,
+                                                 finished_callback=self._output_finished_callback)
         self._output_stream.start()
 
 

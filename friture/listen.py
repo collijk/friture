@@ -47,12 +47,15 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
 
     def change_input_device(self, device_index):
         super().change_input_device(device_index)
-        current_device_index = self.comboBox_input_device.currentIndex()
-        if device_index == current_device_index:
-            pass  # Everything is peachy, device was changed successfully.
-        else:
+        if self.isHidden():
             self.comboBox_input_device.setCurrentIndex(device_index)
-            self._logger.push("Device change unsuccessful, reverting to previous input device.")
+        else:
+            current_device_index = self.comboBox_input_device.currentIndex()
+            if device_index == current_device_index:
+                pass  # Everything is peachy, device was changed successfully.
+            else:
+                self.comboBox_input_device.setCurrentIndex(device_index)
+                self._logger.push("Device change unsuccessful, reverting to previous input device.")
 
     def add_output_devices(self, output_devices, current_device_index):
         """Adds audio output devices to this widgets output device combo box.
@@ -74,12 +77,15 @@ class ListenWidget(AudioIOWidget, ListenWidgetUI):
 
     def change_output_device(self, device_index):
         super().change_output_device(device_index)
-        current_device_index = self.comboBox_output_device.currentIndex()
-        if device_index == current_device_index:
-            pass  # Everything is peachy, device was changed successfully.
-        else:
+        if self.isHidden():
             self.comboBox_output_device.setCurrentIndex(device_index)
-            self._logger.push("Device change unsuccessful, reverting to previous output device.")
+        else:
+            current_device_index = self.comboBox_output_device.currentIndex()
+            if device_index == current_device_index:
+                pass  # Everything is peachy, device was changed successfully.
+            else:
+                self.comboBox_output_device.setCurrentIndex(device_index)
+                self._logger.push("Device change unsuccessful, reverting to previous output device.")
 
 
     def disconnect_all_signals(self):

@@ -24,16 +24,20 @@ class LinearBuffer(object):
         self.write_position += new_data.shape[1]
 
     def pop(self, data_length):
-        self.unread_data_points = max(0, self.unread_data_points - data_length)
 
-        # If they've requested to much data, give them everything we have.
-        if self.read_position + data_length > self.write_position:
-            data_out = self.data[:, self.read_position:self.write_position]
+        # If they've requested to much data, give them everything we have and zero fill the rest.
+        if data_length > self.unread_data_points:
+            zero_fill_length = data_length - self.unread_data_points
+            data_out = numpy.append(self.data[:, self.read_position:self.write_position],
+                                    numpy.zeros([self.num_channels, zero_fill_length])).reshape([self.num_channels,
+                                                                                                 data_length])
             self.read_position = self.write_position
         else:
             data_out = self.data[:, self.read_position:self.read_position + data_length]
             self.read_position += data_length
-        return data_out
+
+        self.unread_data_points = max(0, self.unread_data_points - data_length)
+        return data_out, self.unread_data_points
 
     def all_data(self):
         return self.data[:, :self.write_position]

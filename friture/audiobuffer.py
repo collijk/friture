@@ -52,7 +52,6 @@ class AudioBuffer(QtCore.QObject):
         self._playback_buffer.reset_read_position(position)
 
     def handle_new_data(self, floatdata, data_action):
-        print(floatdata.shape)
         if data_action == self.RECORD:
             self._playback_buffer.push(floatdata)
 
