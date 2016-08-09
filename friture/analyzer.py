@@ -245,7 +245,7 @@ class Friture(QMainWindow, Ui_MainWindow):
         # noinspection PyTypeChecker,PyCallByClass
         file_name = QFileDialog.getSaveFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
         data = numpy.transpose(self.audiobuffer.get_playback_data())
-        if file_name:
+        if file_name[0]:
             file_name = file_name[0] + ".wav"
             print(file_name)
             soundfile.write(file_name, samplerate=SAMPLING_RATE, data=data)
@@ -255,7 +255,7 @@ class Friture(QMainWindow, Ui_MainWindow):
         # noinspection PyTypeChecker,PyCallByClass
         file_name = QFileDialog.getOpenFileName(self, "Save Audio File", "./audio_data", "Wave Files (*.wav)")
 
-        if file_name:
+        if file_name[0]:
             data, sample_rate = soundfile.read(file_name[0], dtype=numpy.float32, always_2d=True)
             self.audiobackend.load_data(data, sample_rate)
 
