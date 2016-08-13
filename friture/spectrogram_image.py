@@ -55,7 +55,7 @@ class CanvasScaledSpectrogram(QtCore.QObject):
         oldWidth = self.pixmap.width() / 2
         if width != oldWidth:
             self.offset = (self.offset % oldWidth) * width / oldWidth
-            self.offset = self.offset % width  # to handle negative values
+            self.offset %= width  # to handle negative values
         self.pixmap = self.pixmap.scaled(2 * width, height, QtCore.Qt.IgnoreAspectRatio, QtCore.Qt.SmoothTransformation)
 
     def setcanvas_height(self, canvas_height):

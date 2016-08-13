@@ -171,8 +171,7 @@ class AudioBackend(QtCore.QObject):
         elif self._state == AudioBackend.RECORDING:
             pass  # Audio buffer will automatically stop recording.
         elif self._state == AudioBackend.PLAYING:
-            self._audio_buffer.reset_playback_position()
-            self.playback_finished_signal.emit()
+            pass  # Play will stop automatically as the state switches to idle.
             
         self._state = AudioBackend.IDLE
 
@@ -185,8 +184,7 @@ class AudioBackend(QtCore.QObject):
         elif self._state == AudioBackend.RECORDING:
             pass  # Audio buffer will automatically stop recording.
         elif self._state == AudioBackend.PLAYING:
-            if self._output_stream is not None:
-                self._output_stream.stop()
+            # Play will stop automatically as the state switches to idle.
             self._start_listening()
 
         self._state = AudioBackend.LISTENING
@@ -253,11 +251,13 @@ class AudioBackend(QtCore.QObject):
         temp_data, unread_points = self._audio_buffer.pop_playback_data(FRAMES_PER_BUFFER)
         out_data[:] = numpy.transpose(temp_data)
         self.new_data_available.emit(temp_data.astype(numpy.float64), self._state)
-        if unread_points == 0:
+        if unread_points == 0 or self._state != AudioBackend.PLAYING:
             raise sound.CallbackStop
 
     def _output_finished_callback(self, *_):
         self.set_idle()
+        self._audio_buffer.reset_playback_position()
+        self.playback_finished_signal.emit()
 
     def close(self):
         if self._input_stream is not None:
